@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Section from '../components/Section.astro';
 import Placeholder from '../components/Placeholder.astro';
+import Timeline from '../components/Timeline.astro';
 import Carousel from '../components/Carousel.astro';
 import MediaSlide from '../components/MediaSlide.astro';
 import GalleryCard from '../components/GalleryCard.astro';
@@ -38,8 +39,16 @@ import { highlights, beyond } from '../data/media';
     </div>
   </Section>
 
-  <Section id="journey" comingIn="step 2 (timeline + retro adventure game)">
-    <Placeholder label="A plain timeline (WashU → Arup → Kellogg/McCormick) plus an explorable retro adventure where each area is a career stage." />
+  <Section id="journey">
+    <a href="/quest" class="group mb-14 flex flex-col gap-5 rounded-2xl border border-line bg-panel p-6 transition hover:border-accent/60 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <div>
+        <p class="text-xs tracking-widest text-accent uppercase">Play instead of read</p>
+        <p class="mt-2 font-serif text-2xl sm:text-3xl">Career quest</p>
+        <p class="mt-2 max-w-xl text-muted">A small retro adventure: walk from campus to the city to the lake, and each marker you find unlocks the next stage of my career.</p>
+      </div>
+      <span class="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink transition group-hover:brightness-110">Start the quest →</span>
+    </a>
+    <Timeline />
   </Section>
 
   <Section id="projects" comingIn="steps 3 and 4 (GitHub sync, demos, videos)">

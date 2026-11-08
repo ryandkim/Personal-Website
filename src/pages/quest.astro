@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import Quest from '../components/Quest.astro';
+---
+<Base title="Career quest · Ryan Kim" description="Explore Ryan Kim's career as a small retro adventure.">
+  <section class="mx-auto max-w-5xl px-5 pt-24 pb-16 sm:px-8">
+    <p class="mb-3 text-sm tracking-[0.2em] text-accent uppercase">Journey</p>
+    <h1 class="font-serif text-4xl tracking-tight sm:text-5xl">Career quest</h1>
+    <p class="mt-3 max-w-2xl text-muted">
+      Walk from campus to the city to the lake. Each glowing marker is the next stage of my career,
+      and finishing an area opens the way to the next. Prefer to read? The{' '}
+      <a href="/#journey" class="text-accent hover:underline">plain timeline</a> has everything in one place.
+    </p>
+    <div class="mt-8"><Quest /></div>
+  </section>
+</Base>
