@@ -84,3 +84,25 @@ export function sfx(kind: 'discover' | 'gate' | 'blip' | 'bump') {
   if (kind === 'blip') tone(mtof(84), t, 0.05, 'square', 0.03);
   if (kind === 'bump') tone(mtof(40), t, 0.06, 'triangle', 0.08);
 }
+
+// "Voice" for dialogue text: a short 8-bit chirp per letter whose pitch depends on
+// the letter, so the text sounds like it is being spoken in a babbling, made-up language.
+export function voice(ch: string) {
+  if (!musicOn || !/[a-z0-9]/i.test(ch)) return;
+  const a = ctx();
+  const t = a.currentTime;
+  const steps = [0, 2, 4, 7, 9, 12, 14]; // pentatonic, so it always sounds pleasant
+  const semis = steps[ch.toLowerCase().charCodeAt(0) % steps.length] + (Math.random() < 0.3 ? 1 : 0);
+  const f = 392 * Math.pow(2, semis / 12);
+  const o = a.createOscillator();
+  const g = a.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(f * 1.06, t);
+  o.frequency.exponentialRampToValueAtTime(f * 0.94, t + 0.05);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.045, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
+  o.connect(g).connect(master!);
+  o.start(t);
+  o.stop(t + 0.07);
+}

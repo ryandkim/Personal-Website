@@ -4,7 +4,7 @@ import { stages, regions } from '../data/career';
 import { rows, COLS, ROWS, TILE, findMarkers, findStart, regionAt, MARKER_CHARS } from './map';
 import { drawTile, drawMarker } from './tiles';
 import { drawPlayer, type Dir } from './sprites';
-import { setMusic, isMusicOn, sfx } from './audio';
+import { setMusic, isMusicOn, sfx, voice } from './audio';
 
 const VIEW_W = 320;
 const VIEW_H = 180;
@@ -106,6 +106,7 @@ export function startQuest(root: HTMLElement) {
 
   // ----- dialog -----
   let typing = 0;
+  let finishTyping = () => {};
   function openStage(i: number, fresh: boolean) {
     const s = stages[i];
     paused = true;
@@ -127,13 +128,18 @@ export function startQuest(root: HTMLElement) {
     const say = els.dialog.querySelector('[data-say]') as HTMLElement;
     const text = s.discovery;
     let n = 0;
+    let wait = 0;
     clearInterval(typing);
+    finishTyping = () => { clearInterval(typing); typing = 0; say.textContent = text; };
     typing = window.setInterval(() => {
-      n += 2;
+      if (wait > 0) { wait--; return; }
+      const ch = text[n];
+      n++;
       say.textContent = text.slice(0, n);
-      if (n % 6 === 0) sfx('blip');
-      if (n >= text.length) clearInterval(typing);
-    }, 30);
+      if (n % 2 === 1) voice(ch); // chirp on every other letter, like speech
+      if ('.,:;!?\u2014'.includes(ch)) wait = ch === ',' ? 3 : 6; // pause at punctuation
+      if (n >= text.length) { clearInterval(typing); typing = 0; }
+    }, 32);
     (els.dialog.querySelector('[data-close]') as HTMLElement).focus({ preventScroll: true });
   }
   function closeDialog() {
@@ -145,7 +151,11 @@ export function startQuest(root: HTMLElement) {
   }
 
   function interact() {
-    if (els.dialog.classList.contains('is-on')) { closeDialog(); return; }
+    if (els.dialog.classList.contains('is-on')) {
+      if (typing) finishTyping(); // first press shows the whole line, second press closes
+      else closeDialog();
+      return;
+    }
     const i = nearbyMarker();
     if (i < 0) return;
     if (i < found) { openStage(i, false); return; }
