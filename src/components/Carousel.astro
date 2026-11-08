@@ -52,6 +52,12 @@ const { label, captions = false, count } = Astro.props;
     const update = () => {
       const i = current();
       dots.forEach((d, j) => d.toggleAttribute('data-active', j === i));
+      // Pause videos that have been swiped away.
+      const tr = track.getBoundingClientRect();
+      slides.forEach((s) => {
+        const r = s.getBoundingClientRect();
+        if (r.right <= tr.left + 1 || r.left >= tr.right - 1) s.querySelectorAll('video').forEach((v) => v.pause());
+      });
       prev.disabled = track.scrollLeft <= 2;
       next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
     };

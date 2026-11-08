@@ -1,36 +1,46 @@
 ---
+// One photo / video / embed.
+//   mode="full"    (default) videos have controls and play with sound; embeds are live.
+//   mode="preview" a still cover for the small cards: no caption, no controls, no embeds loaded.
 import type { MediaItem } from '../data/media';
-interface Props { item: MediaItem; aspect?: string }
-const { item, aspect = 'aspect-[4/5]' } = Astro.props;
+interface Props { item: MediaItem; aspect?: string; mode?: 'full' | 'preview' }
+const { item, aspect = 'aspect-[4/5]', mode = 'full' } = Astro.props;
+const preview = mode === 'preview';
 const empty =
   (item.type === 'image' || item.type === 'video') ? !item.src :
   item.type === 'youtube' ? !item.id : !item.embed;
 const kindLabel = { image: 'Photo', video: 'Video', youtube: 'YouTube', linkedin: 'LinkedIn post' }[item.type];
-const interactive = !empty && (item.type === 'youtube' || item.type === 'linkedin');
+const interactive = !preview && !empty && (item.type === 'youtube' || item.type === 'linkedin');
 ---
 <figure class:list={['relative overflow-hidden rounded-2xl border border-line bg-panel', aspect]}>
-  {empty ? (
+  {empty || (preview && item.type === 'linkedin') ? (
     <div class="flex h-full w-full flex-col items-center justify-center gap-2 bg-[radial-gradient(circle_at_30%_20%,color-mix(in_oklab,var(--color-accent)_14%,transparent),transparent_60%)] p-6 text-center">
       <span class="text-xs tracking-widest text-accent/80 uppercase">{kindLabel}</span>
-      <span class="text-sm text-muted">Add one in src/data/media.ts</span>
+      {!preview && <span class="text-sm text-muted">Add one in src/data/media.ts</span>}
     </div>
   ) : item.type === 'image' ? (
     <img src={item.src} alt={item.alt ?? item.caption} loading="lazy" class="h-full w-full object-cover" />
   ) : item.type === 'video' ? (
-    <video src={item.src} poster={item.poster} muted loop playsinline autoplay preload="metadata" class="h-full w-full object-cover"></video>
+    preview
+      ? <video src={item.src} poster={item.poster} muted playsinline preload="metadata" class="h-full w-full object-cover"></video>
+      : <video src={item.src} poster={item.poster} controls playsinline preload="metadata" class="h-full w-full bg-black object-contain"></video>
   ) : item.type === 'youtube' ? (
-    <iframe src={`https://www.youtube-nocookie.com/embed/${item.id}`} title={item.caption} loading="lazy" allowfullscreen
-      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" class="h-full w-full"></iframe>
+    preview
+      ? <img src={`https://img.youtube.com/vi/${item.id}/hqdefault.jpg`} alt={item.caption} loading="lazy" class="h-full w-full object-cover" />
+      : <iframe src={`https://www.youtube-nocookie.com/embed/${item.id}`} title={item.caption} loading="lazy" allowfullscreen
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="h-full w-full"></iframe>
   ) : (
     <iframe src={item.embed} title={item.caption} loading="lazy" class="h-full w-full bg-white"></iframe>
   )}
-  <figcaption data-caption
-    class:list={['pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-4 pt-10 pb-4 transition-opacity duration-300',
-      interactive && 'hidden']}>
-    {item.date && <span class="block text-[11px] tracking-widest text-accent uppercase">{item.date}</span>}
-    {item.link
-      ? <a href={item.link} target="_blank" rel="noopener" class="pointer-events-auto text-sm leading-snug text-white hover:underline">{item.caption}</a>
-      : <span class="text-sm leading-snug text-white">{item.caption}</span>}
-  </figcaption>
+  {!preview && !interactive && (
+    <figcaption data-caption
+      class:list={['pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-4 pt-10 pb-4 transition-opacity duration-300',
+        item.type === 'video' && !empty && 'pb-14']}>
+      {item.date && <span class="block text-[11px] tracking-widest text-accent uppercase">{item.date}</span>}
+      {item.link
+        ? <a href={item.link} target="_blank" rel="noopener" class="pointer-events-auto text-sm leading-snug text-white hover:underline">{item.caption}</a>
+        : <span class="text-sm leading-snug text-white">{item.caption}</span>}
+    </figcaption>
+  )}
 </figure>
 {interactive && <p class="mt-2 px-1 text-sm text-muted">{item.caption}</p>}
