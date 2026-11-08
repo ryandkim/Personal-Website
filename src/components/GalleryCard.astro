@@ -20,9 +20,9 @@ const cover = items[0];
         Open gallery
       </span>
     </div>
-    <h3 class="mt-4 font-serif text-2xl transition group-hover:text-accent">{title}</h3>
-    <p class="mt-1 text-sm text-muted">{blurb}</p>
   </button>
+  <h3 class="mt-4 font-serif text-2xl" data-edit={`beyond.${id}.title`}>{title}</h3>
+  <p class="mt-1 text-sm text-muted" data-edit={`beyond.${id}.blurb`}>{blurb}</p>
 
   <dialog id={`gallery-${id}`} aria-label={`${title} gallery`}
     class="m-auto w-[min(92vw,640px)] overflow-visible bg-transparent p-0 text-text backdrop:bg-black/80 backdrop:backdrop-blur-sm">

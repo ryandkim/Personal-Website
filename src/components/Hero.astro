@@ -1,16 +1,12 @@
 ---
-import { site } from '../data/site';
+import { site, content } from '../data/site';
 ---
 <section id="top" class="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-32 pb-20 sm:px-8 md:grid-cols-[1.2fr_1fr] md:pt-40 md:pb-28">
   <div class="reveal order-2 md:order-1">
-    <p class="mb-4 text-sm tracking-[0.2em] text-accent uppercase">Hello, I'm</p>
+    <p class="mb-4 text-sm tracking-[0.2em] text-accent uppercase" data-edit="hero.greeting">{content.hero.greeting}</p>
     <h1 class="font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">{site.name}</h1>
-    <p class:list={['mt-6 max-w-xl text-xl', site.headline ? 'text-text' : 'text-muted italic']}>
-      {site.headline || 'Headline goes here. Edit it in src/data/site.ts.'}
-    </p>
-    <p class:list={['mt-4 max-w-xl leading-relaxed', site.bio ? 'text-muted' : 'text-muted/70 italic']}>
-      {site.bio || 'A short bio goes here: two or three sentences about who you are and what you build.'}
-    </p>
+    <p class="mt-6 max-w-xl text-xl" data-edit="hero.headline" data-placeholder="Headline goes here. Sign in and click Edit to write it.">{content.hero.headline}</p>
+    <p class="mt-4 max-w-xl leading-relaxed text-muted" data-edit="hero.bio" data-placeholder="A short bio goes here: two or three sentences about who you are and what you build.">{content.hero.bio}</p>
     <div class="mt-9 flex flex-wrap gap-3">
       <a href="#projects" class="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink transition hover:brightness-110">See my projects</a>
       <a href="#journey" class="rounded-full border border-line px-5 py-2.5 text-sm transition hover:border-text">My journey</a>

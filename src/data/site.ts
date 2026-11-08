@@ -1,23 +1,18 @@
-// Edit your site copy here. Everything on the home page reads from this file.
+// Fixed site settings. Page text lives in src/content/site.json, which you can
+// edit by hand or with the owner-only Edit button on the page.
+import content from '../content/site.json';
+export { content };
+
 export const site = {
   name: 'Ryan Kim',
   // Short name shown top-left in the nav, followed by an accent-colored period.
   brand: 'ryan',
-  // Leave blank for now; a placeholder shows until you fill these in.
-  headline: '',
-  bio: '',
   location: 'Evanston, IL',
   email: 'ryan.kim3@kellogg.northwestern.edu',
   links: {
     github: 'https://github.com/ryandkim',
     linkedin: '', // add your LinkedIn URL
   },
-  now: [
-    'MBA + MS in Artificial Intelligence candidate at Kellogg and McCormick, Northwestern (2026 to 2028)',
-    'Building AI agents: a semiconductor news tracker, a wardrobe stylist, a recruiting dashboard, and Mixr',
-    'Director in the Kellogg AI Club (special projects, AI conference outreach)',
-  ],
-  lookingFor: 'Product management roles in AI. Placeholder: edit this line in src/data/site.ts.',
 };
 
 export const nav = [

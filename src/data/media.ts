@@ -23,30 +23,31 @@ export const highlights: MediaItem[] = [
   { type: 'youtube', id: '', caption: 'A YouTube video you want to feature' },
 ];
 
-export const beyond: { id: string; title: string; blurb: string; items: MediaItem[] }[] = [
+// Titles and blurbs for these four come from src/content/site.json (editable on the page).
+export const beyond: { id: 'games' | 'art' | 'music' | 'travel'; items: MediaItem[] }[] = [
   {
-    id: 'games', title: 'Games', blurb: 'Crafting stories at the D&D table, and what I play.',
+    id: 'games',
     items: [
       { type: 'image', src: '', caption: 'Placeholder: the D&D campaign I am running' },
       { type: 'image', src: '', caption: 'Placeholder: a game I am into right now' },
     ],
   },
   {
-    id: 'art', title: 'Art', blurb: 'Cubism vs AI-generated art, and what I make.',
+    id: 'art',
     items: [
       { type: 'image', src: '', caption: 'Placeholder: a piece I made' },
       { type: 'image', src: '', caption: 'Placeholder: a Cubism vs AI comparison' },
     ],
   },
   {
-    id: 'music', title: 'Music', blurb: 'What I listen to and play.',
+    id: 'music',
     items: [
       { type: 'image', src: '', caption: 'Placeholder: a show I went to' },
       { type: 'video', src: '', caption: 'Placeholder: a short clip' },
     ],
   },
   {
-    id: 'travel', title: 'Travel', blurb: 'Places I have been, plus beach volleyball wherever there is sand.',
+    id: 'travel',
     items: [
       { type: 'image', src: '', caption: 'Placeholder: a favorite trip' },
       { type: 'image', src: '', caption: 'Placeholder: beach volleyball' },

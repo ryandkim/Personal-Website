@@ -1,0 +1,38 @@
+{
+  "hero": {
+    "greeting": "Hello, I'm",
+    "headline": "",
+    "bio": ""
+  },
+  "sections": {
+    "about": { "eyebrow": "Right now", "title": "What I'm up to" },
+    "journey": { "eyebrow": "Journey", "title": "Career timeline" },
+    "projects": { "eyebrow": "Projects", "title": "AI agents I've built" },
+    "twin": { "eyebrow": "AI twin", "title": "Ask my twin anything" },
+    "beyond": { "eyebrow": "Beyond work", "title": "Games, art, music, travel" },
+    "contact": { "eyebrow": "Contact", "title": "Let's talk" }
+  },
+  "now": [
+    "MBA + MS in Artificial Intelligence candidate at Kellogg and McCormick, Northwestern (2026 to 2028)",
+    "Building AI agents: a semiconductor news tracker, a wardrobe stylist, a recruiting dashboard, and Mixr",
+    "Director in the Kellogg AI Club (special projects, AI conference outreach)"
+  ],
+  "lookingFor": "Product management roles in AI. (Placeholder, click Edit to change.)",
+  "highlights": {
+    "title": "Recent highlights",
+    "subtitle": "Hackathons, awards, posts, and videos. Scroll or swipe."
+  },
+  "projects": [
+    { "name": "Semiconductor news agent", "blurb": "Tracks and summarizes semiconductor industry news." },
+    { "name": "Wardrobe stylist agent", "blurb": "Personal stylist that recommends outfits and deals." },
+    { "name": "Recruiting dashboard", "blurb": "Email and notifications dashboard for networking and applications." },
+    { "name": "Mixr", "blurb": "Group hackathon project, 2nd place at the Kellogg hackathon." }
+  ],
+  "beyond": {
+    "games": { "title": "Games", "blurb": "Crafting stories at the D&D table, and what I play." },
+    "art": { "title": "Art", "blurb": "Cubism vs AI-generated art, and what I make." },
+    "music": { "title": "Music", "blurb": "What I listen to and play." },
+    "travel": { "title": "Travel", "blurb": "Places I have been, plus beach volleyball wherever there is sand." }
+  },
+  "contact": "The fastest way to reach me is email:"
+}
