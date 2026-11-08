@@ -76,7 +76,11 @@
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ changes }),
     }).catch(() => null);
     save.disabled = false;
-    if (res?.ok) { setMode(false); status.textContent = 'Saved'; setTimeout(() => (status.textContent = 'Owner'), 2500); }
+    if (res?.ok) {
+      const { message } = await res.json().catch(() => ({}));
+      setMode(false); status.textContent = message || 'Saved';
+      setTimeout(() => (status.textContent = 'Owner'), 5000);
+    }
     else status.textContent = (res && (await res.json().catch(() => ({}))).error) || 'Save failed';
   });
   logout.addEventListener('click', async () => {
