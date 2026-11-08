@@ -59,3 +59,18 @@ The save endpoint accepts only existing text fields, stores plain text, and refu
 4. In the project folder, copy `.env.example` to `.env` and fill in the three values
    (`openssl rand -base64 48` prints a good `SESSION_SECRET`). `.env` is never committed.
 5. Restart `npm run dev` and open http://localhost:4321/owner.
+
+## Public site (Vercel)
+
+The site deploys to [Vercel](https://vercel.com) (free Hobby plan). Every push to `main` rebuilds the live site.
+
+1. Sign in at https://vercel.com with **Continue with GitHub**.
+2. **Add New → Project**, pick `Personal-Website`, and click **Import**. Vercel detects Astro; keep the defaults.
+3. Before clicking **Deploy**, open **Environment Variables** and add `GOOGLE_CLIENT_ID`, `OWNER_EMAIL`, and
+   `SESSION_SECRET` (use a *new* random secret here, not the one in your local `.env`).
+4. Click **Deploy**. Your public URL looks like `https://personal-website-xxxx.vercel.app`
+   (rename it under **Settings → Domains**, or add your own domain later).
+5. In Google Cloud **Credentials**, edit your OAuth client and add that `https://…vercel.app` URL to
+   **Authorized JavaScript origins**, so owner sign-in works on the live site.
+
+Sign-in works on the live site; saving edits there is not connected yet (edit locally and push for now).
