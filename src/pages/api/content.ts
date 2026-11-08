@@ -11,6 +11,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import { SITE_EDIT_TOKEN, SITE_REPO } from 'astro:env/server';
 import { isOwner, json } from '../../lib/auth';
 export const prerender = false;
@@ -60,12 +61,13 @@ async function saveLocal(entries: [string, unknown][]) {
   if (err) return json({ error: err }, 400);
   await writeFile(FILE, serialize(data));
 
-  const cwd = fileURLToPath(new URL('../../../', FILE)); // repo root
-  const git = (...args: string[]) => run('git', args, { cwd, timeout: 30_000 });
+  const file = fileURLToPath(FILE);
+  const git = (...args: string[]) => run('git', args, { cwd: dirname(file), timeout: 30_000 });
   try {
-    await git('add', '--', REPO_PATH);
-    await git('commit', '-m', commitMessage(entries), '--', REPO_PATH);
+    await git('add', '--', file);
+    await git('commit', '-m', commitMessage(entries), '--', file);
   } catch (e) {
+    console.warn('[save] git commit failed:', (e as Error).message);
     return json({ ok: true, message: 'Saved here, but the git commit failed. Check the terminal.' });
   }
   try {
