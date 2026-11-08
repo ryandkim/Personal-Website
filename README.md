@@ -22,6 +22,8 @@ Then open http://localhost:4321. The page reloads as you save files. Press `Ctrl
 | What | File |
 | --- | --- |
 | Name, headline, bio, "right now", "looking for", email, links | `src/data/site.ts` |
+| Career timeline and career quest game (one file feeds both) | `src/data/career.ts` |
+| Career quest map layout | `src/game/map.ts` (one letter per tile, legend at the top) |
 | Colors and fonts (design tokens) | `src/styles/global.css` |
 | Page sections and order | `src/pages/index.astro` |
 | Headshot | `public/images/headshot.jpg` (4:5 crop) |

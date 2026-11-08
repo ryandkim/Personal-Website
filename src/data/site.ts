@@ -21,9 +21,10 @@ export const site = {
 };
 
 export const nav = [
-  { href: '#about', label: 'About' },
-  { href: '#journey', label: 'Journey' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#beyond', label: 'Beyond work' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/#about', label: 'About' },
+  { href: '/#journey', label: 'Journey' },
+  { href: '/quest', label: 'Career quest' },
+  { href: '/#projects', label: 'Projects' },
+  { href: '/#beyond', label: 'Beyond work' },
+  { href: '/#contact', label: 'Contact' },
 ];

@@ -1,0 +1,118 @@
+---
+// The career quest game frame. Logic: src/game/quest.ts. Content: src/data/career.ts
+import '@fontsource/pixelify-sans/400.css';
+import '@fontsource/pixelify-sans/600.css';
+---
+<div class="quest" data-quest>
+  <div class="q-hud">
+    <div class="q-progress"><span>Stages</span> <b data-count>0/7</b> <span class="q-pips" data-pips></span></div>
+    <div class="q-tools">
+      <button type="button" data-journal-btn>Journal</button>
+      <button type="button" data-sound aria-pressed="false">Sound: off</button>
+      <button type="button" data-restart>Restart</button>
+    </div>
+  </div>
+
+  <div class="q-screen">
+    <canvas tabindex="0" aria-label="Career quest game. Use arrow keys or WASD to walk, Space to interact. A plain text timeline is available below."></canvas>
+    <div class="q-banner" data-banner aria-live="polite"></div>
+    <div class="q-dialog" data-dialog></div>
+    <div class="q-journal" data-journal hidden>
+      <p class="q-kicker">Journal</p>
+      <ul data-journal-list></ul>
+    </div>
+    <button type="button" class="q-start" data-start>
+      <span class="q-start-title">Career quest</span>
+      <span class="q-start-sub">Explore the map. Each glowing marker is the next stage of my career.</span>
+      <span class="q-start-cta">Press to start</span>
+    </button>
+  </div>
+
+  <p class="q-hint" data-hint aria-live="polite"></p>
+
+  <div class="q-pad" aria-label="Touch controls">
+    <div class="q-dpad">
+      <button type="button" data-pad="up" aria-label="Up">▲</button>
+      <button type="button" data-pad="left" aria-label="Left">◀</button>
+      <button type="button" data-pad="right" aria-label="Right">▶</button>
+      <button type="button" data-pad="down" aria-label="Down">▼</button>
+    </div>
+    <button type="button" class="q-a" data-act aria-label="Interact">A</button>
+  </div>
+  <p class="q-keys">Move: arrow keys or WASD · Interact: Space or Enter · Close: Esc</p>
+</div>
+
+<script>
+  import { startQuest } from '../game/quest';
+  const root = document.querySelector<HTMLElement>('[data-quest]');
+  if (root) startQuest(root);
+</script>
+
+<style is:global>
+  .quest { max-width: min(100%, calc((100vh - 170px) * 16 / 9)); min-width: min(100%, 520px); margin-inline: auto; --q-ink: #0f1116; --q-paper: #f6f0dc; --q-edge: #2a2418; font-family: 'Pixelify Sans', ui-monospace, monospace; }
+  .q-hud { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .75rem; }
+  .q-progress { display: flex; align-items: center; gap: .5rem; color: var(--color-muted); }
+  .q-progress b { color: var(--color-accent); font-weight: 600; }
+  .q-pips { display: inline-flex; gap: 4px; }
+  .q-pip { width: 10px; height: 10px; border: 2px solid var(--color-line); background: transparent; }
+  .q-pip.is-on { background: var(--color-accent); border-color: var(--color-accent); }
+  .q-tools { display: flex; gap: .5rem; }
+  .q-tools button, .q-box button { font: inherit; font-size: .9rem; padding: .35rem .75rem; border: 2px solid var(--color-line); background: var(--color-panel); color: var(--color-text); cursor: pointer; }
+  .q-tools button:hover, .q-box button:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .q-tools button:focus-visible, .q-box button:focus-visible, .q-start:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+  .q-screen { position: relative; border: 4px solid var(--q-edge); box-shadow: 0 0 0 2px var(--color-line), 0 20px 60px rgba(0,0,0,.5); background: #000; }
+  .q-screen canvas { display: block; width: 100%; aspect-ratio: 16 / 9; image-rendering: pixelated; outline: none; }
+
+  .q-banner { position: absolute; top: 8%; left: 50%; transform: translate(-50%, -10px); opacity: 0; transition: opacity .4s, transform .4s; pointer-events: none;
+    background: rgba(15,17,22,.85); border: 2px solid var(--color-accent); padding: .4rem 1rem; text-align: center; color: var(--q-paper); }
+  .q-banner.is-on { opacity: 1; transform: translate(-50%, 0); }
+  .q-banner strong { display: block; white-space: nowrap; font-size: clamp(1rem, 2.4vw, 1.4rem); font-weight: 600; }
+  .q-banner span { font-size: .85rem; color: var(--color-accent); }
+
+  .q-dialog { position: absolute; inset: 0; display: none; align-items: flex-end; justify-content: center; padding: 3%; background: rgba(0,0,0,.25); }
+  .q-dialog.is-on { display: flex; }
+  .q-box { width: 100%; max-height: 92%; overflow-y: auto; background: var(--q-paper); color: #1d1a14; border: 4px solid var(--q-edge);
+    box-shadow: inset 0 0 0 3px #d9cfae; padding: clamp(.75rem, 2vw, 1.25rem) clamp(.9rem, 2.5vw, 1.5rem); }
+  .q-box .q-kicker { color: #9a6a12; }
+  .q-box h3 { font-size: clamp(1.05rem, 2.4vw, 1.5rem); font-weight: 600; line-height: 1.15; margin-top: .15rem; }
+  .q-org { font-size: .9rem; color: #5c5442; }
+  .q-say { margin-top: .5rem; min-height: 1.4em; font-size: clamp(.95rem, 1.9vw, 1.1rem); }
+  .q-box ul { margin-top: .5rem; font-family: var(--font-sans); font-size: .85rem; line-height: 1.45; color: #3a3428; }
+  .q-box li { padding-left: 1rem; position: relative; margin-top: .25rem; }
+  .q-box li::before { content: ''; position: absolute; left: 0; top: .55em; width: 6px; height: 6px; background: #c98d24; }
+  .q-gate { margin-top: .6rem; color: #9a6a12; }
+  .q-gate a { text-decoration: underline; }
+  .q-box button { margin-top: .75rem; background: #1d1a14; color: var(--q-paper); border-color: #1d1a14; }
+  .q-box kbd { font: inherit; opacity: .6; margin-left: .35rem; }
+  .q-kicker { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--color-accent); }
+
+  .q-journal { position: absolute; top: 3%; right: 2%; width: min(320px, 70%); max-height: 85%; overflow-y: auto; background: rgba(15,17,22,.95); border: 2px solid var(--color-line); padding: .75rem; }
+  .q-journal ul { margin-top: .4rem; }
+  .q-journal button { display: block; width: 100%; text-align: left; font: inherit; color: var(--color-text); padding: .35rem .25rem; border-bottom: 1px solid var(--color-line); cursor: pointer; }
+  .q-journal button:hover { color: var(--color-accent); }
+  .q-journal button span { display: block; font-size: .75rem; color: var(--color-muted); }
+  .q-empty { color: var(--color-muted); font-size: .9rem; }
+
+  .q-start { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; padding: 1rem; text-align: center; color: var(--q-paper); cursor: pointer; font: inherit; }
+  .q-start-title { font-size: clamp(1.6rem, 5vw, 3rem); font-weight: 600; color: var(--color-accent); text-shadow: 3px 3px 0 #000; }
+  @media (max-width: 560px) { .q-start-sub { display: none; } .q-start-title { font-size: 1.4rem; } }
+  body:has(.quest) [data-twin-fab] { display: none; }
+  .q-start-cta { margin-top: .5rem; border: 2px solid var(--color-accent); padding: .3rem .9rem; animation: q-blink 1.2s steps(2) infinite; }
+  @keyframes q-blink { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .q-start-cta { animation: none; } .q-banner { transition: none; } }
+
+  .q-hint { margin-top: .75rem; min-height: 1.5em; color: var(--color-text); }
+  .q-keys { margin-top: .25rem; font-size: .85rem; color: var(--color-muted); }
+
+  .q-pad { display: none; margin-top: 1rem; align-items: center; justify-content: space-between; user-select: none; -webkit-user-select: none; touch-action: none; }
+  .q-dpad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); }
+  .q-dpad button, .q-a { font: inherit; background: var(--color-panel); border: 2px solid var(--color-line); color: var(--color-text); }
+  .q-dpad button:active, .q-a:active { background: var(--color-line); }
+  .q-dpad [data-pad="up"] { grid-column: 2; grid-row: 1; }
+  .q-dpad [data-pad="left"] { grid-column: 1; grid-row: 2; }
+  .q-dpad [data-pad="right"] { grid-column: 3; grid-row: 2; }
+  .q-dpad [data-pad="down"] { grid-column: 2; grid-row: 3; }
+  .q-a { width: 72px; height: 72px; border-radius: 50%; border-color: var(--color-accent); color: var(--color-accent); font-size: 1.5rem; font-weight: 600; }
+  @media (pointer: coarse) { .q-pad { display: flex; } .q-keys { display: none; } }
+</style>
