@@ -1,0 +1,70 @@
+---
+// Horizontal, swipeable strip. Arrow buttons on desktop, swipe on phones,
+// dots show position. Set `captions` to add a Hinge-style caption toggle.
+interface Props { label: string; captions?: boolean; count: number }
+const { label, captions = false, count } = Astro.props;
+---
+<div data-carousel data-captions-on="true" class="group/c relative" role="region" aria-roledescription="carousel" aria-label={label}>
+  <div data-track class="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <slot />
+  </div>
+  <div class="mt-4 flex items-center justify-between gap-3">
+    <div class="flex gap-1.5" data-dots>
+      {Array.from({ length: count }).map((_, i) => (
+        <button type="button" data-dot={i} aria-label={`Go to item ${i + 1}`}
+          class="h-1.5 w-1.5 rounded-full bg-line transition-all data-[active]:w-5 data-[active]:bg-accent"></button>
+      ))}
+    </div>
+    <div class="flex items-center gap-2">
+      {captions && (
+        <button type="button" data-caption-toggle aria-pressed="true"
+          class="rounded-full border border-line px-3 py-1.5 text-xs text-muted transition hover:border-text hover:text-text aria-pressed:border-accent/60 aria-pressed:text-accent">
+          Captions
+        </button>
+      )}
+      <button type="button" data-prev aria-label="Previous" class="grid h-8 w-8 place-items-center rounded-full border border-line text-muted transition hover:border-text hover:text-text disabled:opacity-30">←</button>
+      <button type="button" data-next aria-label="Next" class="grid h-8 w-8 place-items-center rounded-full border border-line text-muted transition hover:border-text hover:text-text disabled:opacity-30">→</button>
+    </div>
+  </div>
+</div>
+<style is:global>
+  [data-carousel][data-captions-on='false'] [data-caption] { opacity: 0; }
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const slides = Array.from(track.children) as HTMLElement[];
+    const dots = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-dot]'));
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-caption-toggle]');
+
+    const current = () => {
+      const left = track.scrollLeft;
+      let best = 0;
+      slides.forEach((s, i) => { if (Math.abs(s.offsetLeft - track.offsetLeft - left) < Math.abs(slides[best].offsetLeft - track.offsetLeft - left)) best = i; });
+      return best;
+    };
+    const go = (i: number) => {
+      const s = slides[Math.max(0, Math.min(slides.length - 1, i))];
+      track.scrollTo({ left: s.offsetLeft - track.offsetLeft });
+    };
+    const update = () => {
+      const i = current();
+      dots.forEach((d, j) => d.toggleAttribute('data-active', j === i));
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    };
+    prev.addEventListener('click', () => go(current() - 1));
+    next.addEventListener('click', () => go(current() + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+    track.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    window.addEventListener('resize', update);
+    toggle?.addEventListener('click', () => {
+      const on = root.dataset.captionsOn !== 'true';
+      root.dataset.captionsOn = String(on);
+      toggle.setAttribute('aria-pressed', String(on));
+    });
+    update();
+  });
+</script>

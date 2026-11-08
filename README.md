@@ -25,5 +25,7 @@ Then open http://localhost:4321. The page reloads as you save files. Press `Ctrl
 | Colors and fonts (design tokens) | `src/styles/global.css` |
 | Page sections and order | `src/pages/index.astro` |
 | Headshot | `public/images/headshot.jpg` (4:5 crop) |
+| Recent highlights strip, and Games / Art / Music / Travel galleries | `src/data/media.ts` (instructions at the top of the file) |
+| Photos and videos for those | `public/media/highlights/` and `public/media/beyond/<section>/` |
 
 Other commands: `npm run build` makes the static site in `dist/`, and `npm run preview` serves that build.

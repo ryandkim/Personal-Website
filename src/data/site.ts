@@ -1,6 +1,8 @@
 // Edit your site copy here. Everything on the home page reads from this file.
 export const site = {
   name: 'Ryan Kim',
+  // Short name shown top-left in the nav, followed by an accent-colored period.
+  brand: 'ryan',
   // Leave blank for now; a placeholder shows until you fill these in.
   headline: '',
   bio: '',

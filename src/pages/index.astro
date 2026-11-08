@@ -3,19 +3,16 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Section from '../components/Section.astro';
 import Placeholder from '../components/Placeholder.astro';
+import Carousel from '../components/Carousel.astro';
+import MediaSlide from '../components/MediaSlide.astro';
 import { site } from '../data/site';
+import { highlights, beyond } from '../data/media';
 
 const projects = [
   { name: 'Semiconductor news agent', blurb: 'Tracks and summarizes semiconductor industry news.' },
   { name: 'Wardrobe stylist agent', blurb: 'Personal stylist that recommends outfits and deals.' },
   { name: 'Recruiting dashboard', blurb: 'Email and notifications dashboard for networking and applications.' },
   { name: 'Mixr', blurb: 'Group hackathon project, 2nd place at the Kellogg hackathon.' },
-];
-const beyond = [
-  { name: 'Games', blurb: 'D&D campaigns and the games I play.' },
-  { name: 'Art', blurb: 'Cubism, AI-generated art, and what I make.' },
-  { name: 'Music', blurb: 'What I listen to and play.' },
-  { name: 'Travel', blurb: 'Places I have been and loved.' },
 ];
 ---
 <Base>
@@ -33,6 +30,16 @@ const beyond = [
         <p class="mt-3 font-serif text-2xl leading-snug">{site.lookingFor}</p>
         <a href="#contact" class="mt-6 inline-block text-sm text-accent hover:underline">Get in touch →</a>
       </div>
+    </div>
+
+    <div class="mt-16">
+      <h3 class="font-serif text-2xl">Recent highlights</h3>
+      <p class="mt-1 mb-6 text-sm text-muted">Hackathons, awards, posts, and videos. Scroll or swipe.</p>
+      <Carousel label="Recent highlights" count={highlights.length}>
+        {highlights.map((item) => (
+          <div class="w-[80%] shrink-0 snap-start sm:w-[46%] lg:w-[31%]"><MediaSlide item={item} /></div>
+        ))}
+      </Carousel>
     </div>
   </Section>
 
@@ -56,13 +63,18 @@ const beyond = [
     <Placeholder label="A retro handheld-RPG-style dialogue box where you can chat with a pixel-art version of me." />
   </Section>
 
-  <Section id="beyond" eyebrow="Beyond work" title="Games, art, music, travel" comingIn="step 6">
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <Section id="beyond" eyebrow="Beyond work" title="Games, art, music, travel">
+    <div class="grid gap-x-8 gap-y-14 md:grid-cols-2">
       {beyond.map((b) => (
-        <article class="rounded-2xl border border-line bg-panel p-6">
-          <h3 class="font-serif text-2xl">{b.name}</h3>
-          <p class="mt-2 text-sm text-muted">{b.blurb}</p>
-        </article>
+        <div id={b.id}>
+          <h3 class="font-serif text-2xl">{b.title}</h3>
+          <p class="mt-1 mb-5 text-sm text-muted">{b.blurb}</p>
+          <Carousel label={b.title} count={b.items.length} captions>
+            {b.items.map((item) => (
+              <div class="w-[85%] shrink-0 snap-start sm:w-[70%] md:w-[75%]"><MediaSlide item={item} /></div>
+            ))}
+          </Carousel>
+        </div>
       ))}
     </div>
   </Section>
