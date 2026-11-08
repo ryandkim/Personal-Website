@@ -2,11 +2,12 @@
 import { defineConfig, envField } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   // Pages stay static. Only the small /api routes (owner sign-in and saving
-  // edits) run on a server. The hosting adapter may change when we publish.
-  adapter: node({ mode: 'standalone' }),
+  // edits) run on a server: Vercel when deployed there, Node on your computer.
+  adapter: process.env.VERCEL ? vercel() : node({ mode: 'standalone' }),
   security: { checkOrigin: true },
   // The dev toolbar would sit on top of the owner Edit bar.
   devToolbar: { enabled: false },
