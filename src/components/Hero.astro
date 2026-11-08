@@ -1,0 +1,26 @@
+---
+import { site } from '../data/site';
+---
+<section id="top" class="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-32 pb-20 sm:px-8 md:grid-cols-[1.2fr_1fr] md:pt-40 md:pb-28">
+  <div class="reveal order-2 md:order-1">
+    <p class="mb-4 text-sm tracking-[0.2em] text-accent uppercase">Hello, I'm</p>
+    <h1 class="font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">{site.name}</h1>
+    <p class:list={['mt-6 max-w-xl text-xl', site.headline ? 'text-text' : 'text-muted italic']}>
+      {site.headline || 'Headline goes here. Edit it in src/data/site.ts.'}
+    </p>
+    <p class:list={['mt-4 max-w-xl leading-relaxed', site.bio ? 'text-muted' : 'text-muted/70 italic']}>
+      {site.bio || 'A short bio goes here: two or three sentences about who you are and what you build.'}
+    </p>
+    <div class="mt-9 flex flex-wrap gap-3">
+      <a href="#projects" class="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink transition hover:brightness-110">See my projects</a>
+      <a href="#journey" class="rounded-full border border-line px-5 py-2.5 text-sm transition hover:border-text">My journey</a>
+    </div>
+  </div>
+  <div class="reveal order-1 mx-auto w-64 sm:w-72 md:order-2 md:w-full md:max-w-sm">
+    <div class="relative">
+      <div class="absolute -inset-3 -z-10 rounded-[2rem] bg-accent/10 blur-2xl"></div>
+      <img src="/images/headshot.jpg" alt={`Portrait of ${site.name}`} width="800" height="1000"
+           class="aspect-[4/5] w-full rounded-[1.75rem] border border-line object-cover" fetchpriority="high" />
+    </div>
+  </div>
+</section>

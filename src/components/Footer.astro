@@ -1,0 +1,14 @@
+---
+import { site } from '../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="border-t border-line">
+  <div class="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
+    <p>© {year} {site.name}. Built with Astro.</p>
+    <ul class="flex gap-5">
+      <li><a class="hover:text-text" href={`mailto:${site.email}`}>Email</a></li>
+      <li><a class="hover:text-text" href={site.links.github} target="_blank" rel="noopener">GitHub</a></li>
+      {site.links.linkedin && <li><a class="hover:text-text" href={site.links.linkedin} target="_blank" rel="noopener">LinkedIn</a></li>}
+    </ul>
+  </div>
+</footer>

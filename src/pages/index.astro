@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import Placeholder from '../components/Placeholder.astro';
+import { site } from '../data/site';
+
+const projects = [
+  { name: 'Semiconductor news agent', blurb: 'Tracks and summarizes semiconductor industry news.' },
+  { name: 'Wardrobe stylist agent', blurb: 'Personal stylist that recommends outfits and deals.' },
+  { name: 'Recruiting dashboard', blurb: 'Email and notifications dashboard for networking and applications.' },
+  { name: 'Mixr', blurb: 'Group hackathon project, 2nd place at the Kellogg hackathon.' },
+];
+const beyond = [
+  { name: 'Games', blurb: 'D&D campaigns and the games I play.' },
+  { name: 'Art', blurb: 'Cubism, AI-generated art, and what I make.' },
+  { name: 'Music', blurb: 'What I listen to and play.' },
+  { name: 'Travel', blurb: 'Places I have been and loved.' },
+];
+---
+<Base>
+  <Hero />
+
+  <Section id="about" eyebrow="Right now" title="What I'm up to">
+    <div class="grid gap-10 md:grid-cols-2">
+      <ul class="space-y-4">
+        {site.now.map((item) => (
+          <li class="flex gap-3 leading-relaxed text-muted"><span class="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"></span>{item}</li>
+        ))}
+      </ul>
+      <div class="rounded-2xl border border-line bg-panel p-7">
+        <p class="text-xs tracking-widest text-accent uppercase">Looking for</p>
+        <p class="mt-3 font-serif text-2xl leading-snug">{site.lookingFor}</p>
+        <a href="#contact" class="mt-6 inline-block text-sm text-accent hover:underline">Get in touch →</a>
+      </div>
+    </div>
+  </Section>
+
+  <Section id="journey" eyebrow="Journey" title="Career timeline" comingIn="step 2 (timeline + retro adventure game)">
+    <Placeholder label="A plain timeline (WashU → Arup → Kellogg/McCormick) plus an explorable retro adventure where each area is a career stage." />
+  </Section>
+
+  <Section id="projects" eyebrow="Projects" title="AI agents I've built" comingIn="steps 3 and 4 (GitHub sync, demos, videos)">
+    <div class="grid gap-5 sm:grid-cols-2">
+      {projects.map((p) => (
+        <article class="rounded-2xl border border-line bg-panel p-6 transition hover:border-accent/60">
+          <h3 class="font-serif text-2xl">{p.name}</h3>
+          <p class="mt-2 text-muted">{p.blurb}</p>
+          <p class="mt-5 text-xs tracking-widest text-muted/70 uppercase">Demo coming soon</p>
+        </article>
+      ))}
+    </div>
+  </Section>
+
+  <Section id="twin" eyebrow="AI twin" title="Ask my twin anything" comingIn="step 5 (retro dialogue chat)">
+    <Placeholder label="A retro handheld-RPG-style dialogue box where you can chat with a pixel-art version of me." />
+  </Section>
+
+  <Section id="beyond" eyebrow="Beyond work" title="Games, art, music, travel" comingIn="step 6">
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {beyond.map((b) => (
+        <article class="rounded-2xl border border-line bg-panel p-6">
+          <h3 class="font-serif text-2xl">{b.name}</h3>
+          <p class="mt-2 text-sm text-muted">{b.blurb}</p>
+        </article>
+      ))}
+    </div>
+  </Section>
+
+  <Section id="contact" eyebrow="Contact" title="Let's talk">
+    <p class="max-w-xl text-lg text-muted">
+      The fastest way to reach me is email: <a class="text-accent hover:underline" href={`mailto:${site.email}`}>{site.email}</a>
+    </p>
+  </Section>
+</Base>
