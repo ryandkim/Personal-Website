@@ -1,0 +1,19 @@
+{
+  "name": "Networking and applications tracker",
+  "tagline": "One dashboard for every contact, application and follow-up in my recruiting search.",
+  "status": "working",
+  "tags": ["Agent", "Recruiting", "Dashboard"],
+  "order": 3,
+  "summary": "My master dashboard for recruiting. Agents watch email, Slack, LinkedIn and WhatsApp for new connections, job openings and things I owe people, then rank the action items and draft follow-ups for me to review.",
+  "problem": "MBA recruiting spreads across inboxes, group chats and portals, and follow-ups slip through the cracks.",
+  "how": [
+    "Integrations read new messages and posts from each source.",
+    "A job scraper agent pulls openings worth pursuing.",
+    "A follow-up agent spots action items and drafts replies (drafts only, never sent).",
+    "A research agent finds articles to mention when reconnecting with a contact.",
+    "A Streamlit dashboard shows everything in one ranked list."
+  ],
+  "stack": ["Python", "Streamlit", "SQLite", "Playwright", "Gmail API", "Slack API"],
+  "highlights": ["163 automated tests", "Personal data is redacted everywhere it's shown or logged"],
+  "links": { "demo": "https://claude.ai/artifact/U6xSma11xwWZmTTtqqsJuZ" }
+}

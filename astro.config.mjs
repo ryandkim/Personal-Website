@@ -18,6 +18,8 @@ export default defineConfig({
       // Server-only secrets. Never sent to the browser.
       OWNER_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
       SESSION_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Read-only GitHub token, used at build time to read portfolio.json from private repos.
+      GITHUB_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
   vite: { plugins: [tailwindcss()] },

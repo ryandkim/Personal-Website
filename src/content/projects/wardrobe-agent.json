@@ -1,0 +1,18 @@
+{
+  "name": "Wardrobe stylist agent",
+  "tagline": "Three outfit ideas every morning, matched to the weather and what I wore this week.",
+  "status": "building",
+  "tags": ["Agent", "Personal", "Automation"],
+  "order": 2,
+  "summary": "At 8am the agent checks where I am and the forecast, looks through my wardrobe in Notion, skips anything I wore in the last week, and suggests three outfits with a reason for each. A small dashboard lets me swap pieces and log what I actually wore.",
+  "problem": "Getting dressed is a small daily decision that's easy to get wrong when the weather changes or I'm traveling.",
+  "how": [
+    "Detects the current city and pulls today's weather and the week ahead.",
+    "Filters the wardrobe database by season, temperature and recent wear.",
+    "An LLM applies my style rules and proposes three outfits.",
+    "A local dashboard shows the picks; confirming one logs it to the outfit history."
+  ],
+  "stack": ["Python", "Flask", "Groq (Llama 3.3)", "Notion API", "WeatherAPI"],
+  "highlights": ["Remembers outfit history to avoid repeats", "Handles travel automatically"],
+  "links": {}
+}

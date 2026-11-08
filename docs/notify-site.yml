@@ -1,0 +1,14 @@
+# Copy to .github/workflows/notify-site.yml in an agent repo.
+# When portfolio.json (or anything) changes on main, it asks Vercel to rebuild the site.
+# Setup: Vercel > Project > Settings > Git > Deploy Hooks > create one for "main",
+# then in the agent repo: Settings > Secrets and variables > Actions > New secret
+# named SITE_DEPLOY_HOOK with the hook URL.
+name: Rebuild personal site
+on:
+  push:
+    branches: [main]
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS -X POST "${{ secrets.SITE_DEPLOY_HOOK }}"

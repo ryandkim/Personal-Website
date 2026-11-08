@@ -70,3 +70,20 @@ The site deploys to [Vercel](https://vercel.com) (free Hobby plan). Every push t
    **Authorized JavaScript origins**, so owner sign-in works on the live site.
 
 Sign-in works on the live site; saving edits there is not connected yet (edit locally and push for now).
+
+## Projects (synced from GitHub)
+
+Each project's page is built from a `portfolio.json` in that project's repo.
+`src/data/projects.ts` lists where each file lives. At build time the site reads
+the file from GitHub; if it can't (no file yet, no network, or a private repo
+without a token), it uses the copy in `src/content/projects/<slug>.json`.
+
+- **Edit a project:** change `portfolio.json` in the agent repo and push.
+- **Add a project:** add a line to `src/data/projects.ts` and a `portfolio.json` in that repo.
+- **Hide a project:** set `"hidden": true`.
+- **Private repos:** add `GITHUB_TOKEN` to `.env` (see `.env.example`): a fine-grained token with read-only Contents access to just those repos.
+- **Rebuild on push:** after the site is on Vercel, copy `docs/notify-site.yml` into each agent repo (steps are in the file).
+
+Fields: `name`, `tagline`, `status` (idea, prototype, building, working, shipped),
+`tags`, `summary` are required. Optional: `order`, `problem`, `how` (list of steps),
+`stack`, `highlights`, `links` (`demo`, `video`, `site`), `hidden`.

@@ -1,0 +1,18 @@
+{
+  "name": "Kellogg portal dashboard",
+  "tagline": "A nightly to-do list built from five school portals and two Slack channels.",
+  "status": "building",
+  "tags": ["Agent", "Recruiting", "Dashboard", "Automation"],
+  "order": 4,
+  "summary": "Every night the agent checks Canvas, 12Twenty, CAESAR, health services, course bidding and two recruiting Slack channels, flags any holds or deadlines in the next four weeks, and ranks everything into one list in a desktop popup.",
+  "problem": "School deadlines and holds live in a handful of portals that each need their own login and their own check.",
+  "how": [
+    "Uses saved browser sessions (not passwords) to read each portal.",
+    "Reads two Slack channels with a bot token.",
+    "A priority engine ranks items and looks four weeks ahead for holds.",
+    "Shows the list in a native popup and a menu-bar icon, and pings me when a portal needs a fresh login."
+  ],
+  "stack": ["Python", "Playwright", "Slack API", "macOS launchd"],
+  "highlights": ["Runs unattended at midnight"],
+  "links": {}
+}
