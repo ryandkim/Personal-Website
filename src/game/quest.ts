@@ -136,7 +136,7 @@ export function startQuest(root: HTMLElement) {
       const ch = text[n];
       n++;
       say.textContent = text.slice(0, n);
-      if (n % 2 === 1) voice(ch); // chirp on every other letter, like speech
+      voice(ch); // short blip on every letter
       if ('.,:;!?\u2014'.includes(ch)) wait = ch === ',' ? 3 : 6; // pause at punctuation
       if (n >= text.length) { clearInterval(typing); typing = 0; }
     }, 32);
