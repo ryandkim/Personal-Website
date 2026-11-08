@@ -1,0 +1,18 @@
+---
+import type { Project } from '../lib/portfolio';
+import { statusLabels } from '../data/projects';
+interface Props { p: Project }
+const { p } = Astro.props;
+---
+<a href={`/projects/${p.slug}`} data-tags={p.tags.join('|')} class="project-card group flex flex-col rounded-2xl border border-line bg-panel p-6 transition hover:border-accent/60">
+  <div class="flex items-center justify-between gap-3 text-xs tracking-widest uppercase">
+    <span class="text-accent">{statusLabels[p.status] ?? p.status}</span>
+    {p.links?.demo && <span class="text-muted">Demo</span>}
+  </div>
+  <h3 class="mt-3 font-serif text-2xl">{p.name}</h3>
+  <p class="mt-2 flex-1 text-muted">{p.tagline}</p>
+  <ul class="mt-5 flex flex-wrap gap-2">
+    {p.tags.map((t) => <li class="rounded-full border border-line px-2.5 py-0.5 text-xs text-muted">{t}</li>)}
+  </ul>
+  <span class="mt-5 text-sm text-accent group-hover:underline">Read the story →</span>
+</a>

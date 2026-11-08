@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib/portfolio';
+const projects = await getProjects();
+const tags = [...new Set(projects.flatMap((p) => p.tags))].sort();
+---
+<Base title="Projects · Ryan Kim" description="AI agents and projects Ryan Kim has built, updated from GitHub.">
+  <section class="mx-auto max-w-6xl px-5 pt-28 pb-24 sm:px-8">
+    <p class="mb-3 text-sm tracking-[0.2em] text-accent uppercase">Projects</p>
+    <h1 class="font-serif text-4xl tracking-tight sm:text-5xl">AI agents I've built</h1>
+    <p class="mt-3 max-w-2xl text-muted">Most of these are still growing. Each page updates from its GitHub repo whenever I push.</p>
+
+    <div class="mt-10 flex flex-wrap gap-2" role="group" aria-label="Filter by tag">
+      <button type="button" data-filter="" aria-pressed="true" class="tag-btn">All</button>
+      {tags.map((t) => <button type="button" data-filter={t} aria-pressed="false" class="tag-btn">{t}</button>)}
+    </div>
+
+    <div id="project-grid" class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.map((p) => <ProjectCard p={p} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .tag-btn { border: 1px solid var(--color-line); border-radius: 9999px; padding: 0.35rem 0.9rem; font-size: 0.875rem; color: var(--color-muted); transition: all 0.15s; }
+  .tag-btn:hover { color: var(--color-text); }
+  .tag-btn[aria-pressed='true'] { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink); }
+</style>
+
+<script>
+  const btns = document.querySelectorAll<HTMLButtonElement>('.tag-btn');
+  const cards = document.querySelectorAll<HTMLElement>('#project-grid .project-card');
+  const apply = (tag: string) => {
+    btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === tag)));
+    cards.forEach((c) => { c.hidden = !!tag && !c.dataset.tags!.split('|').includes(tag); });
+  };
+  btns.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter!)));
+  const fromUrl = new URLSearchParams(location.search).get('tag');
+  if (fromUrl && [...btns].some((b) => b.dataset.filter === fromUrl)) apply(fromUrl);
+</script>

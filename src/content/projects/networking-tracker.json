@@ -1,0 +1,20 @@
+{
+  "name": "Recruiting and school dashboard",
+  "tagline": "One ranked to-do list for every contact, application, deadline and follow-up.",
+  "status": "working",
+  "tags": ["Agent", "Recruiting", "Dashboard", "Automation"],
+  "order": 3,
+  "summary": "My master dashboard. Agents watch email, Slack, LinkedIn and WhatsApp for new connections, job openings and things I owe people, and every night they also check my school portals for deadlines and holds. Everything lands in one ranked list, with follow-up drafts ready for me to review.",
+  "problem": "MBA recruiting and school admin are spread across inboxes, group chats and half a dozen portals, and follow-ups and deadlines slip through the cracks.",
+  "how": [
+    "Integrations read new messages and posts from Gmail, Slack, LinkedIn and WhatsApp.",
+    "A job scraper agent pulls openings worth pursuing.",
+    "A follow-up agent spots action items and drafts replies (drafts only, never sent).",
+    "A research agent finds articles to mention when reconnecting with a contact.",
+    "Each night, saved browser sessions check Canvas, 12Twenty, CAESAR and other school portals for holds and deadlines in the next four weeks.",
+    "A priority engine ranks it all into one list, shown in a dashboard and a menu-bar popup."
+  ],
+  "stack": ["Python", "Streamlit", "SQLite", "Playwright", "Gmail API", "Slack API", "macOS launchd"],
+  "highlights": ["163 automated tests", "Personal data is redacted everywhere it's shown or logged", "Runs unattended every night"],
+  "links": { "demo": "https://claude.ai/artifact/U6xSma11xwWZmTTtqqsJuZ" }
+}

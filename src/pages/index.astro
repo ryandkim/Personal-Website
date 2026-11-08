@@ -9,6 +9,9 @@ import MediaSlide from '../components/MediaSlide.astro';
 import GalleryCard from '../components/GalleryCard.astro';
 import { site, content } from '../data/site';
 import { highlights, beyond } from '../data/media';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getProjects } from '../lib/portfolio';
+const projects = await getProjects();
 
 ---
 <Base>
@@ -51,16 +54,11 @@ import { highlights, beyond } from '../data/media';
     <Timeline />
   </Section>
 
-  <Section id="projects" comingIn="steps 3 and 4 (GitHub sync, demos, videos)">
-    <div class="grid gap-5 sm:grid-cols-2">
-      {content.projects.map((p, i) => (
-        <article class="rounded-2xl border border-line bg-panel p-6 transition hover:border-accent/60">
-          <h3 class="font-serif text-2xl" data-edit={`projects.${i}.name`}>{p.name}</h3>
-          <p class="mt-2 text-muted" data-edit={`projects.${i}.blurb`}>{p.blurb}</p>
-          <p class="mt-5 text-xs tracking-widest text-muted/70 uppercase">Demo coming soon</p>
-        </article>
-      ))}
+  <Section id="projects">
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.slice(0, 6).map((p) => <ProjectCard p={p} />)}
     </div>
+    <a href="/projects" class="mt-8 inline-block text-sm text-accent hover:underline">All projects, with filters →</a>
   </Section>
 
   <Section id="twin" comingIn="step 5 (retro dialogue chat)">
