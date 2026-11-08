@@ -7,18 +7,18 @@
 
 export interface ProjectSource {
   slug: string;
-  repo: string; // owner/name
+  repo?: string; // owner/name. Leave out until the project has its own repo (the local copy is used)
   file: string; // path of portfolio.json inside the repo
   activity?: string; // folder whose latest commit counts as "last updated" (default: the whole repo)
-  public: boolean; // show a "View code" link (only for public repos)
+  public?: boolean; // show a "View code" link (only for public repos)
 }
 
 export const projectSources: ProjectSource[] = [
   { slug: 'semiconductor-news', repo: 'ryandkim/Claude.agent_semiconductor_news', file: 'portfolio.json', activity: 'tools', public: false },
   { slug: 'wardrobe-agent', repo: 'ryandkim/Claude.agent_semiconductor_news', file: 'Wardrobe Agent/portfolio.json', activity: 'Wardrobe Agent', public: false },
   { slug: 'networking-tracker', repo: 'ryandkim/Kellogg-Networking-Apps-Tracker', file: 'portfolio.json', public: false },
-  { slug: 'kellogg-dashboard', repo: 'ryandkim/Claude.agent_semiconductor_news', file: 'Kellogg Dashboard/portfolio.json', activity: 'Kellogg Dashboard', public: false },
-  { slug: 'mixr', repo: 'ryandkim/MBAi_Hackathon_2026', file: 'portfolio.json', public: true },
+  // Repo link to come (moving from a teammate's GitHub to Ryan's).
+  { slug: 'mixr', file: 'portfolio.json' },
   { slug: 'agent-toolkit', repo: 'ryandkim/Claude.agent_semiconductor_news', file: 'Master Architecture/portfolio.json', activity: 'Master Architecture', public: false },
 ];
 

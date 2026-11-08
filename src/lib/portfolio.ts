@@ -49,7 +49,7 @@ async function load(src: ProjectSource): Promise<Project | null> {
   let updated: string | undefined;
   let source: Project['source'] = 'local';
   // Skip the network for private repos when there is no token: it would only 404.
-  if (GITHUB_TOKEN || src.public) {
+  if (src.repo && (GITHUB_TOKEN || src.public)) {
     try {
       const raw = await (await gh(`repos/${src.repo}/contents/${enc(src.file)}`, 'application/vnd.github.raw+json')).json();
       if (valid(raw)) { data = raw; source = 'github'; }
@@ -68,7 +68,7 @@ async function load(src: ProjectSource): Promise<Project | null> {
   return {
     ...data,
     slug: src.slug,
-    repoUrl: src.public ? `https://github.com/${src.repo}` : undefined,
+    repoUrl: src.repo && src.public ? `https://github.com/${src.repo}` : undefined,
     updated,
     source,
   };

@@ -3,7 +3,7 @@
   "tagline": "The guardrails and helpers every one of my agents runs on.",
   "status": "working",
   "tags": ["Infrastructure", "Security", "Automation"],
-  "order": 6,
+  "order": 5,
   "summary": "A small set of shared pieces that all my agents use: a privacy scanner that blocks personal data before any tool call, an auto-save helper, desktop notifications, and templates that keep every agent built the same way.",
   "problem": "Each new agent needed the same safety checks and plumbing, and copying them by hand was error-prone.",
   "how": [
