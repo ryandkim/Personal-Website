@@ -1,5 +1,6 @@
 {
   "title": "Nightly school-portal check",
+  "extra": "dashboard-walkthrough",
   "intro": "Each night the dashboard checks school portals and Slack, then ranks every deadline and hold into one list. Pick a night to replay.",
   "recorded": "2026-11-09",
   "source": "Real priority engine, run on the project's test feed (made-up items, no personal data).",

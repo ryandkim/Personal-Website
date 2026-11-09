@@ -19,7 +19,8 @@ Options:
 Output: src/content/demos/<slug>.json. Review it, then Save/commit as usual.
 Privacy: the dashboard and toolkit demos only use made-up test data. The
 semiconductor and wardrobe imports keep public news and your outfit picks,
-and drop location coordinates, Notion ids and image links.
+and drop location coordinates and Notion links. Wardrobe product cut-outs are
+copied to public/media/demos/wardrobe/ (needs Pillow: pip3 install pillow).
 """
 
 from __future__ import annotations
@@ -110,6 +111,7 @@ def record_dashboard(repo: Path) -> None:
 
     write("networking-tracker", {
         "title": "Nightly school-portal check",
+        "extra": "dashboard-walkthrough",
         "intro": "Each night the dashboard checks school portals and Slack, then ranks every deadline and hold into one list. Pick a night to replay.",
         "recorded": date.today().isoformat(),
         "source": "Real priority engine, run on the project's test feed (made-up items, no personal data).",
@@ -176,8 +178,9 @@ def record_toolkit(repo: Path) -> None:
         ]})
 
     write("agent-toolkit", {
-        "title": "Privacy scanner in action",
-        "intro": "Before every tool call, a scanner checks for secrets and personal data and stops the agent on a match. Pick a session to replay.",
+        "title": "Privacy scanner, call by call",
+        "intro": "A closer look at the first skill: the real scanner deciding on sample tool calls. Pick a session to replay.",
+        "extra": "skills-session",
         "recorded": date.today().isoformat(),
         "source": "Real security_scan.py run on sample tool calls (made-up data).",
         "scenarios": scenarios,
@@ -234,22 +237,63 @@ def record_semiconductor(repo: Path) -> None:
 
 
 # ---------------------------------------------------------------- wardrobe
+SLOTS = [("outer", ("jacket", "coat", "outer", "blazer", "bomber", "cardigan")),
+         ("shoes", ("shoe", "sneaker", "boot", "loafer", "runner", "slip")),
+         ("bottom", ("pant", "jean", "trouser", "short", "chino", "skirt")),
+         ("top", ("shirt", "tee", "polo", "knit", "sweater", "top", "hoodie"))]
+
+
+def slot_for(item: dict) -> str | None:
+    text = f"{item.get('category', '')} {item.get('name', '')}".lower()
+    return next((slot for slot, words in SLOTS if any(w in text for w in words)), None)
+
+
+def cutout(src: Path, name: str) -> str | None:
+    """Trim a transparent product photo and save a small webp for the mannequin."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return None
+    if not src.exists():
+        return None
+    out = SITE / "public/media/demos/wardrobe" / f"{name}.webp"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    im = Image.open(src).convert("RGBA")
+    if im.getbbox():
+        im = im.crop(im.getbbox())
+    im.thumbnail((512, 512))
+    im.save(out, "WEBP", quality=82)
+    return f"/media/demos/wardrobe/{name}.webp"
+
+
 def record_wardrobe(repo: Path) -> None:
-    t = json.loads((repo / "Wardrobe Agent/.tmp/wardrobe_today.json").read_text())
+    agent = repo / "Wardrobe Agent"
+    t = json.loads((agent / ".tmp/wardrobe_today.json").read_text())
     w = t["weather"]
     today = w["today"]
     wardrobe = {i["id"]: i for i in t.get("wardrobe", [])}
     by_occ = t.get("suggestions_by_occasion") or {"Casual": t.get("suggestions", [])}
     city = (w.get("location") or {}).get("city", "")
+    pngs = agent / "dashboard/static/wardrobe_pngs"
 
-    def outfit(s: dict) -> dict:
-        chips = []
-        for it in s.get("items", []):
-            full = wardrobe.get(it.get("id"), {})
-            colors = it.get("colors") or full.get("colors") or []
-            chips.append({"label": it.get("name", full.get("name", "")), "color": colors[0] if colors else None})
-        return {"title": s.get("vibe") or s.get("label", f"Outfit {s.get('rank', '')}"), "meta": s.get("label", ""),
-                "body": s.get("reasoning", ""), "chips": chips}
+    def item(ref: dict) -> dict | None:
+        full = {**wardrobe.get(ref.get("id"), {}), **ref}
+        slot = slot_for(full)
+        if not slot:
+            return None
+        colors = full.get("colors") or ["grey"]
+        d = {"label": full.get("name", ""), "slot": slot, "color": colors[0]}
+        key = str(full.get("id", "")).replace("-", "")
+        img = cutout(pngs / f"{key}.png", key) or cutout(pngs / f"{full.get('id')}.png", key)
+        if img:
+            d["img"] = img
+        if slot == "bottom" and "short" in d["label"].lower():
+            d["fit"] = "short"
+        return d
+
+    def pick(i: int, s: dict) -> dict:
+        return {"meta": f"Pick {i + 1}", "title": s.get("vibe") or s.get("label", f"Outfit {i + 1}"),
+                "body": s.get("reasoning", ""), "items": [x for x in (item(r) for r in s.get("items", [])) if x]}
 
     scenarios = []
     for occ, sugg in by_occ.items():
@@ -263,20 +307,21 @@ def record_wardrobe(repo: Path) -> None:
                 {"tool": "notion_wardrobe", "label": "Load the wardrobe and last week's outfits", "lines": [f"{len(wardrobe)} items"]},
                 {"tool": "suggest_outfits", "label": "Skip recent repeats, apply style rules", "detail": "Llama 3.3 70B on Groq",
                  "lines": [f"{len(sugg)} outfits for {occ.lower()}"]},
-                {"tool": "dashboard", "label": "Show the picks on the morning dashboard"},
+                {"tool": "dashboard", "label": "Dress the avatar with the main pick"},
             ],
             "result": [
                 {"type": "stats", "items": [{"label": "Today", "value": f"{today['temp_c']:.0f}°C"},
                                             {"label": "Sky", "value": today["condition"]},
                                             {"label": "Rain", "value": f"{today.get('precip_chance', 0)}%"}]},
-                {"type": "cards", "title": f"{occ} picks", "items": [outfit(s) for s in sugg]},
+                {"type": "avatar", "title": f"{occ} picks", "picks": [pick(i, s) for i, s in enumerate(sugg)]},
             ],
         })
     write("wardrobe-agent", {
         "title": "This morning's outfits",
-        "intro": "At 8am the agent checks the weather and suggests three outfits for each kind of day. Pick an occasion to replay.",
+        "intro": "At 8am the agent checks the weather and picks three outfits for each kind of day. The mannequin turns slowly, and each turn it changes into the next pick. Choose an occasion, or click a pick to try it on.",
         "recorded": t.get("date", date.today().isoformat()),
         "source": "Imported from the agent's morning run.",
+        "layout": "wide",
         "scenarios": scenarios,
     })
 

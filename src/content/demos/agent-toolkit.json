@@ -1,6 +1,7 @@
 {
-  "title": "Privacy scanner in action",
-  "intro": "Before every tool call, a scanner checks for secrets and personal data and stops the agent on a match. Pick a session to replay.",
+  "title": "Privacy scanner, call by call",
+  "intro": "A closer look at the first skill: the real scanner deciding on sample tool calls. Pick a session to replay.",
+  "extra": "skills-session",
   "recorded": "2026-11-09",
   "source": "Real security_scan.py run on sample tool calls (made-up data).",
   "scenarios": [
@@ -12,7 +13,7 @@
         {
           "tool": "scan · Bash",
           "label": "git status",
-          "ms": 32,
+          "ms": 40,
           "lines": [
             "Allowed"
           ],
@@ -21,7 +22,7 @@
         {
           "tool": "scan · Read",
           "label": "tools/fetch_news.py",
-          "ms": 28,
+          "ms": 30,
           "lines": [
             "Allowed"
           ],
@@ -30,7 +31,7 @@
         {
           "tool": "scan · WebSearch",
           "label": "TSMC 2nm capacity 2026",
-          "ms": 43,
+          "ms": 36,
           "lines": [
             "Allowed"
           ],
@@ -39,7 +40,7 @@
         {
           "tool": "scan · Bash",
           "label": "python3 tools/run_weekly_report.py",
-          "ms": 27,
+          "ms": 32,
           "lines": [
             "Allowed"
           ],
@@ -108,7 +109,7 @@
         {
           "tool": "scan · Read",
           "label": ".env",
-          "ms": 35,
+          "ms": 38,
           "lines": [
             "Blocked: Attempt to access `.env` via Read tool."
           ],
@@ -117,7 +118,7 @@
         {
           "tool": "scan · Bash",
           "label": "cat .env | grep NEWSAPI",
-          "ms": 32,
+          "ms": 30,
           "lines": [
             "Blocked: Bash command reads `.env` which contains secrets."
           ],
@@ -126,7 +127,7 @@
         {
           "tool": "scan · Bash",
           "label": "curl -H 'Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456' api.example.com",
-          "ms": 32,
+          "ms": 33,
           "lines": [
             "Blocked: Text matching a known API key/token/password shape found in bash command. Verify no live secret is being exposed."
           ],
@@ -135,7 +136,7 @@
         {
           "tool": "scan · Grep",
           "label": "session_auth/",
-          "ms": 32,
+          "ms": 27,
           "lines": [
             "Blocked: Grep targets a path inside `session_auth/`. This directory holds live session/auth data and must not be searched."
           ],
@@ -204,7 +205,7 @@
         {
           "tool": "scan · WebFetch",
           "label": "https://example.com/lookup?ssn=123-45-6789",
-          "ms": 33,
+          "ms": 29,
           "lines": [
             "Blocked: Potential financial identifier detected in web request. Verify no sensitive data is sent externally."
           ],
@@ -213,7 +214,7 @@
         {
           "tool": "scan · Bash",
           "label": "python3 notes.py --topic 'vaccine record upload'",
-          "ms": 38,
+          "ms": 26,
           "lines": [
             "Blocked: Health-record keyword `vaccine` detected in bash command. Confirm this is intentional before proceeding."
           ],
@@ -222,7 +223,7 @@
         {
           "tool": "scan · Bash",
           "label": "echo 'call me at (312) 555-0142' > note.txt",
-          "ms": 29,
+          "ms": 23,
           "lines": [
             "Blocked: Potential US phone number in bash command. Verify no personal contact info is being exposed."
           ],
@@ -231,7 +232,7 @@
         {
           "tool": "scan · WebSearch",
           "label": "best index funds for students",
-          "ms": 32,
+          "ms": 37,
           "lines": [
             "Allowed"
           ],
