@@ -1,46 +1,437 @@
 {
   "title": "This morning's outfits",
-  "intro": "At 8am the agent checks the weather and suggests three outfits for each kind of day. Pick an occasion to replay.",
+  "intro": "At 8am the agent checks the weather and picks three outfits for the day ahead. The mannequin turns slowly, and each turn it changes into the next pick. Choose an occasion, or click a pick to try it on.",
   "recorded": "2026-11-09",
   "sample": true,
-  "source": "Sample run. Replace it with a real morning run: python3 scripts/demos/record.py wardrobe",
+  "layout": "wide",
+  "source": "Sample run using photos from my wardrobe database. Replace it with a real morning run: python3 scripts/demos/record.py wardrobe",
   "scenarios": [
     {
-      "id": "casual",
-      "label": "Casual",
-      "prompt": "8am, casual day",
+      "id": "gym",
+      "label": "Gym",
+      "prompt": "7am, gym before class",
       "steps": [
-        { "tool": "fetch_weather", "label": "Check the weather in Evanston", "lines": ["9°C, Cloudy, 20% rain"] },
-        { "tool": "notion_wardrobe", "label": "Load the wardrobe and last week's outfits", "lines": ["35 items, 6 worn this week"] },
-        { "tool": "suggest_outfits", "label": "Skip recent repeats, apply style rules", "detail": "Llama 3.3 70B on Groq", "lines": ["3 outfits for casual"] },
-        { "tool": "dashboard", "label": "Show the picks on the morning dashboard" }
+        {
+          "tool": "fetch_weather",
+          "label": "Check the weather in Evanston",
+          "lines": [
+            "9°C, Cloudy, 20% rain"
+          ]
+        },
+        {
+          "tool": "notion_wardrobe",
+          "label": "Load the wardrobe and last week's outfits",
+          "lines": [
+            "35 items, 6 worn this week"
+          ]
+        },
+        {
+          "tool": "suggest_outfits",
+          "label": "Skip recent repeats, apply style rules",
+          "detail": "Llama 3.3 70B on Groq",
+          "lines": [
+            "3 outfits for gym"
+          ]
+        },
+        {
+          "tool": "dashboard",
+          "label": "Dress the avatar with the main pick"
+        }
       ],
       "result": [
-        { "type": "stats", "items": [ { "label": "Today", "value": "9°C" }, { "label": "Sky", "value": "Cloudy" }, { "label": "Rain", "value": "20%" } ] },
-        { "type": "cards", "title": "Casual picks", "items": [
-          { "title": "Sharp casual", "meta": "Main", "body": "A dark bomber over a white tee keeps it clean, and charcoal trousers add warmth for a cool morning.", "chips": [ { "label": "Leather bomber", "color": "black" }, { "label": "White tee", "color": "white" }, { "label": "Charcoal trousers", "color": "charcoal" }, { "label": "White runners", "color": "white" } ] },
-          { "title": "Soft layers", "meta": "Alternate 1", "body": "Olive and navy are an easy pairing, and the light jacket handles the chance of rain.", "chips": [ { "label": "Olive jacket", "color": "olive" }, { "label": "Navy trousers", "color": "navy" }, { "label": "Grey polo", "color": "grey" }, { "label": "Canvas slip-ons", "color": "beige" } ] },
-          { "title": "Earth tones", "meta": "Alternate 2", "body": "Brown and sky blue give some contrast without clashing, and nothing here was worn in the last week.", "chips": [ { "label": "Brown jacket", "color": "brown" }, { "label": "Sky-blue knit polo", "color": "lightblue" }, { "label": "Black trousers", "color": "black" }, { "label": "White runners", "color": "white" } ] }
-        ] }
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Today",
+              "value": "9°C"
+            },
+            {
+              "label": "Sky",
+              "value": "Cloudy"
+            },
+            {
+              "label": "Rain",
+              "value": "20%"
+            }
+          ]
+        },
+        {
+          "type": "avatar",
+          "title": "Gym picks",
+          "picks": [
+            {
+              "meta": "Pick 1",
+              "title": "Easy cardio",
+              "body": "A breathable tee and shorts for a warm-up run; white runners for the treadmill.",
+              "items": [
+                {
+                  "label": "Blue tee",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/tee-blue.webp",
+                  "color": "#3b5f8a"
+                },
+                {
+                  "label": "Navy shorts",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/shorts-navy.webp",
+                  "color": "#1c2233",
+                  "fit": "short"
+                },
+                {
+                  "label": "White runners",
+                  "slot": "shoes",
+                  "img": "/media/demos/wardrobe/runners-white.webp",
+                  "color": "#eeeeee",
+                  "view": "side"
+                }
+              ]
+            },
+            {
+              "meta": "Pick 2",
+              "title": "Lift day",
+              "body": "Black on navy hides sweat and keeps it simple for weights.",
+              "items": [
+                {
+                  "label": "Black tee",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/tee-black.webp",
+                  "color": "#151515"
+                },
+                {
+                  "label": "Navy shorts",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/shorts-navy.webp",
+                  "color": "#1c2233",
+                  "fit": "short"
+                },
+                {
+                  "label": "White runners",
+                  "slot": "shoes",
+                  "img": "/media/demos/wardrobe/runners-white.webp",
+                  "color": "#eeeeee",
+                  "view": "side"
+                }
+              ]
+            },
+            {
+              "meta": "Pick 3",
+              "title": "Gym, then coffee",
+              "body": "A knit polo and charcoal trousers go straight from the gym to a coffee chat.",
+              "items": [
+                {
+                  "label": "Grey knit polo",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/polo-grey.webp",
+                  "color": "#a9a9a9"
+                },
+                {
+                  "label": "Charcoal trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-charcoal.webp",
+                  "color": "#4a4a4a"
+                },
+                {
+                  "label": "White runners",
+                  "slot": "shoes",
+                  "img": "/media/demos/wardrobe/runners-white.webp",
+                  "color": "#eeeeee",
+                  "view": "side"
+                }
+              ]
+            }
+          ]
+        }
       ]
     },
     {
-      "id": "work",
-      "label": "Work",
-      "prompt": "8am, work day",
+      "id": "interview",
+      "label": "Interview",
+      "prompt": "8am, interview day",
       "steps": [
-        { "tool": "fetch_weather", "label": "Check the weather in Evanston", "lines": ["9°C, Cloudy, 20% rain"] },
-        { "tool": "notion_wardrobe", "label": "Load the wardrobe and last week's outfits", "lines": ["35 items, 6 worn this week"] },
-        { "tool": "suggest_outfits", "label": "Skip recent repeats, apply style rules", "detail": "Llama 3.3 70B on Groq", "lines": ["3 outfits for work"] },
-        { "tool": "dashboard", "label": "Show the picks on the morning dashboard" }
+        {
+          "tool": "fetch_weather",
+          "label": "Check the weather in Evanston",
+          "lines": [
+            "9°C, Cloudy, 20% rain"
+          ]
+        },
+        {
+          "tool": "notion_wardrobe",
+          "label": "Load the wardrobe and last week's outfits",
+          "lines": [
+            "35 items, 6 worn this week"
+          ]
+        },
+        {
+          "tool": "suggest_outfits",
+          "label": "Skip recent repeats, apply style rules",
+          "detail": "Llama 3.3 70B on Groq",
+          "lines": [
+            "3 outfits for interview"
+          ]
+        },
+        {
+          "tool": "dashboard",
+          "label": "Dress the avatar with the main pick"
+        }
       ],
       "result": [
-        { "type": "stats", "items": [ { "label": "Today", "value": "9°C" }, { "label": "Sky", "value": "Cloudy" }, { "label": "Rain", "value": "20%" } ] },
-        { "type": "cards", "title": "Work picks", "items": [
-          { "title": "Quiet polish", "meta": "Main", "body": "A white oxford with navy trousers reads professional, and the dark overshirt adds a layer for the walk.", "chips": [ { "label": "White oxford", "color": "white" }, { "label": "Navy trousers", "color": "navy" }, { "label": "Dark green overshirt", "color": "darkgreen" } ] },
-          { "title": "Monochrome dark", "meta": "Alternate 1", "body": "A black knit polo and black trousers look sharp for presentations; white shoes keep it from feeling heavy.", "chips": [ { "label": "Black knit polo", "color": "black" }, { "label": "Black trousers", "color": "black" }, { "label": "White runners", "color": "white" } ] },
-          { "title": "Soft contrast", "meta": "Alternate 2", "body": "Light grey trousers balance a mid-blue tee under the olive jacket for a relaxed office day.", "chips": [ { "label": "Blue tee", "color": "steelblue" }, { "label": "Light grey trousers", "color": "lightgrey" }, { "label": "Olive jacket", "color": "olive" } ] }
-        ] }
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Today",
+              "value": "9°C"
+            },
+            {
+              "label": "Sky",
+              "value": "Cloudy"
+            },
+            {
+              "label": "Rain",
+              "value": "20%"
+            }
+          ]
+        },
+        {
+          "type": "avatar",
+          "title": "Interview picks",
+          "picks": [
+            {
+              "meta": "Pick 1",
+              "title": "Sharp and quiet",
+              "body": "A crisp white oxford and black trousers under a dark jacket: polished without a full suit.",
+              "items": [
+                {
+                  "label": "White oxford",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/shirt-white.webp",
+                  "color": "#f2f2f2"
+                },
+                {
+                  "label": "Black trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-black.webp",
+                  "color": "#141414"
+                },
+                {
+                  "label": "Dark green jacket",
+                  "slot": "outer",
+                  "img": "/media/demos/wardrobe/jacket-green.webp",
+                  "color": "#1f2a22"
+                },
+                {
+                  "label": "Black derbies",
+                  "slot": "shoes",
+                  "color": "#111111"
+                }
+              ]
+            },
+            {
+              "meta": "Pick 2",
+              "title": "Classic",
+              "body": "White dress shirt with navy trousers is the safest pairing for a formal panel.",
+              "items": [
+                {
+                  "label": "White dress shirt",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/shirt-white-2.webp",
+                  "color": "#f2f2f2"
+                },
+                {
+                  "label": "Navy trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-navy.webp",
+                  "color": "#1c2233"
+                },
+                {
+                  "label": "Black derbies",
+                  "slot": "shoes",
+                  "color": "#111111"
+                }
+              ]
+            },
+            {
+              "meta": "Pick 3",
+              "title": "Modern business casual",
+              "body": "A grey knit polo under the jacket for a startup or tech interview.",
+              "items": [
+                {
+                  "label": "Grey knit polo",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/polo-grey.webp",
+                  "color": "#a9a9a9"
+                },
+                {
+                  "label": "Black trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-black.webp",
+                  "color": "#141414"
+                },
+                {
+                  "label": "Dark green jacket",
+                  "slot": "outer",
+                  "img": "/media/demos/wardrobe/jacket-green.webp",
+                  "color": "#1f2a22"
+                },
+                {
+                  "label": "Black derbies",
+                  "slot": "shoes",
+                  "color": "#111111"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "date",
+      "label": "Date",
+      "prompt": "6pm, dinner date",
+      "steps": [
+        {
+          "tool": "fetch_weather",
+          "label": "Check the weather in Evanston",
+          "lines": [
+            "9°C, Cloudy, 20% rain"
+          ]
+        },
+        {
+          "tool": "notion_wardrobe",
+          "label": "Load the wardrobe and last week's outfits",
+          "lines": [
+            "35 items, 6 worn this week"
+          ]
+        },
+        {
+          "tool": "suggest_outfits",
+          "label": "Skip recent repeats, apply style rules",
+          "detail": "Llama 3.3 70B on Groq",
+          "lines": [
+            "3 outfits for date"
+          ]
+        },
+        {
+          "tool": "dashboard",
+          "label": "Dress the avatar with the main pick"
+        }
+      ],
+      "result": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Today",
+              "value": "9°C"
+            },
+            {
+              "label": "Sky",
+              "value": "Cloudy"
+            },
+            {
+              "label": "Rain",
+              "value": "20%"
+            }
+          ]
+        },
+        {
+          "type": "avatar",
+          "title": "Date picks",
+          "picks": [
+            {
+              "meta": "Pick 1",
+              "title": "Evening edge",
+              "body": "A sky-blue polo softens the leather bomber; charcoal trousers keep it dressed up.",
+              "items": [
+                {
+                  "label": "Sky-blue knit polo",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/polo-lightblue.webp",
+                  "color": "#a9c4d8"
+                },
+                {
+                  "label": "Charcoal trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-charcoal.webp",
+                  "color": "#4a4a4a"
+                },
+                {
+                  "label": "Leather bomber",
+                  "slot": "outer",
+                  "img": "/media/demos/wardrobe/bomber-black.webp",
+                  "color": "#121212"
+                },
+                {
+                  "label": "White runners",
+                  "slot": "shoes",
+                  "img": "/media/demos/wardrobe/runners-white.webp",
+                  "color": "#eeeeee",
+                  "view": "side"
+                }
+              ]
+            },
+            {
+              "meta": "Pick 2",
+              "title": "Warm and relaxed",
+              "body": "Mustard and navy are a confident color pair; slip-ons keep it easy.",
+              "items": [
+                {
+                  "label": "Mustard knit polo",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/polo-yellow.webp",
+                  "color": "#c9b23e"
+                },
+                {
+                  "label": "Navy trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-navy.webp",
+                  "color": "#1c2233"
+                },
+                {
+                  "label": "Canvas slip-ons",
+                  "slot": "shoes",
+                  "img": "/media/demos/wardrobe/slipon-beige.webp",
+                  "color": "#d8cdb8",
+                  "view": "top"
+                }
+              ]
+            },
+            {
+              "meta": "Pick 3",
+              "title": "Clean contrast",
+              "body": "White shirt, black trousers and the bomber: simple, high contrast, hard to get wrong.",
+              "items": [
+                {
+                  "label": "White dress shirt",
+                  "slot": "top",
+                  "img": "/media/demos/wardrobe/shirt-white-2.webp",
+                  "color": "#f2f2f2"
+                },
+                {
+                  "label": "Black trousers",
+                  "slot": "bottom",
+                  "img": "/media/demos/wardrobe/trousers-black.webp",
+                  "color": "#141414"
+                },
+                {
+                  "label": "Leather bomber",
+                  "slot": "outer",
+                  "img": "/media/demos/wardrobe/bomber-black.webp",
+                  "color": "#121212"
+                },
+                {
+                  "label": "White runners",
+                  "slot": "shoes",
+                  "img": "/media/demos/wardrobe/runners-white.webp",
+                  "color": "#eeeeee",
+                  "view": "side"
+                }
+              ]
+            }
+          ]
+        }
       ]
     }
   ]

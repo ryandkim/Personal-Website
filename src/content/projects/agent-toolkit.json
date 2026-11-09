@@ -1,18 +1,18 @@
 {
-  "name": "Shared agent toolkit",
-  "tagline": "The guardrails and helpers every one of my agents runs on.",
+  "name": "Always-on agent skills",
+  "tagline": "Three skills that run on every project I build: a privacy scanner, auto-save and notifications.",
   "status": "working",
   "tags": ["Infrastructure", "Security", "Automation"],
   "order": 5,
-  "summary": "A small set of shared pieces that all my agents use: a privacy scanner that blocks personal data before any tool call, an auto-save helper, desktop notifications, and templates that keep every agent built the same way.",
-  "problem": "Each new agent needed the same safety checks and plumbing, and copying them by hand was error-prone.",
+  "summary": "Every agent I build inherits the same three skills as Claude Code hooks. A privacy scanner checks each tool call before it runs, an auto-save skill checkpoints the session and pushes my work whenever Claude pauses, and a notifications skill pings me when Claude finishes or needs approval while I'm in another app.",
+  "problem": "Each new agent needed the same safety checks and plumbing, and I kept losing context or missing the moment Claude needed me while I was in another window.",
   "how": [
-    "A security scanner checks tool calls for personal data and stops on a match.",
-    "Auto-save commits work regularly so nothing is lost.",
-    "A shared notifier sends native desktop alerts.",
-    "Workflow and tool templates follow one Workflow, Agent, Tool pattern."
+    "Privacy scanner: before every tool call, it checks for secrets, personal details and health or financial data, and stops on a match.",
+    "Auto-save: whenever Claude pauses, it writes a session checkpoint, summarises what changed, then commits and pushes (at most every 3 minutes).",
+    "Notifications: native macOS pings when Claude is done or waiting for approval, sent only when I'm not looking at the editor.",
+    "Templates keep every new agent on the same Workflow, Agent, Tool pattern, so the skills plug in automatically."
   ],
-  "stack": ["Python", "Swift", "Git"],
-  "highlights": ["Used by every agent above"],
+  "stack": ["Python", "Swift", "Git", "Claude Code hooks", "Groq (Llama 3.3)"],
+  "highlights": ["Runs on every agent I build", "No setup per project"],
   "links": {}
 }

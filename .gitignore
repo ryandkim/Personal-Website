@@ -6,4 +6,3 @@ dist/
 .DS_Store
 .vercel/
 !.env.example
-.tmp-video/

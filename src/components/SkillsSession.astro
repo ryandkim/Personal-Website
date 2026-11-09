@@ -1,0 +1,152 @@
+---
+// The three skills that run on every project, shown during a mock work session:
+// the privacy scanner checks each tool call, auto-save checkpoints and pushes
+// when Claude pauses, and notifications ping only when I'm in another app.
+// Behavior mirrors Master Architecture/ (security_scan.py, auto_save.py, notify.py).
+const skills = [
+  { id: 'scan', name: 'Privacy scanner', when: 'Before every tool call', text: 'Blocks secrets, personal details and health or financial data before they leave the machine.' },
+  { id: 'save', name: 'Auto-save', when: 'Whenever Claude pauses', text: 'Writes a session checkpoint, then commits and pushes with a summary of what changed (at most every 3 minutes).' },
+  { id: 'ping', name: 'Notifications', when: 'When I look away', text: 'Pings me when Claude finishes or needs approval, but only if I am in another app or tab.' },
+];
+---
+<section class="mb-14" data-skills aria-label="Always-on skills">
+  <p class="text-xs tracking-[0.2em] text-accent uppercase">Always on</p>
+  <h2 class="mt-2 font-serif text-3xl">Skills that run on every project</h2>
+  <p class="mt-3 leading-relaxed text-muted">Every agent I build inherits these three skills as Claude Code hooks, so I never have to set them up again. Here is a short work session with all three running.</p>
+
+  <ul class="mt-6 grid gap-3 sm:grid-cols-3">
+    {skills.map((s) => (
+      <li class="skill rounded-2xl border border-line bg-panel p-4 transition" data-skill={s.id}>
+        <p class="flex items-center justify-between text-[11px] tracking-wider text-muted uppercase">{s.when}<span class="skill-dot h-2 w-2 rounded-full bg-line"></span></p>
+        <p class="mt-1 font-serif text-xl">{s.name}</p>
+        <p class="mt-1 text-sm leading-relaxed text-muted">{s.text}</p>
+        <p class="mt-3 font-mono text-xs text-emerald-300" data-skill-status>Idle</p>
+      </li>
+    ))}
+  </ul>
+
+  <div class="relative mt-4 overflow-hidden rounded-2xl border border-line bg-panel">
+    <div class="flex items-center gap-3 border-b border-line px-4 py-3">
+      <span class="flex gap-1.5" aria-hidden="true"><i class="h-2.5 w-2.5 rounded-full bg-line"></i><i class="h-2.5 w-2.5 rounded-full bg-line"></i><i class="h-2.5 w-2.5 rounded-full bg-line"></i></span>
+      <p class="min-w-0 flex-1 truncate font-mono text-xs text-muted">wardrobe-agent · Claude Code</p>
+      <p class="shrink-0 text-xs text-muted">You're in <span class="rounded-full bg-ink px-2 py-0.5 text-text" data-app>VS Code</span></p>
+      <button type="button" data-skills-play class="shrink-0 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-ink hover:brightness-110">▶ Replay</button>
+    </div>
+    <ol class="h-80 space-y-2 overflow-hidden p-4 font-mono text-xs sm:p-5" data-log aria-live="polite"></ol>
+    <div class="pointer-events-none absolute top-14 right-3 w-72 max-w-[85%] space-y-2" data-toasts></div>
+    <p class="border-t border-line px-4 py-3 text-sm text-muted" data-caption>Press replay to watch a session.</p>
+  </div>
+</section>
+
+<style>
+  .skill.is-active { border-color: rgb(242 181 68 / .6); }
+  .skill.is-active .skill-dot { background: var(--color-accent); box-shadow: 0 0 0 4px rgb(242 181 68 / .2); }
+  .skill-in { animation: skill-in .35s ease; }
+  .toast { animation: toast-in .4s ease; }
+  .toast.out { opacity: 0; transform: translateX(12px); transition: all .4s ease; }
+  @keyframes skill-in { from { opacity: 0; transform: translateY(4px); } }
+  @keyframes toast-in { from { opacity: 0; transform: translateX(16px); } }
+</style>
+
+<script>
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  type Ev =
+    | { t: 'say'; text: string }
+    | { t: 'user'; text: string }
+    | { t: 'call'; tool: string; arg: string; ok: boolean; why?: string }
+    | { t: 'claude'; text: string }
+    | { t: 'app'; name: string; text: string }
+    | { t: 'stop'; commit: string }
+    | { t: 'ping'; title: string; body: string };
+
+  // One session. Notifications only appear while the app isn't VS Code.
+  const script: Ev[] = [
+    { t: 'say', text: 'You ask Claude for a change and keep watching in VS Code.' },
+    { t: 'user', text: 'Add a backup weather source for when WeatherAPI is down' },
+    { t: 'call', tool: 'Read', arg: 'tools/fetch_weather.py', ok: true },
+    { t: 'call', tool: 'WebSearch', arg: 'free weather API no key', ok: true },
+    { t: 'app', name: 'Safari', text: 'You switch to Safari while Claude keeps working.' },
+    { t: 'call', tool: 'Bash', arg: 'cat .env | grep WEATHER', ok: false, why: 'reads .env, which holds secrets' },
+    { t: 'claude', text: 'Blocked by the privacy scanner. Asking before I touch secrets.' },
+    { t: 'ping', title: 'Claude · Wardrobe Agent', body: 'Waiting for approval: Bash' },
+    { t: 'call', tool: 'Edit', arg: 'tools/fetch_weather.py', ok: true },
+    { t: 'call', tool: 'Bash', arg: 'python3 -m pytest tests/', ok: true },
+    { t: 'claude', text: 'Done. Open-Meteo is now the fallback, and all tests pass.' },
+    { t: 'stop', commit: 'Add Open-Meteo fallback when WeatherAPI is unavailable' },
+    { t: 'ping', title: 'Claude ✓', body: 'Done · Wardrobe Agent' },
+    { t: 'app', name: 'VS Code', text: 'Back in VS Code: no pings while you are watching.' },
+  ];
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-skills]')) {
+    const log = root.querySelector<HTMLElement>('[data-log]')!;
+    const toasts = root.querySelector<HTMLElement>('[data-toasts]')!;
+    const app = root.querySelector<HTMLElement>('[data-app]')!;
+    const caption = root.querySelector<HTMLElement>('[data-caption]')!;
+    const skill = (id: string) => root.querySelector<HTMLElement>(`[data-skill="${id}"]`)!;
+    const status = (id: string, text: string, bad = false) => {
+      const el = skill(id).querySelector<HTMLElement>('[data-skill-status]')!;
+      el.textContent = text; el.className = `mt-3 font-mono text-xs ${bad ? 'text-red-300' : 'text-emerald-300'}`;
+    };
+    const flash = async (id: string) => { skill(id).classList.add('is-active'); await sleep(900); skill(id).classList.remove('is-active'); };
+    let token = 0;
+
+    const line = (html: string) => {
+      const li = document.createElement('li'); li.className = 'skill-in'; li.innerHTML = html; log.append(li);
+      while (log.scrollHeight > log.clientHeight && log.children.length > 1) log.firstElementChild!.remove();
+    };
+    const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+    function toast(title: string, body: string, icon = '◆') {
+      const d = document.createElement('div');
+      d.className = 'toast rounded-xl border border-line bg-ink/95 p-3 shadow-xl backdrop-blur';
+      d.innerHTML = `<p class="flex items-center gap-2 text-xs font-medium"><span class="text-accent">${icon}</span>${esc(title)}</p><p class="mt-0.5 text-xs text-muted">${esc(body)}</p>`;
+      toasts.append(d);
+      setTimeout(() => { d.classList.add('out'); setTimeout(() => d.remove(), 450); }, 4200);
+    }
+
+    async function run() {
+      const my = ++token;
+      log.innerHTML = ''; toasts.innerHTML = ''; app.textContent = 'VS Code';
+      let checked = 0, blocked = 0, pings = 0;
+      status('scan', 'Idle'); status('save', 'Idle'); status('ping', 'Idle');
+      for (const e of script) {
+        if (my !== token) return;
+        switch (e.t) {
+          case 'say': caption.textContent = e.text; await sleep(1200); break;
+          case 'user': line(`<span class="text-accent">›</span> <span class="font-sans text-sm text-text">${esc(e.text)}</span>`); await sleep(1300); break;
+          case 'claude': line(`<span class="font-sans text-sm text-muted">${esc(e.text)}</span>`); await sleep(1500); break;
+          case 'app': app.textContent = e.name; caption.textContent = e.text; await sleep(1600); break;
+          case 'call': {
+            line(`<span class="text-muted">${e.tool}</span> ${esc(e.arg)} <span class="text-muted" data-v>· scanning…</span>`);
+            const v = log.lastElementChild!.querySelector('[data-v]')!;
+            flash('scan'); await sleep(650);
+            checked++; if (!e.ok) blocked++;
+            v.className = e.ok ? 'text-emerald-300' : 'text-red-300';
+            v.textContent = e.ok ? '· allowed' : `· blocked: ${e.why}`;
+            status('scan', `${checked} calls checked · ${blocked} blocked`, !e.ok);
+            await sleep(e.ok ? 700 : 1500); break;
+          }
+          case 'stop': {
+            caption.textContent = 'Claude pauses, so auto-save checkpoints the session and pushes.';
+            flash('save');
+            line(`<span class="text-sky-300">auto-save</span> session_checkpoint.md updated`); await sleep(700);
+            line(`<span class="text-sky-300">auto-save</span> git commit -m "${esc(e.commit)}" · pushed`);
+            status('save', 'Saved just now · 1 commit pushed');
+            if (app.textContent !== 'VS Code') toast('Progress saved!', e.commit, '✓');
+            await sleep(1500); break;
+          }
+          case 'ping': {
+            if (app.textContent === 'VS Code') break;
+            flash('ping'); pings++;
+            toast(e.title, e.body);
+            status('ping', `${pings} ping${pings > 1 ? 's' : ''} while you were in ${app.textContent}`);
+            await sleep(1600); break;
+          }
+        }
+      }
+    }
+
+    root.querySelector('[data-skills-play]')!.addEventListener('click', run);
+    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); run(); } }, { threshold: 0.4 });
+    io.observe(log);
+  }
+</script>
