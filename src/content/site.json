@@ -2,7 +2,7 @@
   "name": "Ryan Kim",
   "hero": {
     "greeting": "Hello, I'm",
-    "headline": "",
+    "headline": "This is a test headline.",
     "bio": ""
   },
   "sections": {
@@ -32,8 +32,8 @@
     }
   },
   "now": [
-    "MBA + MS in Artificial Intelligence candidate at Kellogg and McCormick, Northwestern (2026 to 2028)",
-    "Building AI agents: a semiconductor news tracker, a wardrobe stylist, a recruiting dashboard, and Mixr",
+    "MBA in Artificial Intelligence candidate at Kellogg and McCormick, Northwestern (2026 to 2028)",
+    "Building AI agents: a semiconductor news tracker, a wardrobe stylist, a recruiting dashboard, and M:xr",
     "Director in the Kellogg AI Club (special projects, AI conference outreach)"
   ],
   "lookingFor": "Product management roles in AI. (Placeholder, click Edit to change.)",
