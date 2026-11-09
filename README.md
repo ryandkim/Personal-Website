@@ -10,7 +10,7 @@ You need [Node.js](https://nodejs.org) 20 or newer (`node -v` to check).
 ```bash
 git clone https://github.com/ryandkim/Personal-Website.git
 cd Personal-Website
-git checkout claude/project-thread-83f4pu   # until this branch is merged into main
+git checkout main
 npm install
 npm run dev
 ```
