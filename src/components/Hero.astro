@@ -1,8 +1,38 @@
 ---
+import '@fontsource/pixelify-sans/400.css';
+import '@fontsource/pixelify-sans/600.css';
 import { site, content } from '../data/site';
+import { TWIN_LIMITS } from '../data/twin';
+const t = content.ui.twin;
+
+// Original pixel-art portrait for the back of the card (16 x 16). Each letter
+// is a palette color, '.' is transparent.
+const PAL: Record<string, string> = {
+  h: '#2a1d17', H: '#3d2a20', s: '#f1c7a1', S: '#dfa983', e: '#1b1b1b', m: '#a65a45',
+  j: '#f2b544', J: '#c98d24', w: '#ecebe6',
+};
+const portrait = [
+  '.....hhhhhh.....',
+  '...hhhHHHHhhh...',
+  '..hhhhhhhhhhhh..',
+  '..hhhhhhhhhhhh..',
+  '..hhssssssshhh..',
+  '..hssssssssssh..',
+  '..sseessssseeS..',
+  '..sssssssssssS..',
+  '..ssssssssssss..',
+  '...ssssmmmsss...',
+  '....ssssssss....',
+  '......SSSS......',
+  '...jjjwwwwjjj...',
+  '..jjjjjwwjjjjj..',
+  '.jjjjjjwwjjjjjJ.',
+  '.JjjjjjjjjjjjjJ.',
+];
+const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ? [{ x, y, fill: PAL[c], eye: c === 'e' }] : [])));
 ---
-<section id="top" class="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-32 pb-20 sm:px-8 md:grid-cols-[1.2fr_1fr] md:pt-40 md:pb-28">
-  <div class="reveal order-2 md:order-1">
+<section id="top" class="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-32 pb-20 sm:px-8 md:grid-cols-[1.2fr_1fr] md:items-start md:pt-40 md:pb-28">
+  <div class="reveal order-2 md:order-1 md:pt-10">
     <p class="mb-4 text-sm tracking-[0.2em] text-accent uppercase" data-edit="hero.greeting">{content.hero.greeting}</p>
     <h1 class="font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl" data-edit="name">{content.name}</h1>
     <p class="mt-6 max-w-xl text-xl" data-edit="hero.headline" data-placeholder="Headline goes here. Sign in and click Edit to write it.">{content.hero.headline}</p>
@@ -12,11 +42,240 @@ import { site, content } from '../data/site';
       <a href="#journey" class="rounded-full border border-line px-5 py-2.5 text-sm transition hover:border-text"><span data-edit="ui.hero.journeyButton">{content.ui.hero.journeyButton}</span></a>
     </div>
   </div>
-  <div class="reveal order-1 mx-auto w-64 sm:w-72 md:order-2 md:w-full md:max-w-sm">
+
+  <div class="reveal order-1 mx-auto w-64 sm:w-72 md:order-2 md:w-full md:max-w-sm" data-twin
+       data-limit={TWIN_LIMITS.perVisitorPerDay} data-max={TWIN_LIMITS.maxInputChars} data-history={TWIN_LIMITS.historyTurns}>
     <div class="relative">
       <div class="absolute -inset-3 -z-10 rounded-[2rem] bg-accent/10 blur-2xl"></div>
-      <img src="/images/headshot.jpg" alt={`Portrait of ${site.name}`} width="800" height="1000"
-           class="aspect-[4/5] w-full rounded-[1.75rem] border border-line object-cover" fetchpriority="high" />
+      <div class="twin-card">
+        <div class="twin-inner">
+          <div class="twin-face twin-front">
+            <img src="/images/headshot.jpg" alt={`Portrait of ${site.name}`} width="800" height="1000"
+                 class="aspect-[4/5] w-full rounded-[1.75rem] border border-line object-cover" fetchpriority="high" />
+          </div>
+          <div class="twin-face twin-back" aria-hidden="true">
+            <div class="twin-screen">
+              <svg viewBox="0 0 16 16" class="twin-sprite" shape-rendering="crispEdges" role="img" aria-label={`Pixel-art ${site.name}`}>
+                {pixels.map((p) => <rect x={p.x} y={p.y} width="1" height="1" fill={p.fill} class={p.eye ? 'twin-eye' : undefined} />)}
+              </svg>
+              <p class="twin-name" data-edit="ui.twin.backTitle">{t.backTitle}</p>
+              <p class="twin-sub" data-edit="ui.twin.backText">{t.backText}</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="twin-flip" data-twin-flip aria-expanded="false" aria-controls="twin-chat">
+          <span class="twin-flip-icon" aria-hidden="true">↻</span>
+          <span data-twin-flip-label="front" data-edit="ui.twin.flip">{t.flip}</span>
+          <span data-twin-flip-label="back" data-edit="ui.twin.flipBack" hidden>{t.flipBack}</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="twin-chat" class="twin-chat" data-twin-chat hidden>
+      <div class="twin-log" data-twin-log role="log" aria-live="polite">
+        <p class="twin-msg twin-ai" data-edit="ui.twin.greeting">{t.greeting}</p>
+      </div>
+      <form class="twin-form" data-twin-form>
+        <label for="twin-input" class="sr-only" data-edit="ui.twin.inputLabel">{t.inputLabel}</label>
+        <input id="twin-input" name="message" autocomplete="off" maxlength={TWIN_LIMITS.maxInputChars} placeholder="Ask me something..." />
+        <button type="submit" data-edit="ui.twin.send">{t.send}</button>
+      </form>
+      <div class="twin-foot">
+        <span data-edit="ui.twin.note">{t.note}</span>
+        <button type="button" data-twin-restart data-edit="ui.twin.restart">{t.restart}</button>
+      </div>
+      <!-- Messages the chat shows in special cases. Visible only in owner Edit mode, so they can be edited. -->
+      <div class="twin-strings" data-twin-text>
+        <span data-k="thinking" data-edit="ui.twin.thinking">{t.thinking}</span>
+        <span data-k="offline" data-edit="ui.twin.offline">{t.offline}</span>
+        <span data-k="limit" data-edit="ui.twin.limit">{t.limit}</span>
+        <span data-k="error" data-edit="ui.twin.error">{t.error}</span>
+      </div>
     </div>
   </div>
 </section>
+
+<style>
+  .twin-card { position: relative; perspective: 1400px; }
+  .twin-inner { position: relative; transform-style: preserve-3d; transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+  [data-twin].flipped .twin-inner { transform: rotateY(180deg); }
+  .twin-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .twin-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+  .twin-screen {
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
+    padding: 1.5rem; text-align: center; border-radius: 1.75rem; border: 1px solid var(--color-line);
+    background-color: var(--color-panel);
+    background-image: radial-gradient(circle at 50% 38%, #2a2416 0, transparent 62%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 2px, transparent 2px 4px);
+    font-family: 'Pixelify Sans', monospace;
+  }
+  .twin-sprite { width: 58%; image-rendering: pixelated; filter: drop-shadow(0 6px 0 rgba(0,0,0,.35)); animation: twin-bob 2.4s steps(2) infinite; }
+  .twin-eye { animation: twin-blink 4s steps(1) infinite; }
+  .twin-name { font-size: 1.6rem; font-weight: 600; color: var(--color-accent); text-shadow: 2px 2px 0 #000; }
+  .twin-sub { max-width: 16rem; font-size: .95rem; color: var(--color-muted); line-height: 1.35; }
+  @keyframes twin-bob { 50% { transform: translateY(-3%); } }
+  @keyframes twin-blink { 0%, 94% { opacity: 1; } 95%, 100% { opacity: 0; } }
+
+  .twin-flip {
+    position: absolute; left: 50%; bottom: .9rem; transform: translateX(-50%); z-index: 2;
+    display: flex; align-items: center; gap: .45rem; white-space: nowrap;
+    border-radius: 999px; border: 1px solid var(--color-line); background: color-mix(in oklab, var(--color-ink) 82%, transparent);
+    backdrop-filter: blur(6px); padding: .5rem 1rem; font-size: .85rem; transition: border-color .2s, color .2s;
+  }
+  .twin-flip:hover, .twin-flip:focus-visible { border-color: var(--color-accent); color: var(--color-accent); }
+  .twin-flip-icon { display: inline-block; transition: transform .6s; }
+  [data-twin].flipped .twin-flip-icon { transform: rotate(-180deg); }
+
+  .twin-chat {
+    margin-top: 1.25rem; font-family: 'Pixelify Sans', monospace;
+    border: 3px solid var(--color-text); border-radius: .5rem; background: #0f1013;
+    box-shadow: inset 0 0 0 3px #0f1013, inset 0 0 0 5px var(--color-accent), 0 6px 0 #000;
+    padding: .9rem; animation: twin-in .45s ease;
+  }
+  @keyframes twin-in { from { opacity: 0; transform: translateY(-8px); } }
+  .twin-log { max-height: 16rem; overflow-y: auto; display: flex; flex-direction: column; gap: .6rem; padding: .25rem .25rem .5rem; overscroll-behavior: contain; }
+  .twin-msg { font-size: 1rem; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .twin-ai { color: var(--color-text); }
+  .twin-ai::before { content: '▸ '; color: var(--color-accent); }
+  .twin-me { align-self: flex-end; max-width: 85%; color: var(--color-accent); text-align: right; }
+  .twin-wait::after { content: '...'; display: inline-block; width: 0; overflow: hidden; vertical-align: bottom; animation: twin-dots 1.2s steps(4) infinite; }
+  @keyframes twin-dots { to { width: 1.4em; } }
+  .twin-form { display: flex; gap: .5rem; border-top: 2px dashed var(--color-line); padding-top: .7rem; }
+  .twin-form input {
+    flex: 1; min-width: 0; background: transparent; border: 2px solid var(--color-line); border-radius: .3rem;
+    padding: .45rem .6rem; font: inherit; font-size: 1rem; color: var(--color-text);
+  }
+  .twin-form input:focus { outline: none; border-color: var(--color-accent); }
+  .twin-form button { border-radius: .3rem; background: var(--color-accent); color: var(--color-accent-ink); padding: 0 .9rem; font-weight: 600; }
+  .twin-form button:disabled, .twin-form input:disabled { opacity: .5; }
+  .twin-foot { display: flex; justify-content: space-between; gap: .75rem; margin-top: .55rem; font-size: .78rem; color: var(--color-muted); }
+  .twin-foot button { flex-shrink: 0; text-decoration: underline; }
+  .twin-strings { display: none; }
+  :global(body.editing) .twin-strings { display: flex; flex-direction: column; gap: .4rem; margin-top: .75rem; font-size: .8rem; color: var(--color-muted); }
+  .twin-foot button:hover { color: var(--color-accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .twin-inner, .twin-flip-icon { transition: none; }
+    .twin-sprite, .twin-eye, .twin-chat, .twin-wait::after { animation: none; }
+  }
+</style>
+
+<script>
+  type Msg = { role: 'user' | 'assistant'; content: string };
+  const root = document.querySelector<HTMLElement>('[data-twin]');
+  if (root) {
+    const flip = root.querySelector<HTMLButtonElement>('[data-twin-flip]')!;
+    const chat = root.querySelector<HTMLElement>('[data-twin-chat]')!;
+    const log = root.querySelector<HTMLElement>('[data-twin-log]')!;
+    const form = root.querySelector<HTMLFormElement>('[data-twin-form]')!;
+    const input = form.querySelector('input')!;
+    const send = form.querySelector('button')!;
+    const back = root.querySelector<HTMLElement>('.twin-back')!;
+    const front = root.querySelector<HTMLElement>('.twin-front')!;
+    const strings = root.querySelector<HTMLElement>('[data-twin-text]')!;
+    const text = (k: string) => strings.querySelector(`[data-k="${k}"]`)?.textContent?.trim() ?? '';
+    const LIMIT = Number(root.dataset.limit);
+    const HISTORY = Number(root.dataset.history);
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Browser storage is only a convenience; the page works without it.
+    const store = {
+      get<T>(k: string, s: Storage, fallback: T): T { try { const v = s.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } },
+      set(k: string, s: Storage, v: unknown) { try { s.setItem(k, JSON.stringify(v)); } catch {} },
+    };
+    const today = new Date().toISOString().slice(0, 10);
+    let history: Msg[] = store.get('twin-history', sessionStorage, []);
+    let used: { day: string; n: number } = store.get('twin-used', localStorage, { day: today, n: 0 });
+    if (used.day !== today) used = { day: today, n: 0 };
+    let busy = false;
+
+    const editing = () => document.body.classList.contains('editing');
+
+    function setFlipped(on: boolean) {
+      root!.classList.toggle('flipped', on);
+      chat.hidden = !on;
+      flip.setAttribute('aria-expanded', String(on));
+      back.setAttribute('aria-hidden', String(!on));
+      front.setAttribute('aria-hidden', String(on));
+      root!.querySelectorAll<HTMLElement>('[data-twin-flip-label]').forEach((el) => { el.hidden = (el.dataset.twinFlipLabel === 'back') !== on; });
+      if (on && !editing() && matchMedia('(hover: hover)').matches) input.focus({ preventScroll: true });
+    }
+
+    flip.addEventListener('click', () => setFlipped(!root.classList.contains('flipped')));
+
+    function bubble(role: Msg['role'] | 'wait', body = '') {
+      const p = document.createElement('p');
+      p.className = `twin-msg ${role === 'user' ? 'twin-me' : 'twin-ai'}${role === 'wait' ? ' twin-wait' : ''}`;
+      p.textContent = body;
+      log.append(p);
+      log.scrollTop = log.scrollHeight;
+      return p;
+    }
+
+    // Retro dialogue: reveal the reply a few letters at a time.
+    function typeOut(el: HTMLElement, body: string) {
+      if (reduced) { el.textContent = body; return Promise.resolve(); }
+      return new Promise<void>((done) => {
+        let i = 0;
+        const tick = () => {
+          i = Math.min(body.length, i + 2);
+          el.textContent = body.slice(0, i);
+          log.scrollTop = log.scrollHeight;
+          if (i < body.length) setTimeout(tick, 18); else done();
+        };
+        tick();
+      });
+    }
+
+    function lockIfOut() {
+      const out = used.n >= LIMIT;
+      input.disabled = out; send.disabled = out || busy;
+      return out;
+    }
+
+    // Restore this tab's earlier conversation.
+    for (const m of history) bubble(m.role, m.content);
+    if (lockIfOut() && history.length) bubble('assistant', text('limit'));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q || busy || editing() || lockIfOut()) return;
+      busy = true; send.disabled = true; input.value = '';
+      history.push({ role: 'user', content: q });
+      bubble('user', q);
+      const wait = bubble('wait', text('thinking'));
+      let reply = '';
+      try {
+        const res = await fetch('/api/twin', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ messages: history.slice(-HISTORY) }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.reply) {
+          reply = data.reply;
+          used.n++; store.set('twin-used', localStorage, used);
+        } else {
+          reply = text(data.error === 'offline' ? 'offline' : data.error === 'limit' ? 'limit' : 'error');
+          if (data.error === 'limit') { used.n = LIMIT; store.set('twin-used', localStorage, used); }
+          history.pop(); // don't keep a question that never got an answer
+        }
+      } catch {
+        reply = text('error'); history.pop();
+      }
+      wait.classList.remove('twin-wait');
+      await typeOut(wait, reply);
+      if (history.at(-1)?.role === 'user') history.push({ role: 'assistant', content: reply });
+      store.set('twin-history', sessionStorage, history);
+      busy = false; lockIfOut();
+      if (!input.disabled) input.focus({ preventScroll: true });
+    });
+
+    root.querySelector('[data-twin-restart]')!.addEventListener('click', () => {
+      if (editing()) return;
+      history = []; store.set('twin-history', sessionStorage, history);
+      log.querySelectorAll('.twin-msg:not([data-edit])').forEach((el) => el.remove());
+      lockIfOut();
+    });
+  }
+</script>

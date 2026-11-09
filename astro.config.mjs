@@ -6,7 +6,7 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   // Pages stay static. Only the small /api routes (owner sign-in and saving
-  // edits) run on a server: Vercel when deployed there, Node on your computer.
+  // edits, the AI Ryan chat) run on a server: Vercel when deployed there, Node on your computer.
   adapter: process.env.VERCEL ? vercel() : node({ mode: 'standalone' }),
   security: { checkOrigin: true },
   // The dev toolbar would sit on top of the owner Edit bar.
@@ -23,6 +23,8 @@ export default defineConfig({
       SITE_EDIT_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
       SITE_REPO: envField.string({ context: 'server', access: 'secret', default: 'ryandkim/Personal-Website' }),
       GITHUB_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Claude API key for the AI Ryan chat on the back of the headshot. Without it the chat says it's offline.
+      ANTHROPIC_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
   vite: { plugins: [tailwindcss()] },
