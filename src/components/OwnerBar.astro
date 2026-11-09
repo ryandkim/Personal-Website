@@ -17,6 +17,7 @@
   body.editing [data-edit]:focus { outline: 2px solid var(--color-accent); background: color-mix(in oklab, var(--color-accent) 8%, transparent); }
   body.editing [data-edit].changed { outline-style: solid; }
   body.editing .reveal { opacity: 1; transform: none; }
+  body.editing [data-caption] { pointer-events: auto; }
 </style>
 
 <script>
@@ -62,7 +63,16 @@
     if (el && e.key === 'Enter' && !e.shiftKey && el.dataset.edit !== 'hero.bio') { e.preventDefault(); el.blur(); }
   });
 
-  edit.addEventListener('click', () => setMode(true));
+  // While editing, clicking text inside a link or button edits it instead of following it.
+  document.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('editing')) return;
+    if ((e.target as HTMLElement).closest?.('[data-edit]')) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  edit.addEventListener('click', () => {
+    document.querySelectorAll('details').forEach((d) => (d.open = true)); // show collapsed text too
+    setMode(true);
+  });
   cancel.addEventListener('click', () => {
     for (const [el, v] of original) el.innerText = v;
     setMode(false);

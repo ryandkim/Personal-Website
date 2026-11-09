@@ -1,8 +1,9 @@
 ---
 // Placeholder for the AI twin chat (built in a later step).
+import { content } from '../data/site';
 ---
 <a href="/#twin" data-twin-fab
    class="fixed right-5 bottom-5 z-40 flex items-center gap-2 rounded-full border border-line bg-panel px-4 py-3 text-sm shadow-lg transition hover:border-accent hover:text-accent">
   <span class="inline-block h-2.5 w-2.5 rounded-full bg-accent"></span>
-  Talk to my twin
+  <span data-edit="ui.twin.button">{content.ui.twin.button}</span>
 </a>

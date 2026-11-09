@@ -4,8 +4,8 @@
 import Carousel from './Carousel.astro';
 import MediaSlide from './MediaSlide.astro';
 import type { MediaItem } from '../data/media';
-interface Props { id: string; title: string; blurb: string; items: MediaItem[] }
-const { id, title, blurb, items } = Astro.props;
+interface Props { id: string; index: number; title: string; blurb: string; items: MediaItem[] }
+const { id, index, title, blurb, items } = Astro.props;
 const cover = items[0];
 ---
 <div id={id}>
@@ -36,9 +36,9 @@ const cover = items[0];
           class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line text-muted transition hover:border-text hover:text-text">✕</button>
       </div>
       <Carousel label={title} count={items.length} captions>
-        {items.map((item) => (
+        {items.map((item, i) => (
           <div class="flex w-full shrink-0 snap-center justify-center">
-            <div class="w-[min(100%,calc(68vh*0.8))]"><MediaSlide item={item} /></div>
+            <div class="w-[min(100%,calc(68vh*0.8))]"><MediaSlide item={item} editKey={`media:beyond.${index}.items.${i}`} /></div>
           </div>
         ))}
       </Carousel>
