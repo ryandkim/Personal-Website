@@ -18,10 +18,6 @@
       "eyebrow": "Projects",
       "title": "AI agents I've built"
     },
-    "twin": {
-      "eyebrow": "AI twin",
-      "title": "Ask my twin anything"
-    },
     "beyond": {
       "eyebrow": "Beyond work",
       "title": "Games, art, music, travel"
@@ -108,8 +104,19 @@
       "seeLess": "See less"
     },
     "twin": {
-      "placeholder": "A retro handheld-RPG-style dialogue box where you can chat with a pixel-art version of me.",
-      "button": "Talk to my twin"
+      "flip": "Flip me around to chat",
+      "flipBack": "Flip back to the photo",
+      "backTitle": "AI Ryan",
+      "backText": "Ask me about my work, my projects, or what I'm looking for next.",
+      "greeting": "Hi! I'm the AI version of Ryan. Ask me anything about my work, my agents, or my career so far.",
+      "inputLabel": "Your message",
+      "send": "Send",
+      "thinking": "Thinking",
+      "note": "AI replies can be wrong. For anything important, email the real me.",
+      "offline": "I'm offline right now. Email me instead and the real Ryan will reply.",
+      "limit": "That's all the chatting I can do today. Email me to keep the conversation going!",
+      "error": "Something went wrong on my end. Try again in a moment.",
+      "restart": "Start over"
     },
     "quest": {
       "eyebrow": "Journey",
