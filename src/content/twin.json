@@ -1,0 +1,331 @@
+{
+  "suggestions": [
+    "about",
+    "now",
+    "looking",
+    "agents",
+    "arup",
+    "hackathon",
+    "dnd"
+  ],
+  "answers": [
+    {
+      "id": "about",
+      "label": "Who are you?",
+      "keywords": [
+        "who",
+        "yourself",
+        "intro",
+        "introduce",
+        "background",
+        "about",
+        "summary",
+        "hi",
+        "hello",
+        "hey"
+      ],
+      "answer": "I'm Ryan Kim. I spent three years at Arup advising on big infrastructure and energy deals in San Francisco, and now I'm doing a joint MBA and MS in AI at Kellogg and McCormick at Northwestern. These days I build AI agents for problems I actually have."
+    },
+    {
+      "id": "now",
+      "label": "What are you up to now?",
+      "keywords": [
+        "now",
+        "currently",
+        "today",
+        "doing",
+        "kellogg",
+        "northwestern",
+        "mccormick",
+        "school",
+        "mba",
+        "mbai",
+        "student",
+        "study",
+        "studying",
+        "class",
+        "classes",
+        "courses"
+      ],
+      "answer": "I'm in the MBA in Artificial Intelligence program at Kellogg and McCormick (2026 to 2028). I'm taking Tech Product Management, Applied AI for Business, and Modern Software Architecture, I'm a director in the AI Club, and I'm building agents on the side."
+    },
+    {
+      "id": "looking",
+      "label": "What roles are you looking for?",
+      "keywords": [
+        "looking",
+        "jobs",
+        "role",
+        "roles",
+        "hire",
+        "hiring",
+        "internship",
+        "intern",
+        "recruit",
+        "recruiting",
+        "opportunity",
+        "opportunities",
+        "position",
+        "goal",
+        "goals",
+        "next",
+        "pm",
+        "product"
+      ],
+      "answer": "I'm looking for product management roles in AI, where I can pair the deal and stakeholder work from Arup with hands-on agent building. If you have something in mind, email me and the real me will reply."
+    },
+    {
+      "id": "agents",
+      "label": "What agents have you built?",
+      "keywords": [
+        "agent",
+        "agents",
+        "built",
+        "build",
+        "building",
+        "projects",
+        "project",
+        "portfolio",
+        "ai",
+        "demo",
+        "demos"
+      ],
+      "answer": "A semiconductor news tracker, a wardrobe stylist that finds deals, a recruiting and school dashboard that pulls action items out of my email, M:xr from the Kellogg hackathon, and a set of always-on agent skills I reuse across all of them. Each one has a replay demo in the Projects section."
+    },
+    {
+      "id": "semiconductor",
+      "label": "Tell me about the semiconductor agent",
+      "keywords": [
+        "semiconductor",
+        "semiconductors",
+        "chip",
+        "chips",
+        "news",
+        "tracker",
+        "industry"
+      ],
+      "answer": "It's an agent that watches semiconductor news for me and turns it into a short, sorted brief, so I can follow the industry without reading fifty articles. The project page has a replay of a full run."
+    },
+    {
+      "id": "wardrobe",
+      "label": "Tell me about the wardrobe agent",
+      "keywords": [
+        "wardrobe",
+        "stylist",
+        "style",
+        "fashion",
+        "outfit",
+        "outfits",
+        "clothes",
+        "clothing",
+        "deals",
+        "shopping"
+      ],
+      "answer": "It's my personal stylist: tell it the occasion, like the gym, an interview, or a date, and it builds an outfit and finds deals on the pieces. The demo dresses a 3D mannequin with the picks."
+    },
+    {
+      "id": "dashboard",
+      "label": "What is the recruiting dashboard?",
+      "keywords": [
+        "dashboard",
+        "networking",
+        "network",
+        "emails",
+        "inbox",
+        "tracker",
+        "action",
+        "items",
+        "coffee",
+        "chats",
+        "applications"
+      ],
+      "answer": "It's my master dashboard for recruiting and school. It reads my email, pulls out action items, and tracks my networking contacts and job applications in one place. The demo on the project page walks through it with made-up data."
+    },
+    {
+      "id": "hackathon",
+      "label": "What was the hackathon win?",
+      "keywords": [
+        "hackathon",
+        "mixr",
+        "m:xr",
+        "win",
+        "won",
+        "second",
+        "2nd",
+        "place",
+        "award",
+        "awards",
+        "competition",
+        "tepper",
+        "challenge",
+        "finalist"
+      ],
+      "answer": "My team placed 2nd in the first program-wide AI hackathon at Kellogg with M:xr. I was also a finalist in the inter-school Tepper Innovation Challenge."
+    },
+    {
+      "id": "arup",
+      "label": "What did you do at Arup?",
+      "keywords": [
+        "arup",
+        "consulting",
+        "consultant",
+        "infrastructure",
+        "m&a",
+        "advisory",
+        "transaction",
+        "experience",
+        "previous",
+        "before",
+        "analyst",
+        "san",
+        "francisco",
+        "deal",
+        "deals",
+        "work",
+        "worked",
+        "job",
+        "history"
+      ],
+      "answer": "From 2022 to 2025 I was on Arup's infrastructure M&A advisory team in San Francisco, growing from graduate analyst to deputy project manager and senior analyst. I worked on renewable energy portfolios, a $6B semiconductor plant loan, a $50B hyperscale data center, and I founded an energy business development group."
+    },
+    {
+      "id": "highlights",
+      "label": "What are you proudest of at Arup?",
+      "keywords": [
+        "proud",
+        "proudest",
+        "accomplishment",
+        "accomplishments",
+        "achievement",
+        "achievements",
+        "impact",
+        "results",
+        "biggest",
+        "best"
+      ],
+      "answer": "Helping secure an $820M loan for a $6B semiconductor manufacturing program, securing 5GW of new power supply for a $50B data center, and building a business development group that helped land the first California high-speed rail project for our team."
+    },
+    {
+      "id": "ai-at-work",
+      "label": "Have you used AI at work?",
+      "keywords": [
+        "agentic",
+        "deployment",
+        "firm",
+        "risk",
+        "contract",
+        "contracts",
+        "liability",
+        "enterprise"
+      ],
+      "answer": "Yes. At Arup I led one of the firm's first agentic AI deployments: agents that reviewed contractual risk and commercial liability, benchmarked on ten years of project workflow."
+    },
+    {
+      "id": "skills",
+      "label": "What are your skills?",
+      "keywords": [
+        "skills",
+        "skill",
+        "technical",
+        "coding",
+        "python",
+        "language",
+        "languages",
+        "programming",
+        "tools",
+        "stack",
+        "excel",
+        "stata",
+        "java",
+        "korean"
+      ],
+      "answer": "AI agent design, Python, R, Excel, STATA, and some Java, plus a lot of financial modeling from my Arup days. I speak English and conversational Korean."
+    },
+    {
+      "id": "education",
+      "label": "Where did you go to college?",
+      "keywords": [
+        "college",
+        "undergrad",
+        "undergraduate",
+        "university",
+        "washu",
+        "washington",
+        "louis",
+        "degree",
+        "major",
+        "economics",
+        "policy",
+        "environmental",
+        "gpa",
+        "education"
+      ],
+      "answer": "Washington University in St. Louis, 2018 to 2022, with a BA in Environmental Policy and Economics and a focus on econometric data science modeling."
+    },
+    {
+      "id": "dnd",
+      "label": "What do you do for fun?",
+      "keywords": [
+        "fun",
+        "hobby",
+        "hobbies",
+        "free",
+        "time",
+        "interests",
+        "interest",
+        "dnd",
+        "d&d",
+        "dungeons",
+        "dragons",
+        "games",
+        "art",
+        "cubism",
+        "volleyball",
+        "beach",
+        "music",
+        "travel"
+      ],
+      "answer": "I run Dungeons and Dragons games and love crafting the story, I'm fascinated by Cubism versus AI-generated art, and I'll play beach volleyball anywhere there's sand. The Beyond work section has more."
+    },
+    {
+      "id": "site",
+      "label": "How did you build this site?",
+      "keywords": [
+        "site",
+        "website",
+        "page",
+        "astro",
+        "quest",
+        "game",
+        "chat",
+        "chatbot",
+        "real",
+        "bot",
+        "ai",
+        "robot",
+        "human",
+        "fake",
+        "twin"
+      ],
+      "answer": "I built it with Astro and Claude Code. I'm a set of answers the real Ryan wrote ahead of time, so chatting with me is free and instant. Try the Career quest game in the nav too."
+    },
+    {
+      "id": "contact",
+      "label": "How can I reach you?",
+      "keywords": [
+        "contact",
+        "reach",
+        "email",
+        "connect",
+        "talk",
+        "meet",
+        "call",
+        "linkedin",
+        "touch",
+        "message"
+      ],
+      "answer": "Email is fastest: ryan.kim3@kellogg.northwestern.edu. The real me reads every message."
+    }
+  ],
+  "fallback": "Good question, but it's not one I have a saved answer for yet. Try one of the topics below, or email the real me at ryan.kim3@kellogg.northwestern.edu."
+}

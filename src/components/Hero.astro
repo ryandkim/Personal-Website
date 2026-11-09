@@ -2,8 +2,10 @@
 import '@fontsource/pixelify-sans/400.css';
 import '@fontsource/pixelify-sans/600.css';
 import { site, content } from '../data/site';
-import { TWIN_LIMITS } from '../data/twin';
+import twin from '../content/twin.json';
 const t = content.ui.twin;
+const byId = new Map(twin.answers.map((a, i) => [a.id, { ...a, i }]));
+const chips = twin.suggestions.map((id) => byId.get(id)).filter((a) => a !== undefined);
 
 // Original pixel-art portrait for the back of the card (16 x 16). Each letter
 // is a palette color, '.' is transparent.
@@ -43,8 +45,7 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
     </div>
   </div>
 
-  <div class="reveal order-1 mx-auto w-64 sm:w-72 md:order-2 md:w-full md:max-w-sm" data-twin
-       data-limit={TWIN_LIMITS.perVisitorPerDay} data-max={TWIN_LIMITS.maxInputChars} data-history={TWIN_LIMITS.historyTurns}>
+  <div class="reveal order-1 mx-auto w-64 sm:w-72 md:order-2 md:w-full md:max-w-sm" data-twin>
     <div class="relative">
       <div class="absolute -inset-3 -z-10 rounded-[2rem] bg-accent/10 blur-2xl"></div>
       <div class="twin-card">
@@ -75,21 +76,28 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
       <div class="twin-log" data-twin-log role="log" aria-live="polite">
         <p class="twin-msg twin-ai" data-edit="ui.twin.greeting">{t.greeting}</p>
       </div>
+      <p class="twin-chips-label" data-edit="ui.twin.suggestionsLabel">{t.suggestionsLabel}</p>
+      <div class="twin-chips" data-twin-chips>
+        {chips.map((a) => <button type="button" data-twin-ask={a.id} data-edit={`twin:answers.${a.i}.label`}>{a.label}</button>)}
+      </div>
       <form class="twin-form" data-twin-form>
         <label for="twin-input" class="sr-only" data-edit="ui.twin.inputLabel">{t.inputLabel}</label>
-        <input id="twin-input" name="message" autocomplete="off" maxlength={TWIN_LIMITS.maxInputChars} placeholder="Ask me something..." />
+        <input id="twin-input" name="message" autocomplete="off" maxlength="300" placeholder="Ask me something..." />
         <button type="submit" data-edit="ui.twin.send">{t.send}</button>
       </form>
       <div class="twin-foot">
         <span data-edit="ui.twin.note">{t.note}</span>
         <button type="button" data-twin-restart data-edit="ui.twin.restart">{t.restart}</button>
       </div>
-      <!-- Messages the chat shows in special cases. Visible only in owner Edit mode, so they can be edited. -->
-      <div class="twin-strings" data-twin-text>
-        <span data-k="thinking" data-edit="ui.twin.thinking">{t.thinking}</span>
-        <span data-k="offline" data-edit="ui.twin.offline">{t.offline}</span>
-        <span data-k="limit" data-edit="ui.twin.limit">{t.limit}</span>
-        <span data-k="error" data-edit="ui.twin.error">{t.error}</span>
+      <!-- The saved answers. Hidden from visitors; shown in owner Edit mode so you can edit them on the page. -->
+      <div class="twin-strings" data-twin-answers>
+        {twin.answers.map((a, i) => (
+          <div data-id={a.id} data-keywords={a.keywords.join(' ')}>
+            <b data-edit={`twin:answers.${i}.label`}>{a.label}</b>
+            <span data-answer data-edit={`twin:answers.${i}.answer`}>{a.answer}</span>
+          </div>
+        ))}
+        <div><b>No match</b> <span data-fallback data-edit="twin:fallback">{twin.fallback}</span></div>
       </div>
     </div>
   </div>
@@ -138,8 +146,10 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
   .twin-ai { color: var(--color-text); }
   .twin-ai::before { content: '▸ '; color: var(--color-accent); }
   .twin-me { align-self: flex-end; max-width: 85%; color: var(--color-accent); text-align: right; }
-  .twin-wait::after { content: '...'; display: inline-block; width: 0; overflow: hidden; vertical-align: bottom; animation: twin-dots 1.2s steps(4) infinite; }
-  @keyframes twin-dots { to { width: 1.4em; } }
+  .twin-chips-label { margin-top: .4rem; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--color-muted); }
+  .twin-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .7rem; }
+  .twin-chips button { border: 2px solid var(--color-line); border-radius: .3rem; padding: .2rem .55rem; font-size: .85rem; transition: border-color .2s, color .2s; }
+  .twin-chips button:hover, .twin-chips button:focus-visible { border-color: var(--color-accent); color: var(--color-accent); }
   .twin-form { display: flex; gap: .5rem; border-top: 2px dashed var(--color-line); padding-top: .7rem; }
   .twin-form input {
     flex: 1; min-width: 0; background: transparent; border: 2px solid var(--color-line); border-radius: .3rem;
@@ -151,16 +161,19 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
   .twin-foot { display: flex; justify-content: space-between; gap: .75rem; margin-top: .55rem; font-size: .78rem; color: var(--color-muted); }
   .twin-foot button { flex-shrink: 0; text-decoration: underline; }
   .twin-strings { display: none; }
-  :global(body.editing) .twin-strings { display: flex; flex-direction: column; gap: .4rem; margin-top: .75rem; font-size: .8rem; color: var(--color-muted); }
+  .twin-strings b { display: block; color: var(--color-text); font-weight: 600; }
+  :global(body.editing) .twin-strings { display: flex; flex-direction: column; gap: .6rem; border-top: 2px dashed var(--color-line); padding-top: .75rem; margin-top: .75rem; font-size: .8rem; color: var(--color-muted); }
   .twin-foot button:hover { color: var(--color-accent); }
 
   @media (prefers-reduced-motion: reduce) {
     .twin-inner, .twin-flip-icon { transition: none; }
-    .twin-sprite, .twin-eye, .twin-chat, .twin-wait::after { animation: none; }
+    .twin-sprite, .twin-eye, .twin-chat { animation: none; }
   }
 </style>
 
 <script>
+  // AI Ryan answers from saved notes (src/content/twin.json), right here in the
+  // browser: no AI call, so it costs nothing per visit.
   type Msg = { role: 'user' | 'assistant'; content: string };
   const root = document.querySelector<HTMLElement>('[data-twin]');
   if (root) {
@@ -169,27 +182,43 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
     const log = root.querySelector<HTMLElement>('[data-twin-log]')!;
     const form = root.querySelector<HTMLFormElement>('[data-twin-form]')!;
     const input = form.querySelector('input')!;
-    const send = form.querySelector('button')!;
     const back = root.querySelector<HTMLElement>('.twin-back')!;
     const front = root.querySelector<HTMLElement>('.twin-front')!;
-    const strings = root.querySelector<HTMLElement>('[data-twin-text]')!;
-    const text = (k: string) => strings.querySelector(`[data-k="${k}"]`)?.textContent?.trim() ?? '';
-    const LIMIT = Number(root.dataset.limit);
-    const HISTORY = Number(root.dataset.history);
+    const answersEl = root.querySelector<HTMLElement>('[data-twin-answers]')!;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Browser storage is only a convenience; the page works without it.
-    const store = {
-      get<T>(k: string, s: Storage, fallback: T): T { try { const v = s.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } },
-      set(k: string, s: Storage, v: unknown) { try { s.setItem(k, JSON.stringify(v)); } catch {} },
-    };
-    const today = new Date().toISOString().slice(0, 10);
-    let history: Msg[] = store.get('twin-history', sessionStorage, []);
-    let used: { day: string; n: number } = store.get('twin-used', localStorage, { day: today, n: 0 });
-    if (used.day !== today) used = { day: today, n: 0 };
-    let busy = false;
-
     const editing = () => document.body.classList.contains('editing');
+
+    // Read answers from the page so on-page edits apply right away.
+    const answers = [...answersEl.querySelectorAll<HTMLElement>('[data-id]')].map((el) => ({
+      id: el.dataset.id!,
+      keywords: (el.dataset.keywords ?? '').split(' ').filter(Boolean),
+      answer: () => el.querySelector('[data-answer]')?.textContent?.trim() ?? '',
+      label: () => el.querySelector('b')?.textContent?.trim() ?? '',
+    }));
+    const fallback = () => answersEl.querySelector('[data-fallback]')?.textContent?.trim() ?? '';
+
+    const STOP = new Set(['a', 'an', 'the', 'is', 'are', 'was', 'were', 'do', 'does', 'did', 'i', 'me', 'my', 'your', 'yours', 'to', 'of', 'in', 'on', 'for', 'and', 'or', 'what', 'whats', 'how', 'why', 'where', 'when', 'can', 'could', 'would', 'tell', 'about', 'any', 'have', 'has', 'you', 'it', 'that', 'this', 'with', 'at', 'be', 'so']);
+    const words = (s: string) => s.toLowerCase().replace(/[’']/g, '').split(/[^a-z0-9&:]+/).filter((w) => w && !STOP.has(w));
+    const hit = (w: string, k: string) => w === k || (k.length >= 4 && w.length >= 4 && (w.startsWith(k) || k.startsWith(w)));
+
+    // Pick the saved answer whose keywords (and label) overlap the question most.
+    function match(q: string) {
+      const qw = words(q);
+      let best: (typeof answers)[number] | null = null, top = 0;
+      for (const a of answers) {
+        const keys = [...a.keywords, ...words(a.label())];
+        const score = qw.filter((w) => keys.some((k) => hit(w, k))).length;
+        if (score > top) { top = score; best = a; }
+      }
+      return best ? best.answer() : fallback();
+    }
+
+    const store = {
+      get(): Msg[] { try { return JSON.parse(sessionStorage.getItem('twin-history') ?? '[]'); } catch { return []; } },
+      set(v: Msg[]) { try { sessionStorage.setItem('twin-history', JSON.stringify(v)); } catch {} },
+    };
+    let history = store.get();
+    let busy = false;
 
     function setFlipped(on: boolean) {
       root!.classList.toggle('flipped', on);
@@ -200,12 +229,11 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
       root!.querySelectorAll<HTMLElement>('[data-twin-flip-label]').forEach((el) => { el.hidden = (el.dataset.twinFlipLabel === 'back') !== on; });
       if (on && !editing() && matchMedia('(hover: hover)').matches) input.focus({ preventScroll: true });
     }
-
     flip.addEventListener('click', () => setFlipped(!root.classList.contains('flipped')));
 
-    function bubble(role: Msg['role'] | 'wait', body = '') {
+    function bubble(role: Msg['role'], body = '') {
       const p = document.createElement('p');
-      p.className = `twin-msg ${role === 'user' ? 'twin-me' : 'twin-ai'}${role === 'wait' ? ' twin-wait' : ''}`;
+      p.className = `twin-msg ${role === 'user' ? 'twin-me' : 'twin-ai'}`;
       p.textContent = body;
       log.append(p);
       log.scrollTop = log.scrollHeight;
@@ -223,59 +251,39 @@ const pixels = portrait.flatMap((row, y) => [...row].flatMap((c, x) => (PAL[c] ?
           log.scrollTop = log.scrollHeight;
           if (i < body.length) setTimeout(tick, 18); else done();
         };
-        tick();
+        setTimeout(tick, 250);
       });
     }
 
-    function lockIfOut() {
-      const out = used.n >= LIMIT;
-      input.disabled = out; send.disabled = out || busy;
-      return out;
+    async function ask(q: string, answer = match(q)) {
+      if (!q || busy || editing()) return;
+      busy = true;
+      bubble('user', q);
+      await typeOut(bubble('assistant'), answer);
+      history.push({ role: 'user', content: q }, { role: 'assistant', content: answer });
+      store.set(history);
+      busy = false;
     }
 
-    // Restore this tab's earlier conversation.
     for (const m of history) bubble(m.role, m.content);
-    if (lockIfOut() && history.length) bubble('assistant', text('limit'));
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const q = input.value.trim();
-      if (!q || busy || editing() || lockIfOut()) return;
-      busy = true; send.disabled = true; input.value = '';
-      history.push({ role: 'user', content: q });
-      bubble('user', q);
-      const wait = bubble('wait', text('thinking'));
-      let reply = '';
-      try {
-        const res = await fetch('/api/twin', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ messages: history.slice(-HISTORY) }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.reply) {
-          reply = data.reply;
-          used.n++; store.set('twin-used', localStorage, used);
-        } else {
-          reply = text(data.error === 'offline' ? 'offline' : data.error === 'limit' ? 'limit' : 'error');
-          if (data.error === 'limit') { used.n = LIMIT; store.set('twin-used', localStorage, used); }
-          history.pop(); // don't keep a question that never got an answer
-        }
-      } catch {
-        reply = text('error'); history.pop();
-      }
-      wait.classList.remove('twin-wait');
-      await typeOut(wait, reply);
-      if (history.at(-1)?.role === 'user') history.push({ role: 'assistant', content: reply });
-      store.set('twin-history', sessionStorage, history);
-      busy = false; lockIfOut();
-      if (!input.disabled) input.focus({ preventScroll: true });
+      const q = input.value.trim().slice(0, 300);
+      if (busy || editing()) return;
+      input.value = '';
+      ask(q);
     });
 
+    root.querySelectorAll<HTMLButtonElement>('[data-twin-ask]').forEach((b) => b.addEventListener('click', () => {
+      const a = answers.find((x) => x.id === b.dataset.twinAsk);
+      if (a) ask(b.textContent!.trim(), a.answer());
+    }));
+
     root.querySelector('[data-twin-restart]')!.addEventListener('click', () => {
-      if (editing()) return;
-      history = []; store.set('twin-history', sessionStorage, history);
+      if (editing() || busy) return;
+      history = []; store.set(history);
       log.querySelectorAll('.twin-msg:not([data-edit])').forEach((el) => el.remove());
-      lockIfOut();
     });
   }
 </script>
