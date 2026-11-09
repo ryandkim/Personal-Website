@@ -74,18 +74,13 @@ Sign-in works on the live site; saving edits there is not connected yet (edit lo
 ## AI Ryan chat (back of the headshot)
 
 Click **Flip me around to chat** on the headshot: it turns over to a pixel-art you, and a retro chat box opens
-below it. Replies come from Claude Haiku 5.5 through `src/pages/api/twin.ts`.
+below it. It costs nothing to run: there is no AI call and no API key. AI Ryan answers from saved notes in
+`src/content/twin.json`, matching each question to the answer whose keywords fit best, and shows topic buttons
+to tap. Questions with no match get the `fallback` reply, which points people to your email.
 
-- **Setup:** create an API key at https://console.anthropic.com and add it as `ANTHROPIC_API_KEY` in `.env` and in
-  Vercel's environment variables, then redeploy. Without a key the chat politely says it's offline.
-- **Cost caps** (`src/data/twin.ts`): short replies (350 tokens max), the last 10 messages as context, 20 messages
-  per visitor per day and 400 for the whole site. Those counters are best effort (they reset when Vercel starts a
-  fresh server), so also set a monthly spend limit in the Anthropic Console under **Settings → Limits**.
-  At Haiku prices a typical message costs well under a tenth of a cent.
-- **What it knows:** built from `career.json` and `site.json` (Right now, Looking for), plus a few résumé facts and
-  the tone rules in `src/data/twin.ts`. It never shares your phone number. Edit those files to change its answers.
-- **Chat text** (button labels, greeting, offline and limit messages) is editable with the owner Edit button;
-  flip the card first to see the back side.
+- **Edit answers:** sign in, click Edit, and flip the card. The saved answers show under the chat box while editing.
+  To add a topic or change its keywords, edit `src/content/twin.json` (`suggestions` lists the topic buttons, in order).
+- To write new answers, ask Claude Code to draft them from your résumé and add them to that file.
 
 ## Projects (synced from GitHub)
 

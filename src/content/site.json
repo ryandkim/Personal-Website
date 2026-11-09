@@ -108,15 +108,12 @@
       "flipBack": "Flip back to the photo",
       "backTitle": "AI Ryan",
       "backText": "Ask me about my work, my projects, or what I'm looking for next.",
-      "greeting": "Hi! I'm the AI version of Ryan. Ask me anything about my work, my agents, or my career so far.",
+      "greeting": "Hi! I'm AI Ryan. Ask me about my work, my agents, or my career so far, or tap a topic below.",
       "inputLabel": "Your message",
       "send": "Send",
-      "thinking": "Thinking",
-      "note": "AI replies can be wrong. For anything important, email the real me.",
-      "offline": "I'm offline right now. Email me instead and the real Ryan will reply.",
-      "limit": "That's all the chatting I can do today. Email me to keep the conversation going!",
-      "error": "Something went wrong on my end. Try again in a moment.",
-      "restart": "Start over"
+      "note": "I answer from notes the real Ryan wrote ahead of time. For anything else, email him.",
+      "restart": "Start over",
+      "suggestionsLabel": "Try asking"
     },
     "quest": {
       "eyebrow": "Journey",

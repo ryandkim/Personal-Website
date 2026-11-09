@@ -6,6 +6,7 @@
 //   "hero.bio"                     src/content/site.json
 //   "career:stages.0.summary"      src/content/career.json
 //   "media:highlights.1.caption"   src/content/media.json
+//   "twin:answers.0.answer"        src/content/twin.json (AI Ryan's saved answers)
 //   "project:mixr:how.2"           that project's portfolio.json (in its own
 //                                  repo) plus the copy in src/content/projects/
 //
@@ -31,7 +32,7 @@ type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 type Entry = [string, string];
 
 // Ids, file paths and links are not page text, so they can't be changed here.
-const LOCKED = new Set(['id', 'ids', 'kind', 'region', 'type', 'src', 'embed', 'link', 'poster', 'status', 'order', 'hidden']);
+const LOCKED = new Set(['id', 'ids', 'kind', 'region', 'type', 'src', 'embed', 'link', 'poster', 'status', 'order', 'hidden', 'keywords', 'suggestions']);
 
 function textFields(obj: Json, prefix = '', out = new Set<string>()) {
   if (typeof obj === 'string') out.add(prefix);
@@ -70,6 +71,7 @@ function targetOf(store: string): Target | null {
   if (store === 'site') return { file: 'src/content/site.json' };
   if (store === 'career') return { file: 'src/content/career.json' };
   if (store === 'media') return { file: 'src/content/media.json' };
+  if (store === 'twin') return { file: 'src/content/twin.json' };
   if (store.startsWith('project:')) {
     const src = projectSources.find((s) => s.slug === store.slice(8));
     if (!src) return null;
@@ -82,7 +84,7 @@ function group(entries: Entry[]) {
   const out = new Map<string, Entry[]>();
   for (const [key, value] of entries) {
     let store = 'site', path = key;
-    const m = key.match(/^(project:[a-z0-9-]+|career|media):(.+)$/);
+    const m = key.match(/^(project:[a-z0-9-]+|career|media|twin):(.+)$/);
     if (m) [, store, path] = m;
     if (!out.has(store)) out.set(store, []);
     out.get(store)!.push([path, value]);
