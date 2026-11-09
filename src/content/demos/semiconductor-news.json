@@ -1,0 +1,43 @@
+{
+  "title": "Monday market brief",
+  "intro": "Every Monday the agent reads the week's chip and AI news, pulls stock moves and writes a short brief. Press play to replay a run.",
+  "recorded": "2026-11-09",
+  "sample": true,
+  "source": "Sample run with illustrative numbers. Replace it with a real weekly run: python3 scripts/demos/record.py semiconductor",
+  "scenarios": [
+    {
+      "id": "sample",
+      "label": "Sample week",
+      "prompt": "Monday 9am, scheduled run",
+      "steps": [
+        { "tool": "monitor_api_keys", "label": "Check API keys for unusual use", "lines": ["All keys normal"] },
+        { "tool": "fetch_news", "label": "Pull the week's chip and AI news", "detail": "NewsAPI, past 7 days", "lines": ["48 articles from 21 sources"] },
+        { "tool": "fetch_stocks", "label": "Fetch weekly moves for 15 tickers", "detail": "Yahoo Finance", "lines": ["Top: MU +6.2%", "Bottom: INTC -3.1%"] },
+        { "tool": "analyze_report", "label": "Rank stories and link them to price moves", "detail": "Llama 3.3 70B on Groq", "lines": ["6 highlights, 4 correlations, 5 picks"] },
+        { "tool": "generate_pdf", "label": "Build the PDF brief" },
+        { "tool": "store_notion · send_email", "label": "File in Notion and email it" }
+      ],
+      "result": [
+        { "type": "bullets", "title": "This week in one minute", "items": [
+          "Memory makers led the week as AI servers kept pulling high-bandwidth memory supply.",
+          "Foundry capacity for leading-edge nodes stayed the main bottleneck for AI accelerators.",
+          "Hyperscalers reaffirmed capital spending plans, supporting chip equipment names.",
+          "PC and phone chip demand stayed soft, weighing on companies without an AI data-center story."
+        ] },
+        { "type": "table", "title": "Weekly moves (illustrative)", "columns": ["Ticker", "Company", "Week"], "rows": [
+          ["MU", "Micron", { "v": "+6.2%", "tone": "up" }],
+          ["NVDA", "NVIDIA", { "v": "+3.4%", "tone": "up" }],
+          ["TSM", "TSMC", { "v": "+2.1%", "tone": "up" }],
+          ["ASML", "ASML", { "v": "+0.8%", "tone": "up" }],
+          ["AMD", "AMD", { "v": "-0.9%", "tone": "down" }],
+          ["INTC", "Intel", { "v": "-3.1%", "tone": "down" }]
+        ] },
+        { "type": "cards", "title": "What to watch next week", "items": [
+          { "title": "Micron (MU)", "meta": "established leader", "body": "Pricing for high-bandwidth memory is the clearest read on AI server demand." },
+          { "title": "ASML (ASML)", "meta": "watch closely", "body": "Order commentary signals how fast foundries plan to add leading-edge capacity." },
+          { "title": "Arm (ARM)", "meta": "watch closely", "body": "Royalty growth from data-center chips is a second way to play AI build-outs." }
+        ] }
+      ]
+    }
+  ]
+}

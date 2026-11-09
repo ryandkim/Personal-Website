@@ -87,3 +87,28 @@ without a token), it uses the copy in `src/content/projects/<slug>.json`.
 Fields: `name`, `tagline`, `status` (idea, prototype, building, working, shipped),
 `tags`, `summary` are required. Optional: `order`, `problem`, `how` (list of steps),
 `stack`, `highlights`, `links` (`demo`, `video`, `site`), `hidden`.
+
+## Project demos and videos
+
+Each project page can show a **replay demo**: a saved agent run that visitors
+step through. Nothing calls an AI model when someone presses play, so demos
+cost nothing per visit. Demos live in `src/content/demos/<slug>.json`.
+
+Record or refresh them with (point `--repo` at your agents folder; default `~/Projects/Claude`):
+
+```
+python3 scripts/demos/record.py dashboard      # real priority engine on the test feed
+python3 scripts/demos/record.py toolkit        # real privacy scanner on sample tool calls
+python3 scripts/demos/record.py semiconductor  # imports the last weekly run from .tmp/
+python3 scripts/demos/record.py wardrobe       # imports this morning's run from .tmp/
+```
+
+The semiconductor and wardrobe demos start as clearly labelled samples until
+you import a real run. The imports drop location coordinates, Notion ids and
+image links. Review the JSON before you commit it.
+
+**Launch videos**: `node scripts/demos/make-videos.mjs` records a ~40 second
+video per demo from the dev-only page `/film/<slug>` and saves
+`public/media/videos/<slug>.mp4` plus a poster. The project page shows the video
+automatically when the file exists. Needs ffmpeg and Playwright
+(`npm i --no-save playwright && npx playwright install chromium`).

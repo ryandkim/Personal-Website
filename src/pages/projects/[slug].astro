@@ -3,6 +3,8 @@ import Base from '../../layouts/Base.astro';
 import { getProjects, formatDate, type Project } from '../../lib/portfolio';
 import { statusLabels } from '../../data/projects';
 import { content } from '../../data/site';
+import DemoPlayer from '../../components/DemoPlayer.astro';
+import { getDemo, getVideo } from '../../lib/demos';
 const t = content.ui.projects;
 
 export async function getStaticPaths() {
@@ -12,12 +14,15 @@ export async function getStaticPaths() {
 interface Props { p: Project; next: Project }
 const { p, next } = Astro.props;
 const k = (f: string) => `project:${p.slug}:${f}`;
+const demo = getDemo(p.slug);
+const video = getVideo(p.slug);
 const links = [
-  p.links?.demo && { href: p.links.demo, label: 'Try the demo' },
-  p.links?.video && { href: p.links.video, label: 'Watch the video' },
+  demo && { href: '#demo', label: 'Watch the demo', local: true },
+  p.links?.demo && { href: p.links.demo, label: demo ? 'Open the interactive mockup' : 'Try the demo' },
+  !video && p.links?.video && { href: p.links.video, label: 'Watch the video' },
   p.links?.site && { href: p.links.site, label: 'Visit the site' },
   p.repoUrl && { href: p.repoUrl, label: 'View the code' },
-].filter(Boolean) as { href: string; label: string }[];
+].filter(Boolean) as { href: string; label: string; local?: boolean }[];
 ---
 <Base title={`${p.name} · Ryan Kim`} description={p.tagline}>
   <article class="mx-auto max-w-3xl px-5 pt-28 pb-24 sm:px-8">
@@ -34,12 +39,21 @@ const links = [
     {links.length > 0 && (
       <div class="mt-8 flex flex-wrap gap-3">
         {links.map((l, i) => (
-          <a href={l.href} target="_blank" rel="noopener" class={i === 0 ? 'rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink hover:brightness-110' : 'rounded-full border border-line px-5 py-2.5 text-sm hover:border-accent/60'}>{l.label} ↗</a>
+          <a href={l.href} target={l.local ? undefined : '_blank'} rel={l.local ? undefined : 'noopener'} class={i === 0 ? 'rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink hover:brightness-110' : 'rounded-full border border-line px-5 py-2.5 text-sm hover:border-accent/60'}>{l.label}{l.local ? ' ↓' : ' ↗'}</a>
         ))}
       </div>
     )}
 
-    <div class="mt-12 rounded-2xl border border-dashed border-line p-8 text-center text-sm text-muted" data-edit="ui.projects.demoPlaceholder">{t.demoPlaceholder}</div>
+    {video && (
+      <figure class="mt-12">
+        <video class="w-full rounded-2xl border border-line bg-panel" src={video.src} poster={video.poster} controls playsinline muted preload="metadata"></video>
+        <figcaption class="mt-2 text-xs text-muted" data-edit="ui.projects.videoHeading">{t.videoHeading}</figcaption>
+      </figure>
+    )}
+
+    {demo
+      ? <div id="demo" class="mt-12 scroll-mt-24"><DemoPlayer demo={demo} slug={p.slug} /></div>
+      : <div class="mt-12 rounded-2xl border border-dashed border-line p-8 text-center text-sm text-muted" data-edit="ui.projects.demoPlaceholder">{t.demoPlaceholder}</div>}
 
     <section class="mt-14">
       <p class="leading-relaxed text-lg" data-edit={k('summary')}>{p.summary}</p>

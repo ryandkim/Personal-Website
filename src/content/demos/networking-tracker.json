@@ -1,0 +1,314 @@
+{
+  "title": "Nightly school-portal check",
+  "intro": "Each night the dashboard checks school portals and Slack, then ranks every deadline and hold into one list. Pick a night to replay.",
+  "recorded": "2026-11-09",
+  "source": "Real priority engine, run on the project's test feed (made-up items, no personal data).",
+  "scenarios": [
+    {
+      "id": "early",
+      "label": "Two weeks out",
+      "prompt": "Tuesday night, Aug 18",
+      "steps": [
+        {
+          "tool": "connectors",
+          "label": "Check 7 school sources",
+          "detail": "Canvas, 12Twenty, CAESAR, NUHS, BidReg, CMC-Slack, Internship-Slack",
+          "lines": [
+            "13 new items found"
+          ]
+        },
+        {
+          "tool": "compliance_guard",
+          "label": "Flag registration and payment holds",
+          "detail": "Any hold-risk item due in the next 4 weeks jumps to the top",
+          "lines": [
+            "1 hold risks"
+          ]
+        },
+        {
+          "tool": "priority_engine",
+          "label": "Rank everything into one list",
+          "detail": "Holds first, then anything due within 48 hours, then by category and date",
+          "ms": 1,
+          "lines": [
+            "0 due within 48h, 12 upcoming"
+          ]
+        },
+        {
+          "tool": "dashboard",
+          "label": "Write dashboard_state.json",
+          "detail": "Shown in the dashboard and menu-bar popup"
+        }
+      ],
+      "result": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Action items",
+              "value": "13"
+            },
+            {
+              "label": "Hold risks",
+              "value": "1"
+            },
+            {
+              "label": "Due in 48h",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Tonight's ranked list",
+          "items": [
+            {
+              "title": "Registration Hold - Advising Sign-off Required",
+              "meta": "CAESAR · due Sep 10 (in 23 days)",
+              "detail": "Meet with academic advisor to clear registration hold.",
+              "tone": "red",
+              "badge": "Hold risk"
+            },
+            {
+              "title": "Tuition Balance Due",
+              "meta": "CAESAR · due Sep 20 (in 33 days)",
+              "detail": "Outstanding account balance: $4,250.00.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "BidReg Round 1 Course Bidding Deadline",
+              "meta": "BidReg · due Sep 28 (in 41 days)",
+              "detail": "Round 1 closes at 5 PM. Missing this deadline will restrict registration.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "BidReg Point Balance",
+              "meta": "BidReg · no deadline",
+              "detail": "Current bid point balance: 1200 points.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Interview Slot Selection Deadline",
+              "meta": "12Twenty · due Sep 2 (in 15 days)",
+              "detail": "Select your interview slot before it's released to the waitlist.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Case Study Info Session (Registered)",
+              "meta": "12Twenty · due Sep 20 (in 33 days)",
+              "detail": "Registered upcoming CMC event session.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Goldman Sachs Tech / PE Due Diligence Night added — RSVP window opens tomorrow.",
+              "meta": "CMC-Slack · no deadline",
+              "detail": "Goldman Sachs Tech / PE Due Diligence Night added — RSVP window opens tomorrow on 12Twenty.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Anyone have a referral contact at Bain's summer internship team?",
+              "meta": "Internship-Slack · no deadline",
+              "detail": "Anyone have a referral contact at Bain's summer internship team? Posting date is next Friday.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Essay Draft Due - WRITING 105",
+              "meta": "Canvas · due Sep 15 (in 28 days)",
+              "detail": "Submit rough draft for peer review.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Final Paper Due - ENGLISH 301",
+              "meta": "Canvas · due Sep 29 (in 42 days)",
+              "detail": "Final paper submission via Canvas.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Optional Reading Response",
+              "meta": "Canvas · no deadline",
+              "detail": "Ungraded, no fixed due date this term.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Flu Shot Clinic RSVP Reminder",
+              "meta": "NUHS · due Sep 1 (in 14 days)",
+              "detail": "Optional flu shot clinic RSVP closing soon.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Course Materials Available",
+              "meta": "Canvas · no deadline",
+              "detail": "New syllabus supplement posted.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "week-zero",
+      "label": "Night before term",
+      "prompt": "Sunday night, Aug 31",
+      "steps": [
+        {
+          "tool": "connectors",
+          "label": "Check 7 school sources",
+          "detail": "Canvas, 12Twenty, CAESAR, NUHS, BidReg, CMC-Slack, Internship-Slack",
+          "lines": [
+            "13 new items found"
+          ]
+        },
+        {
+          "tool": "compliance_guard",
+          "label": "Flag registration and payment holds",
+          "detail": "Any hold-risk item due in the next 4 weeks jumps to the top",
+          "lines": [
+            "3 hold risks"
+          ]
+        },
+        {
+          "tool": "priority_engine",
+          "label": "Rank everything into one list",
+          "detail": "Holds first, then anything due within 48 hours, then by category and date",
+          "ms": 1,
+          "lines": [
+            "2 due within 48h, 8 upcoming"
+          ]
+        },
+        {
+          "tool": "dashboard",
+          "label": "Write dashboard_state.json",
+          "detail": "Shown in the dashboard and menu-bar popup"
+        }
+      ],
+      "result": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Action items",
+              "value": "13"
+            },
+            {
+              "label": "Hold risks",
+              "value": "3"
+            },
+            {
+              "label": "Due in 48h",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Tonight's ranked list",
+          "items": [
+            {
+              "title": "Registration Hold - Advising Sign-off Required",
+              "meta": "CAESAR · due Sep 10 (in 10 days)",
+              "detail": "Meet with academic advisor to clear registration hold.",
+              "tone": "red",
+              "badge": "Hold risk"
+            },
+            {
+              "title": "Tuition Balance Due",
+              "meta": "CAESAR · due Sep 20 (in 20 days)",
+              "detail": "Outstanding account balance: $4,250.00.",
+              "tone": "red",
+              "badge": "Hold risk"
+            },
+            {
+              "title": "BidReg Round 1 Course Bidding Deadline",
+              "meta": "BidReg · due Sep 28 (in 28 days)",
+              "detail": "Round 1 closes at 5 PM. Missing this deadline will restrict registration.",
+              "tone": "red",
+              "badge": "Hold risk"
+            },
+            {
+              "title": "Flu Shot Clinic RSVP Reminder",
+              "meta": "NUHS · due Sep 1 (in 20h)",
+              "detail": "Optional flu shot clinic RSVP closing soon.",
+              "tone": "red",
+              "badge": "Due within 48h"
+            },
+            {
+              "title": "Interview Slot Selection Deadline",
+              "meta": "12Twenty · due Sep 2 (in 44h)",
+              "detail": "Select your interview slot before it's released to the waitlist.",
+              "tone": "orange",
+              "badge": "Due within 48h"
+            },
+            {
+              "title": "BidReg Point Balance",
+              "meta": "BidReg · no deadline",
+              "detail": "Current bid point balance: 1200 points.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Case Study Info Session (Registered)",
+              "meta": "12Twenty · due Sep 20 (in 20 days)",
+              "detail": "Registered upcoming CMC event session.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Goldman Sachs Tech / PE Due Diligence Night added — RSVP window opens tomorrow.",
+              "meta": "CMC-Slack · no deadline",
+              "detail": "Goldman Sachs Tech / PE Due Diligence Night added — RSVP window opens tomorrow on 12Twenty.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Anyone have a referral contact at Bain's summer internship team?",
+              "meta": "Internship-Slack · no deadline",
+              "detail": "Anyone have a referral contact at Bain's summer internship team? Posting date is next Friday.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Essay Draft Due - WRITING 105",
+              "meta": "Canvas · due Sep 15 (in 15 days)",
+              "detail": "Submit rough draft for peer review.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Final Paper Due - ENGLISH 301",
+              "meta": "Canvas · due Sep 29 (in 29 days)",
+              "detail": "Final paper submission via Canvas.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Optional Reading Response",
+              "meta": "Canvas · no deadline",
+              "detail": "Ungraded, no fixed due date this term.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            },
+            {
+              "title": "Course Materials Available",
+              "meta": "Canvas · no deadline",
+              "detail": "New syllabus supplement posted.",
+              "tone": "blue",
+              "badge": "Upcoming"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
