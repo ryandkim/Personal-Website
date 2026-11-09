@@ -25,9 +25,9 @@ const projects = await getProjects();
         ))}
       </ul>
       <div class="rounded-2xl border border-line bg-panel p-7">
-        <p class="text-xs tracking-widest text-accent uppercase">Looking for</p>
+        <p class="text-xs tracking-widest text-accent uppercase" data-edit="ui.about.lookingForLabel">{content.ui.about.lookingForLabel}</p>
         <p class="mt-3 font-serif text-2xl leading-snug" data-edit="lookingFor">{content.lookingFor}</p>
-        <a href="#contact" class="mt-6 inline-block text-sm text-accent hover:underline">Get in touch →</a>
+        <a href="#contact" class="mt-6 inline-block text-sm text-accent hover:underline" data-edit="ui.about.getInTouch">{content.ui.about.getInTouch}</a>
       </div>
     </div>
 
@@ -35,8 +35,8 @@ const projects = await getProjects();
       <h3 class="font-serif text-2xl" data-edit="highlights.title">{content.highlights.title}</h3>
       <p class="mt-1 mb-6 text-sm text-muted" data-edit="highlights.subtitle">{content.highlights.subtitle}</p>
       <Carousel label="Recent highlights" count={highlights.length}>
-        {highlights.map((item) => (
-          <div class="w-[80%] shrink-0 snap-start sm:w-[46%] lg:w-[31%]"><MediaSlide item={item} /></div>
+        {highlights.map((item, i) => (
+          <div class="w-[80%] shrink-0 snap-start sm:w-[46%] lg:w-[31%]"><MediaSlide item={item} editKey={`media:highlights.${i}`} /></div>
         ))}
       </Carousel>
     </div>
@@ -45,11 +45,11 @@ const projects = await getProjects();
   <Section id="journey">
     <a href="/quest" class="group mb-14 flex flex-col gap-5 rounded-2xl border border-line bg-panel p-6 transition hover:border-accent/60 sm:flex-row sm:items-center sm:justify-between sm:p-8">
       <div>
-        <p class="text-xs tracking-widest text-accent uppercase">Play instead of read</p>
-        <p class="mt-2 font-serif text-2xl sm:text-3xl">Career quest</p>
-        <p class="mt-2 max-w-xl text-muted">A small retro adventure: walk from campus to the city to the lake, and each marker you find unlocks the next stage of my career.</p>
+        <p class="text-xs tracking-widest text-accent uppercase" data-edit="ui.journey.gameEyebrow">{content.ui.journey.gameEyebrow}</p>
+        <p class="mt-2 font-serif text-2xl sm:text-3xl" data-edit="ui.journey.gameTitle">{content.ui.journey.gameTitle}</p>
+        <p class="mt-2 max-w-xl text-muted" data-edit="ui.journey.gameText">{content.ui.journey.gameText}</p>
       </div>
-      <span class="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink transition group-hover:brightness-110">Start the quest →</span>
+      <span class="shrink-0 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-ink transition group-hover:brightness-110" data-edit="ui.journey.gameButton">{content.ui.journey.gameButton}</span>
     </a>
     <Timeline />
   </Section>
@@ -58,16 +58,16 @@ const projects = await getProjects();
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {projects.slice(0, 6).map((p) => <ProjectCard p={p} />)}
     </div>
-    <a href="/projects" class="mt-8 inline-block text-sm text-accent hover:underline">All projects, with filters →</a>
+    <a href="/projects" class="mt-8 inline-block text-sm text-accent hover:underline" data-edit="ui.projects.allLink">{content.ui.projects.allLink}</a>
   </Section>
 
   <Section id="twin" comingIn="step 5 (retro dialogue chat)">
-    <Placeholder label="A retro handheld-RPG-style dialogue box where you can chat with a pixel-art version of me." />
+    <Placeholder label={content.ui.twin.placeholder} editKey="ui.twin.placeholder" />
   </Section>
 
   <Section id="beyond">
     <div class="grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
-      {beyond.map((b) => <GalleryCard id={b.id} items={b.items} title={content.beyond[b.id].title} blurb={content.beyond[b.id].blurb} />)}
+      {beyond.map((b, bi) => <GalleryCard index={bi} id={b.id} items={b.items} title={content.beyond[b.id].title} blurb={content.beyond[b.id].blurb} />)}
     </div>
   </Section>
 

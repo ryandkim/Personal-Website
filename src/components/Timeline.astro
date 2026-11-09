@@ -1,11 +1,12 @@
 ---
-// Plain, recruiter-friendly career timeline (newest first). Content: src/data/career.ts
+// Plain, recruiter-friendly career timeline (newest first). Content: src/content/career.json
 import { stages, groups } from '../data/career';
-const byId = Object.fromEntries(stages.map((s) => [s.id, s]));
+const byId = Object.fromEntries(stages.map((s, i) => [s.id, { ...s, i }]));
+const k = (i: number, f: string) => `career:stages.${i}.${f}`;
 const kindLabel = { education: 'Education', work: 'Experience', project: 'Projects' } as const;
 ---
 <ol class="relative space-y-14 border-l border-line pl-8 sm:pl-10">
-  {groups.map((g) => {
+  {groups.map((g, gi) => {
     const items = g.ids.map((id) => byId[id]);
     const first = items[items.length - 1];
     const last = items[0];
@@ -13,16 +14,16 @@ const kindLabel = { education: 'Education', work: 'Experience', project: 'Projec
       <li class="relative">
         <span class="absolute top-1.5 -left-[2.4rem] h-3 w-3 rounded-full bg-accent ring-4 ring-ink sm:-left-[2.9rem]" aria-hidden="true"></span>
         <p class="text-sm tracking-widest text-accent uppercase">{first.start} – {last.end}</p>
-        <h3 class="mt-1 font-serif text-2xl sm:text-3xl">{g.org}</h3>
-        <p class="mt-1 text-sm text-muted">{last.location}</p>
+        <h3 class="mt-1 font-serif text-2xl sm:text-3xl" data-edit={`career:groups.${gi}.org`}>{g.org}</h3>
+        <p class="mt-1 text-sm text-muted" data-edit={k(last.i, 'location')}>{last.location}</p>
         <div class="mt-6 space-y-4">
           {items.map((s) => (
             <article class="rounded-2xl border border-line bg-panel p-5 sm:p-6">
               <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h4 class="text-lg font-medium">{s.role}</h4>
-                <p class="text-sm text-muted tabular-nums">{s.start} – {s.end} · {kindLabel[s.kind]}</p>
+                <h4 class="text-lg font-medium" data-edit={k(s.i, 'role')}>{s.role}</h4>
+                <p class="text-sm text-muted tabular-nums"><span data-edit={k(s.i, 'start')}>{s.start}</span> – <span data-edit={k(s.i, 'end')}>{s.end}</span> · {kindLabel[s.kind]}</p>
               </div>
-              <p class="mt-2 leading-relaxed text-muted">{s.summary}</p>
+              <p class="mt-2 leading-relaxed text-muted" data-edit={k(s.i, 'summary')}>{s.summary}</p>
               {s.highlights.length > 0 && (
                 <details class="group mt-3">
                   <summary class="cursor-pointer list-none text-sm text-accent hover:underline">
@@ -30,8 +31,8 @@ const kindLabel = { education: 'Education', work: 'Experience', project: 'Projec
                     <span class="hidden group-open:inline">Hide highlights</span>
                   </summary>
                   <ul class="mt-3 space-y-2">
-                    {s.highlights.map((h) => (
-                      <li class="flex gap-3 text-sm leading-relaxed text-muted"><span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"></span>{h}</li>
+                    {s.highlights.map((h, hi) => (
+                      <li class="flex gap-3 text-sm leading-relaxed text-muted"><span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"></span><span data-edit={k(s.i, `highlights.${hi}`)}>{h}</span></li>
                     ))}
                   </ul>
                 </details>

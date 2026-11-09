@@ -4,7 +4,7 @@ import content from '../content/site.json';
 export { content };
 
 export const site = {
-  name: 'Ryan Kim',
+  name: content.name,
   // Short name shown top-left in the nav, followed by an accent-colored period.
   brand: 'ryan',
   location: 'Evanston, IL',
@@ -16,10 +16,10 @@ export const site = {
 };
 
 export const nav = [
-  { href: '/#about', label: 'About' },
-  { href: '/#journey', label: 'Journey' },
-  { href: '/quest', label: 'Career quest' },
-  { href: '/#projects', label: 'Projects' },
-  { href: '/#beyond', label: 'Beyond work' },
-  { href: '/#contact', label: 'Contact' },
-];
+  { id: 'about', href: '/#about' },
+  { id: 'journey', href: '/#journey' },
+  { id: 'quest', href: '/quest' },
+  { id: 'projects', href: '/#projects' },
+  { id: 'beyond', href: '/#beyond' },
+  { id: 'contact', href: '/#contact' },
+].map((n) => ({ ...n, label: content.nav[n.id as keyof typeof content.nav] }));

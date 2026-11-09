@@ -2,14 +2,16 @@
 import Base from '../../layouts/Base.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { getProjects } from '../../lib/portfolio';
+import { content } from '../../data/site';
+const t = content.ui.projects;
 const projects = await getProjects();
 const tags = [...new Set(projects.flatMap((p) => p.tags))].sort();
 ---
 <Base title="Projects · Ryan Kim" description="AI agents and projects Ryan Kim has built, updated from GitHub.">
   <section class="mx-auto max-w-6xl px-5 pt-28 pb-24 sm:px-8">
-    <p class="mb-3 text-sm tracking-[0.2em] text-accent uppercase">Projects</p>
-    <h1 class="font-serif text-4xl tracking-tight sm:text-5xl">AI agents I've built</h1>
-    <p class="mt-3 max-w-2xl text-muted">Most of these are still growing. Each page updates from its GitHub repo whenever I push.</p>
+    <p class="mb-3 text-sm tracking-[0.2em] text-accent uppercase" data-edit="ui.projects.pageEyebrow">{t.pageEyebrow}</p>
+    <h1 class="font-serif text-4xl tracking-tight sm:text-5xl" data-edit="ui.projects.pageTitle">{t.pageTitle}</h1>
+    <p class="mt-3 max-w-2xl text-muted" data-edit="ui.projects.pageIntro">{t.pageIntro}</p>
 
     <div class="mt-10 flex flex-wrap gap-2" role="group" aria-label="Filter by tag">
       <button type="button" data-filter="" aria-pressed="true" class="tag-btn">All</button>

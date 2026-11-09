@@ -77,6 +77,8 @@ async function load(src: ProjectSource): Promise<Project | null> {
 let cache: Promise<Project[]> | undefined;
 
 export function getProjects(): Promise<Project[]> {
+  // While developing, re-read every time so saved edits show up on reload.
+  if (import.meta.env.DEV) cache = undefined;
   cache ??= Promise.all(projectSources.map(load)).then((list) =>
     (list.filter(Boolean) as Project[]).sort((a, b) => (a.order ?? 99) - (b.order ?? 99)),
   );
