@@ -1,0 +1,105 @@
+---
+// Launch-video storyboard for one project. scripts/demos/make-videos.mjs opens
+// this page in a headless browser, records it, and saves an mp4 to
+// public/media/videos/. Only built in dev, so it never ships on the live site.
+import '../../styles/global.css';
+import DemoPlayer from '../../components/DemoPlayer.astro';
+import { getProjects } from '../../lib/portfolio';
+import { getDemo } from '../../lib/demos';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  if (import.meta.env.PROD) return [];
+  const projects = await getProjects();
+  return projects.filter((p) => getDemo(p.slug)).map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props;
+const demo = getDemo(p.slug)!;
+const highlights = (p.highlights ?? []).slice(0, 3);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{p.name} · film</title>
+  </head>
+  <body class="h-screen overflow-hidden antialiased">
+    <div class="glow" aria-hidden="true"></div>
+
+    <section class="scene" data-scene="title" data-hold="2600">
+      <p class="text-sm tracking-[0.35em] text-accent uppercase">Introducing</p>
+      <h1 class="mt-4 font-serif text-7xl tracking-tight">{p.name}</h1>
+    </section>
+
+    <section class="scene" data-scene="tagline" data-hold="3000">
+      <p class="max-w-4xl font-serif text-5xl leading-tight">{p.tagline}</p>
+    </section>
+
+    {p.problem && (
+      <section class="scene" data-scene="problem" data-hold="3200">
+        <p class="text-sm tracking-[0.35em] text-muted uppercase">The problem</p>
+        <p class="mt-5 max-w-3xl text-3xl leading-snug text-muted">{p.problem}</p>
+      </section>
+    )}
+
+    <section class="scene scene-demo" data-scene="demo">
+      <p class="mb-2 text-sm tracking-[0.35em] text-accent uppercase">Watch it work</p>
+      <div class="w-full max-w-5xl text-left"><DemoPlayer demo={demo} slug={p.slug} film /></div>
+    </section>
+
+    {highlights.length > 0 && (
+      <section class="scene" data-scene="highlights" data-hold="3600">
+        <ul class="space-y-6 text-left">
+          {highlights.map((h) => <li class="hl flex items-center gap-5 font-serif text-4xl"><span class="h-3 w-3 rounded-full bg-accent"></span>{h}</li>)}
+        </ul>
+      </section>
+    )}
+
+    <section class="scene" data-scene="end" data-hold="2600">
+      <p class="font-serif text-6xl">{site.brand}<span class="text-accent">.</span></p>
+      <p class="mt-4 text-lg text-muted">{p.name} · built by {site.name}</p>
+    </section>
+
+    <style>
+      body { background: var(--color-ink); }
+      .glow { position: fixed; inset: -20%; background: radial-gradient(40% 35% at 50% 40%, rgb(242 181 68 / .10), transparent 70%); animation: drift 14s ease-in-out infinite alternate; }
+      .scene { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem; opacity: 0; transform: scale(.985); transition: opacity .8s ease, transform 1.2s ease; pointer-events: none; }
+      .scene.on { opacity: 1; transform: none; pointer-events: auto; }
+      .scene-demo { padding: 1.5rem 3rem; }
+      .hl { opacity: 0; transform: translateX(-12px); transition: opacity .6s ease, transform .6s ease; }
+      .on .hl { opacity: 1; transform: none; }
+      .on .hl:nth-child(2) { transition-delay: .7s; }
+      .on .hl:nth-child(3) { transition-delay: 1.4s; }
+      @keyframes drift { to { transform: translate(4%, 3%); } }
+    </style>
+
+    <script>
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      async function run() {
+        await document.fonts.ready;
+        await sleep(600);
+        const scenes = [...document.querySelectorAll<HTMLElement>('.scene')];
+        for (const s of scenes) {
+          s.classList.add('on');
+          if (s.dataset.scene === 'demo') {
+            const root = s.querySelector<HTMLElement>('[data-demo]') as any;
+            const n = Math.min(root.demo.count, 2); // at most two scenarios per video
+            for (let i = 0; i < n; i++) {
+              const done = new Promise((r) => root.addEventListener('demo:done', r, { once: true }));
+              root.demo.select(i);
+              await done;
+              await sleep(2600);
+            }
+          } else {
+            await sleep(Number(s.dataset.hold) || 2500);
+          }
+          if (s !== scenes.at(-1)) { s.classList.remove('on'); await sleep(700); }
+        }
+        (window as any).__filmDone = true;
+      }
+      run();
+    </script>
+  </body>
+</html>

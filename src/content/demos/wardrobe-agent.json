@@ -1,0 +1,47 @@
+{
+  "title": "This morning's outfits",
+  "intro": "At 8am the agent checks the weather and suggests three outfits for each kind of day. Pick an occasion to replay.",
+  "recorded": "2026-11-09",
+  "sample": true,
+  "source": "Sample run. Replace it with a real morning run: python3 scripts/demos/record.py wardrobe",
+  "scenarios": [
+    {
+      "id": "casual",
+      "label": "Casual",
+      "prompt": "8am, casual day",
+      "steps": [
+        { "tool": "fetch_weather", "label": "Check the weather in Evanston", "lines": ["9°C, Cloudy, 20% rain"] },
+        { "tool": "notion_wardrobe", "label": "Load the wardrobe and last week's outfits", "lines": ["35 items, 6 worn this week"] },
+        { "tool": "suggest_outfits", "label": "Skip recent repeats, apply style rules", "detail": "Llama 3.3 70B on Groq", "lines": ["3 outfits for casual"] },
+        { "tool": "dashboard", "label": "Show the picks on the morning dashboard" }
+      ],
+      "result": [
+        { "type": "stats", "items": [ { "label": "Today", "value": "9°C" }, { "label": "Sky", "value": "Cloudy" }, { "label": "Rain", "value": "20%" } ] },
+        { "type": "cards", "title": "Casual picks", "items": [
+          { "title": "Sharp casual", "meta": "Main", "body": "A dark bomber over a white tee keeps it clean, and charcoal trousers add warmth for a cool morning.", "chips": [ { "label": "Leather bomber", "color": "black" }, { "label": "White tee", "color": "white" }, { "label": "Charcoal trousers", "color": "charcoal" }, { "label": "White runners", "color": "white" } ] },
+          { "title": "Soft layers", "meta": "Alternate 1", "body": "Olive and navy are an easy pairing, and the light jacket handles the chance of rain.", "chips": [ { "label": "Olive jacket", "color": "olive" }, { "label": "Navy trousers", "color": "navy" }, { "label": "Grey polo", "color": "grey" }, { "label": "Canvas slip-ons", "color": "beige" } ] },
+          { "title": "Earth tones", "meta": "Alternate 2", "body": "Brown and sky blue give some contrast without clashing, and nothing here was worn in the last week.", "chips": [ { "label": "Brown jacket", "color": "brown" }, { "label": "Sky-blue knit polo", "color": "lightblue" }, { "label": "Black trousers", "color": "black" }, { "label": "White runners", "color": "white" } ] }
+        ] }
+      ]
+    },
+    {
+      "id": "work",
+      "label": "Work",
+      "prompt": "8am, work day",
+      "steps": [
+        { "tool": "fetch_weather", "label": "Check the weather in Evanston", "lines": ["9°C, Cloudy, 20% rain"] },
+        { "tool": "notion_wardrobe", "label": "Load the wardrobe and last week's outfits", "lines": ["35 items, 6 worn this week"] },
+        { "tool": "suggest_outfits", "label": "Skip recent repeats, apply style rules", "detail": "Llama 3.3 70B on Groq", "lines": ["3 outfits for work"] },
+        { "tool": "dashboard", "label": "Show the picks on the morning dashboard" }
+      ],
+      "result": [
+        { "type": "stats", "items": [ { "label": "Today", "value": "9°C" }, { "label": "Sky", "value": "Cloudy" }, { "label": "Rain", "value": "20%" } ] },
+        { "type": "cards", "title": "Work picks", "items": [
+          { "title": "Quiet polish", "meta": "Main", "body": "A white oxford with navy trousers reads professional, and the dark overshirt adds a layer for the walk.", "chips": [ { "label": "White oxford", "color": "white" }, { "label": "Navy trousers", "color": "navy" }, { "label": "Dark green overshirt", "color": "darkgreen" } ] },
+          { "title": "Monochrome dark", "meta": "Alternate 1", "body": "A black knit polo and black trousers look sharp for presentations; white shoes keep it from feeling heavy.", "chips": [ { "label": "Black knit polo", "color": "black" }, { "label": "Black trousers", "color": "black" }, { "label": "White runners", "color": "white" } ] },
+          { "title": "Soft contrast", "meta": "Alternate 2", "body": "Light grey trousers balance a mid-blue tee under the olive jacket for a relaxed office day.", "chips": [ { "label": "Blue tee", "color": "steelblue" }, { "label": "Light grey trousers", "color": "lightgrey" }, { "label": "Olive jacket", "color": "olive" } ] }
+        ] }
+      ]
+    }
+  ]
+}

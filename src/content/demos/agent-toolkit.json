@@ -1,0 +1,296 @@
+{
+  "title": "Privacy scanner in action",
+  "intro": "Before every tool call, a scanner checks for secrets and personal data and stops the agent on a match. Pick a session to replay.",
+  "recorded": "2026-11-09",
+  "source": "Real security_scan.py run on sample tool calls (made-up data).",
+  "scenarios": [
+    {
+      "id": "everyday",
+      "label": "Everyday work",
+      "prompt": "The agent goes about a normal coding session.",
+      "steps": [
+        {
+          "tool": "scan · Bash",
+          "label": "git status",
+          "ms": 32,
+          "lines": [
+            "Allowed"
+          ],
+          "status": "ok"
+        },
+        {
+          "tool": "scan · Read",
+          "label": "tools/fetch_news.py",
+          "ms": 28,
+          "lines": [
+            "Allowed"
+          ],
+          "status": "ok"
+        },
+        {
+          "tool": "scan · WebSearch",
+          "label": "TSMC 2nm capacity 2026",
+          "ms": 43,
+          "lines": [
+            "Allowed"
+          ],
+          "status": "ok"
+        },
+        {
+          "tool": "scan · Bash",
+          "label": "python3 tools/run_weekly_report.py",
+          "ms": 27,
+          "lines": [
+            "Allowed"
+          ],
+          "status": "ok"
+        }
+      ],
+      "result": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Tool calls checked",
+              "value": "4"
+            },
+            {
+              "label": "Blocked",
+              "value": "0"
+            },
+            {
+              "label": "Allowed",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Scanner decisions",
+          "items": [
+            {
+              "title": "git status",
+              "meta": "Bash tool call",
+              "detail": "No personal data or secrets found.",
+              "tone": "green",
+              "badge": "Allowed"
+            },
+            {
+              "title": "tools/fetch_news.py",
+              "meta": "Read tool call",
+              "detail": "No personal data or secrets found.",
+              "tone": "green",
+              "badge": "Allowed"
+            },
+            {
+              "title": "TSMC 2nm capacity 2026",
+              "meta": "WebSearch tool call",
+              "detail": "No personal data or secrets found.",
+              "tone": "green",
+              "badge": "Allowed"
+            },
+            {
+              "title": "python3 tools/run_weekly_report.py",
+              "meta": "Bash tool call",
+              "detail": "No personal data or secrets found.",
+              "tone": "green",
+              "badge": "Allowed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "secrets",
+      "label": "Reaching for secrets",
+      "prompt": "The agent tries to look at keys it should never see.",
+      "steps": [
+        {
+          "tool": "scan · Read",
+          "label": ".env",
+          "ms": 35,
+          "lines": [
+            "Blocked: Attempt to access `.env` via Read tool."
+          ],
+          "status": "block"
+        },
+        {
+          "tool": "scan · Bash",
+          "label": "cat .env | grep NEWSAPI",
+          "ms": 32,
+          "lines": [
+            "Blocked: Bash command reads `.env` which contains secrets."
+          ],
+          "status": "block"
+        },
+        {
+          "tool": "scan · Bash",
+          "label": "curl -H 'Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456' api.example.com",
+          "ms": 32,
+          "lines": [
+            "Blocked: Text matching a known API key/token/password shape found in bash command. Verify no live secret is being exposed."
+          ],
+          "status": "block"
+        },
+        {
+          "tool": "scan · Grep",
+          "label": "session_auth/",
+          "ms": 32,
+          "lines": [
+            "Blocked: Grep targets a path inside `session_auth/`. This directory holds live session/auth data and must not be searched."
+          ],
+          "status": "block"
+        }
+      ],
+      "result": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Tool calls checked",
+              "value": "4"
+            },
+            {
+              "label": "Blocked",
+              "value": "4"
+            },
+            {
+              "label": "Allowed",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Scanner decisions",
+          "items": [
+            {
+              "title": ".env",
+              "meta": "Read tool call",
+              "detail": "Attempt to access `.env` via Read tool.",
+              "tone": "red",
+              "badge": "Blocked"
+            },
+            {
+              "title": "cat .env | grep NEWSAPI",
+              "meta": "Bash tool call",
+              "detail": "Bash command reads `.env` which contains secrets.",
+              "tone": "red",
+              "badge": "Blocked"
+            },
+            {
+              "title": "curl -H 'Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456' api.example.com",
+              "meta": "Bash tool call",
+              "detail": "Text matching a known API key/token/password shape found in bash command. Verify no live secret is being exposed.",
+              "tone": "red",
+              "badge": "Blocked"
+            },
+            {
+              "title": "session_auth/",
+              "meta": "Grep tool call",
+              "detail": "Grep targets a path inside `session_auth/`. This directory holds live session/auth data and must not be searched.",
+              "tone": "red",
+              "badge": "Blocked"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "personal",
+      "label": "Personal data",
+      "prompt": "A request would send personal details to the outside world.",
+      "steps": [
+        {
+          "tool": "scan · WebFetch",
+          "label": "https://example.com/lookup?ssn=123-45-6789",
+          "ms": 33,
+          "lines": [
+            "Blocked: Potential financial identifier detected in web request. Verify no sensitive data is sent externally."
+          ],
+          "status": "block"
+        },
+        {
+          "tool": "scan · Bash",
+          "label": "python3 notes.py --topic 'vaccine record upload'",
+          "ms": 38,
+          "lines": [
+            "Blocked: Health-record keyword `vaccine` detected in bash command. Confirm this is intentional before proceeding."
+          ],
+          "status": "block"
+        },
+        {
+          "tool": "scan · Bash",
+          "label": "echo 'call me at (312) 555-0142' > note.txt",
+          "ms": 29,
+          "lines": [
+            "Blocked: Potential US phone number in bash command. Verify no personal contact info is being exposed."
+          ],
+          "status": "block"
+        },
+        {
+          "tool": "scan · WebSearch",
+          "label": "best index funds for students",
+          "ms": 32,
+          "lines": [
+            "Allowed"
+          ],
+          "status": "ok"
+        }
+      ],
+      "result": [
+        {
+          "type": "stats",
+          "items": [
+            {
+              "label": "Tool calls checked",
+              "value": "4"
+            },
+            {
+              "label": "Blocked",
+              "value": "3"
+            },
+            {
+              "label": "Allowed",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Scanner decisions",
+          "items": [
+            {
+              "title": "https://example.com/lookup?ssn=123-45-6789",
+              "meta": "WebFetch tool call",
+              "detail": "Potential financial identifier detected in web request. Verify no sensitive data is sent externally.",
+              "tone": "red",
+              "badge": "Blocked"
+            },
+            {
+              "title": "python3 notes.py --topic 'vaccine record upload'",
+              "meta": "Bash tool call",
+              "detail": "Health-record keyword `vaccine` detected in bash command. Confirm this is intentional before proceeding.",
+              "tone": "red",
+              "badge": "Blocked"
+            },
+            {
+              "title": "echo 'call me at (312) 555-0142' > note.txt",
+              "meta": "Bash tool call",
+              "detail": "Potential US phone number in bash command. Verify no personal contact info is being exposed.",
+              "tone": "red",
+              "badge": "Blocked"
+            },
+            {
+              "title": "best index funds for students",
+              "meta": "WebSearch tool call",
+              "detail": "No personal data or secrets found.",
+              "tone": "green",
+              "badge": "Allowed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

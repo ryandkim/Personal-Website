@@ -1,0 +1,17 @@
+---
+import { site, nav } from '../data/site';
+---
+<header class="fixed inset-x-0 top-0 z-40 border-b border-line/60 bg-ink/80 backdrop-blur">
+  <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8" aria-label="Main">
+    <a href="/#top" class="font-serif text-lg tracking-tight">{site.brand}<span class="text-accent">.</span></a>
+    <ul class="hidden gap-7 text-sm text-muted md:flex">
+      {nav.map((n) => <li><a href={n.href} class="transition-colors hover:text-text" data-edit={`nav.${n.id}`}>{n.label}</a></li>)}
+    </ul>
+    <details class="relative md:hidden">
+      <summary class="cursor-pointer list-none rounded px-2 py-1 text-sm text-muted hover:text-text">Menu</summary>
+      <ul class="absolute right-0 mt-3 w-44 rounded-lg border border-line bg-panel p-2 text-sm shadow-xl">
+        {nav.map((n) => <li><a href={n.href} class="block rounded px-3 py-2 text-muted hover:bg-line/50 hover:text-text">{n.label}</a></li>)}
+      </ul>
+    </details>
+  </nav>
+</header>

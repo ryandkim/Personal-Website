@@ -1,0 +1,88 @@
+{
+  "highlights": [
+    {
+      "type": "image",
+      "src": "",
+      "caption": "2nd place, inaugural Kellogg program-wide AI hackathon (Mixr)",
+      "date": "2026"
+    },
+    {
+      "type": "image",
+      "src": "",
+      "caption": "Finalist, Tepper Innovation Challenge",
+      "date": "2026"
+    },
+    {
+      "type": "linkedin",
+      "embed": "",
+      "caption": "Your latest LinkedIn post or repost goes here"
+    },
+    {
+      "type": "youtube",
+      "id": "",
+      "caption": "A YouTube video you want to feature"
+    }
+  ],
+  "beyond": [
+    {
+      "id": "games",
+      "items": [
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: the D&D campaign I am running"
+        },
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: a game I am into right now"
+        }
+      ]
+    },
+    {
+      "id": "art",
+      "items": [
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: a piece I made"
+        },
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: a Cubism vs AI comparison"
+        }
+      ]
+    },
+    {
+      "id": "music",
+      "items": [
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: a show I went to"
+        },
+        {
+          "type": "video",
+          "src": "",
+          "caption": "Placeholder: a short clip"
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "items": [
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: a favorite trip"
+        },
+        {
+          "type": "image",
+          "src": "",
+          "caption": "Placeholder: beach volleyball"
+        }
+      ]
+    }
+  ]
+}

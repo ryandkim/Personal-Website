@@ -1,0 +1,123 @@
+{
+  "name": "Ryan Kim",
+  "hero": {
+    "greeting": "Hello, I'm",
+    "headline": "This is a test headline.",
+    "bio": ""
+  },
+  "sections": {
+    "about": {
+      "eyebrow": "Right now",
+      "title": "What I'm up to"
+    },
+    "journey": {
+      "eyebrow": "Journey",
+      "title": "Career timeline"
+    },
+    "projects": {
+      "eyebrow": "Projects",
+      "title": "AI agents I've built"
+    },
+    "twin": {
+      "eyebrow": "AI twin",
+      "title": "Ask my twin anything"
+    },
+    "beyond": {
+      "eyebrow": "Beyond work",
+      "title": "Games, art, music, travel"
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Let's talk"
+    }
+  },
+  "now": [
+    "MBA in Artificial Intelligence candidate at Kellogg and McCormick, Northwestern (2026 to 2028)",
+    "Building AI agents: a semiconductor news tracker, a wardrobe stylist, a recruiting dashboard, and M:xr",
+    "Director in the Kellogg AI Club (special projects, AI conference outreach)"
+  ],
+  "lookingFor": "Product management roles in AI. (Placeholder, click Edit to change.)",
+  "highlights": {
+    "title": "Recent highlights",
+    "subtitle": "Hackathons, awards, posts, and videos. Scroll or swipe."
+  },
+  "beyond": {
+    "games": {
+      "title": "Games",
+      "blurb": "Crafting stories at the D&D table, and what I play."
+    },
+    "art": {
+      "title": "Art",
+      "blurb": "Cubism vs AI-generated art, and what I make."
+    },
+    "music": {
+      "title": "Music",
+      "blurb": "What I listen to and play."
+    },
+    "travel": {
+      "title": "Travel",
+      "blurb": "Places I have been, plus beach volleyball wherever there is sand."
+    }
+  },
+  "contact": "The fastest way to reach me is email:",
+  "nav": {
+    "about": "About",
+    "journey": "Journey",
+    "quest": "Career quest",
+    "projects": "Projects",
+    "beyond": "Beyond work",
+    "contact": "Contact"
+  },
+  "ui": {
+    "hero": {
+      "projectsButton": "See my projects",
+      "journeyButton": "My journey"
+    },
+    "about": {
+      "lookingForLabel": "Looking for",
+      "getInTouch": "Get in touch →"
+    },
+    "journey": {
+      "gameEyebrow": "Play instead of read",
+      "gameTitle": "Career quest",
+      "gameText": "A small retro adventure: walk from campus to the city to the lake, and each marker you find unlocks the next stage of my career.",
+      "gameButton": "Start the quest →"
+    },
+    "projects": {
+      "allLink": "All projects, with filters →",
+      "pageEyebrow": "Projects",
+      "pageTitle": "AI agents I've built",
+      "pageIntro": "Most of these are still growing. Each page updates from its GitHub repo whenever I push.",
+      "readStory": "Read the story →",
+      "backLink": "← All projects",
+      "demoPlaceholder": "A replay demo is on the way for this project.",
+      "problemHeading": "The problem",
+      "howHeading": "How it works",
+      "stackHeading": "Built with",
+      "highlightsHeading": "Highlights",
+      "nextLabel": "Next project",
+      "videoHeading": "The short version: a 40-second launch video made from the same run."
+    },
+    "demo": {
+      "eyebrow": "Replay demo",
+      "sampleBadge": "Sample",
+      "play": "▶ Replay",
+      "skip": "Skip to result",
+      "waiting": "Results appear here as the agent finishes.",
+      "note": "This replays a saved run step by step, so no AI is called when you press play."
+    },
+    "twin": {
+      "placeholder": "A retro handheld-RPG-style dialogue box where you can chat with a pixel-art version of me.",
+      "button": "Talk to my twin"
+    },
+    "quest": {
+      "eyebrow": "Journey",
+      "title": "Career quest",
+      "intro": "Walk from campus to the city to the lake. Each glowing marker is the next stage of my career, and finishing an area opens the way to the next.",
+      "readLink": "Prefer to read? See the plain timeline."
+    },
+    "footer": {
+      "note": "Built with Astro."
+    }
+  }
+}

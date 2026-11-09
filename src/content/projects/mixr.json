@@ -1,0 +1,29 @@
+{
+  "name": "M:xr",
+  "tagline": "Less group chat, more mixers. An AI planner for Kellogg social events.",
+  "status": "prototype",
+  "tags": [
+    "Hackathon",
+    "Agent",
+    "Consumer"
+  ],
+  "order": 4,
+  "summary": "A team hackathon project that took 2nd place at the Kellogg hackathon. Mixr helps KWEST social chairs plan group events with an AI agent: set the size and budget, find and hold a venue, and match with other groups planning something similar.",
+  "problem": "Planning a group mixer means weeks of back-and-forth on dates, budgets and venues.",
+  "how": [
+    "An agent chat collects event size, budget per person and dates.",
+    "Swipe through suggested venues and place a hold.",
+    "Match with other groups planning a similar event.",
+    "Approve the plan, and the event shows up on everyone's calendar and invites."
+  ],
+  "stack": [
+    "HTML",
+    "CSS",
+    "JavaScript"
+  ],
+  "highlights": [
+    "2nd place, Kellogg hackathon",
+    "Mobile-first prototype with organizer and venue views"
+  ],
+  "links": {}
+}

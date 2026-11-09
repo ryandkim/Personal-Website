@@ -1,0 +1,109 @@
+---
+// Owner-only toolbar at the bottom of the page. Hidden for everyone else:
+// it only appears after the server confirms a valid owner session.
+---
+<div id="owner-bar" hidden
+  class="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-line bg-panel/95 p-1.5 text-sm shadow-2xl backdrop-blur">
+  <span id="owner-status" class="px-3 text-muted">Owner</span>
+  <button type="button" id="owner-edit" class="rounded-full bg-accent px-4 py-2 font-medium text-accent-ink hover:brightness-110">Edit page</button>
+  <button type="button" id="owner-save" hidden class="rounded-full bg-accent px-4 py-2 font-medium text-accent-ink hover:brightness-110">Save</button>
+  <button type="button" id="owner-cancel" hidden class="rounded-full border border-line px-4 py-2 hover:border-text">Cancel</button>
+  <button type="button" id="owner-logout" class="rounded-full px-3 py-2 text-muted hover:text-text">Sign out</button>
+</div>
+
+<style is:global>
+  [data-edit]:empty::before { content: attr(data-placeholder); color: var(--color-muted); font-style: italic; opacity: .7; }
+  body.editing [data-edit] { outline: 1px dashed color-mix(in oklab, var(--color-accent) 60%, transparent); outline-offset: 4px; border-radius: 4px; cursor: text; }
+  body.editing [data-edit]:focus { outline: 2px solid var(--color-accent); background: color-mix(in oklab, var(--color-accent) 8%, transparent); }
+  body.editing [data-edit].changed { outline-style: solid; }
+  body.editing .reveal { opacity: 1; transform: none; }
+  body.editing [data-caption] { pointer-events: auto; }
+</style>
+
+<script>
+  const bar = document.getElementById('owner-bar')!;
+  const status = document.getElementById('owner-status')!;
+  const btn = (id: string) => document.getElementById(id) as HTMLButtonElement;
+  const [edit, save, cancel, logout] = ['owner-edit', 'owner-save', 'owner-cancel', 'owner-logout'].map(btn);
+  const fields = () => Array.from(document.querySelectorAll<HTMLElement>('[data-edit]'));
+  const original = new Map<HTMLElement, string>();
+  const text = (el: HTMLElement) => el.innerText.replace(/ /g, ' ').trim();
+
+  function setMode(on: boolean) {
+    document.body.classList.toggle('editing', on);
+    edit.hidden = on; save.hidden = !on; cancel.hidden = !on;
+    for (const el of fields()) {
+      if (on) {
+        original.set(el, text(el));
+        el.setAttribute('contenteditable', 'plaintext-only');
+        if (el.contentEditable !== 'plaintext-only') el.setAttribute('contenteditable', 'true');
+        el.setAttribute('spellcheck', 'true');
+      } else {
+        el.removeAttribute('contenteditable');
+        el.classList.remove('changed');
+      }
+    }
+    status.textContent = on ? 'Click any outlined text' : 'Owner';
+  }
+
+  // Keep pasted text plain, and mark changed fields.
+  document.addEventListener('paste', (e) => {
+    const t = e.target as HTMLElement;
+    if (!document.body.classList.contains('editing') || !t.closest?.('[data-edit]')) return;
+    e.preventDefault();
+    document.execCommand('insertText', false, e.clipboardData?.getData('text/plain') ?? '');
+  });
+  document.addEventListener('input', (e) => {
+    const el = (e.target as HTMLElement).closest?.('[data-edit]') as HTMLElement | null;
+    if (el) el.classList.toggle('changed', text(el) !== original.get(el));
+  });
+  // Enter finishes a field instead of adding a line break (except in the bio).
+  document.addEventListener('keydown', (e) => {
+    const el = (e.target as HTMLElement).closest?.('[data-edit]') as HTMLElement | null;
+    if (el && e.key === 'Enter' && !e.shiftKey && el.dataset.edit !== 'hero.bio') { e.preventDefault(); el.blur(); }
+  });
+
+  // While editing, clicking text inside a link or button edits it instead of following it.
+  document.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('editing')) return;
+    if ((e.target as HTMLElement).closest?.('[data-edit]')) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  edit.addEventListener('click', () => {
+    document.querySelectorAll('details').forEach((d) => (d.open = true)); // show collapsed text too
+    setMode(true);
+  });
+  cancel.addEventListener('click', () => {
+    for (const [el, v] of original) el.innerText = v;
+    setMode(false);
+  });
+  save.addEventListener('click', async () => {
+    const changes: Record<string, string> = {};
+    for (const el of fields()) if (text(el) !== original.get(el)) changes[el.dataset.edit!] = text(el);
+    if (!Object.keys(changes).length) return setMode(false);
+    save.disabled = true; status.textContent = 'Saving…';
+    const res = await fetch('/api/content', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ changes }),
+    }).catch(() => null);
+    save.disabled = false;
+    if (res?.ok) {
+      const { message } = await res.json().catch(() => ({}));
+      setMode(false); status.textContent = message || 'Saved';
+      setTimeout(() => (status.textContent = 'Owner'), 5000);
+    }
+    else status.textContent = (res && (await res.json().catch(() => ({}))).error) || 'Save failed';
+  });
+  logout.addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    location.reload();
+  });
+
+  fetch('/api/auth/me', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : { owner: false }))
+    .then(({ owner }) => {
+      if (!owner) return;
+      bar.hidden = false;
+      document.querySelectorAll<HTMLElement>('[data-owner-login]').forEach((a) => (a.hidden = true));
+    })
+    .catch(() => {});
+</script>

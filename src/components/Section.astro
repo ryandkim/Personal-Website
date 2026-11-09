@@ -1,0 +1,14 @@
+---
+import { content } from '../data/site';
+interface Props { id: keyof typeof content.sections; comingIn?: string }
+const { id, comingIn } = Astro.props;
+const { eyebrow, title } = content.sections[id];
+---
+<section id={id} class="mx-auto max-w-6xl border-t border-line px-5 py-24 sm:px-8">
+  <div class="reveal">
+    <p class="mb-3 text-sm tracking-[0.2em] text-accent uppercase" data-edit={`sections.${id}.eyebrow`}>{eyebrow}</p>
+    <h2 class="font-serif text-4xl tracking-tight sm:text-5xl" data-edit={`sections.${id}.title`}>{title}</h2>
+    {comingIn && <p class="mt-3 text-sm text-muted">Coming in: {comingIn}</p>}
+  </div>
+  <div class="reveal mt-10"><slot /></div>
+</section>

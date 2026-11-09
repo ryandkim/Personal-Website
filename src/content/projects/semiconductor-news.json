@@ -1,0 +1,18 @@
+{
+  "name": "Semiconductor news agent",
+  "tagline": "A weekly market brief on chips and AI, written and delivered by an agent.",
+  "status": "working",
+  "tags": ["Agent", "Market intelligence", "Automation"],
+  "order": 1,
+  "summary": "Every Monday morning the agent reads the past week of semiconductor and AI news, pulls stock moves for the companies that matter, and writes a short PDF brief with strategic takeaways. The brief lands in my inbox and in Notion.",
+  "problem": "Keeping up with chips, AI infrastructure and the companies behind them takes hours of reading every week, and most of it is noise.",
+  "how": [
+    "Pulls the week's top articles on semiconductors, AI and GPUs from a news API.",
+    "Fetches price moves for NVIDIA, AMD, TSMC, ASML and peers.",
+    "An LLM ranks the stories, explains why they matter and suggests what to watch.",
+    "Builds a PDF, files it in Notion and emails it, on a weekly schedule."
+  ],
+  "stack": ["Python", "Groq (Llama 3.3)", "NewsAPI", "Notion API", "macOS launchd"],
+  "highlights": ["Runs unattended every week", "Checks API keys for unusual use before every paid run"],
+  "links": {}
+}
