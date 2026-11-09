@@ -4,7 +4,9 @@ import { getProjects, formatDate, type Project } from '../../lib/portfolio';
 import { statusLabels } from '../../data/projects';
 import { content } from '../../data/site';
 import DemoPlayer from '../../components/DemoPlayer.astro';
-import { getDemo, getVideo } from '../../lib/demos';
+import DashboardWalkthrough from '../../components/DashboardWalkthrough.astro';
+import SkillsSession from '../../components/SkillsSession.astro';
+import { getDemo } from '../../lib/demos';
 const t = content.ui.projects;
 
 export async function getStaticPaths() {
@@ -15,11 +17,10 @@ interface Props { p: Project; next: Project }
 const { p, next } = Astro.props;
 const k = (f: string) => `project:${p.slug}:${f}`;
 const demo = getDemo(p.slug);
-const video = getVideo(p.slug);
 const links = [
   demo && { href: '#demo', label: 'Watch the demo', local: true },
   p.links?.demo && { href: p.links.demo, label: demo ? 'Open the interactive mockup' : 'Try the demo' },
-  !video && p.links?.video && { href: p.links.video, label: 'Watch the video' },
+  p.links?.video && { href: p.links.video, label: 'Watch the video' },
   p.links?.site && { href: p.links.site, label: 'Visit the site' },
   p.repoUrl && { href: p.repoUrl, label: 'View the code' },
 ].filter(Boolean) as { href: string; label: string; local?: boolean }[];
@@ -44,15 +45,12 @@ const links = [
       </div>
     )}
 
-    {video && (
-      <figure class="mt-12">
-        <video class="w-full rounded-2xl border border-line bg-panel" src={video.src} poster={video.poster} controls playsinline muted preload="metadata"></video>
-        <figcaption class="mt-2 text-xs text-muted" data-edit="ui.projects.videoHeading">{t.videoHeading}</figcaption>
-      </figure>
-    )}
-
     {demo
-      ? <div id="demo" class="mt-12 scroll-mt-24"><DemoPlayer demo={demo} slug={p.slug} /></div>
+      ? <div id="demo" class="mt-12 scroll-mt-24">
+          {demo.extra === 'skills-session' && <SkillsSession />}
+          <DemoPlayer demo={demo} slug={p.slug} />
+          {demo.extra === 'dashboard-walkthrough' && <DashboardWalkthrough />}
+        </div>
       : <div class="mt-12 rounded-2xl border border-dashed border-line p-8 text-center text-sm text-muted" data-edit="ui.projects.demoPlaceholder">{t.demoPlaceholder}</div>}
 
     <section class="mt-14">

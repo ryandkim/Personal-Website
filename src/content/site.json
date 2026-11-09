@@ -95,8 +95,7 @@
       "howHeading": "How it works",
       "stackHeading": "Built with",
       "highlightsHeading": "Highlights",
-      "nextLabel": "Next project",
-      "videoHeading": "The short version: a 40-second launch video made from the same run."
+      "nextLabel": "Next project"
     },
     "demo": {
       "eyebrow": "Replay demo",
@@ -104,7 +103,9 @@
       "play": "▶ Replay",
       "skip": "Skip to result",
       "waiting": "Results appear here as the agent finishes.",
-      "note": "This replays a saved run step by step, so no AI is called when you press play."
+      "note": "This replays a saved run step by step, so no AI is called when you press play.",
+      "seeMore": "See more",
+      "seeLess": "See less"
     },
     "twin": {
       "placeholder": "A retro handheld-RPG-style dialogue box where you can chat with a pixel-art version of me.",

@@ -1,0 +1,44 @@
+{
+  "title": "Inside the dashboard",
+  "intro": "A guided tour of the three tabs: the home view, the network tracker and the job tracker. Everyone and everything here is made up.",
+  "home": {
+    "kpis": [
+      { "label": "Apply soon", "value": "2", "hint": "jobs with under 12h left", "tone": "red" },
+      { "label": "Follow-ups due", "value": "3", "hint": "14+ days since you talked", "tone": "orange" },
+      { "label": "Drafts in Gmail", "value": "2", "hint": "waiting for you to send", "tone": "blue" },
+      { "label": "Contacts", "value": "48", "hint": "in your network", "tone": "green" }
+    ],
+    "today": [
+      { "title": "Clear advising hold in CAESAR", "meta": "School · due Sep 10", "tone": "red" },
+      { "title": "Apply: Product Manager Intern, Northwind", "meta": "Job · 9h left", "tone": "red" },
+      { "title": "Follow up with Maya Chen (Atlas Ventures)", "meta": "Network · 17 days since you talked", "tone": "orange" }
+    ]
+  },
+  "network": {
+    "rows": [
+      { "name": "Maya Chen", "org": "Atlas Ventures · Associate", "last": "17 days ago", "note": "Asked about climate-tech deal flow" },
+      { "name": "Jordan Patel", "org": "Kellogg '25 · Strategy at Lumen Health", "last": "15 days ago", "note": "Offered to intro to their PM lead" },
+      { "name": "Sam Ortiz", "org": "Brightline Robotics · Recruiter", "last": "14 days ago", "note": "Summer internship timeline" }
+    ],
+    "message": "Met Dana Lee at Tech Trek. PM at Northwind, happy to chat about summer roles.",
+    "reply": "Added Dana Lee · Northwind · Product Manager. Follow-up set for Nov 23, and a thank-you draft is waiting in Gmail.",
+    "added": { "name": "Dana Lee", "org": "Northwind · Product Manager", "last": "today", "note": "Met at Tech Trek, summer roles" }
+  },
+  "jobs": {
+    "rows": [
+      { "title": "Product Manager Intern", "org": "Northwind · Seattle · Slack", "urgency": "red", "left": "9h left" },
+      { "title": "AI Strategy Summer Associate", "org": "Lumen Health · Chicago · LinkedIn", "urgency": "orange", "left": "1 day left" },
+      { "title": "MBA Intern, Product Operations", "org": "Brightline Robotics · Remote · WhatsApp", "urgency": "green", "left": "2 days left" }
+    ],
+    "message": "Applied to the Northwind PM intern role. Recruiter is Alex Kim.",
+    "reply": "Marked as applied and moved to Archived. I'll remind you to follow up with Alex Kim on Nov 16."
+  },
+  "captions": {
+    "home": "Home: everything due across school, jobs and people, in one ranked view.",
+    "network": "Network tracker: who I owe a follow-up, with drafts ready to review.",
+    "networkChat": "Add a new connection or note by just typing it.",
+    "jobs": "Job tracker: open roles ranked by how soon they close.",
+    "jobsChat": "Log an application in a sentence; the follow-up is scheduled for me.",
+    "done": "Back home: the counts update as things get done."
+  }
+}

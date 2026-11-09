@@ -104,11 +104,10 @@ python3 scripts/demos/record.py wardrobe       # imports this morning's run from
 ```
 
 The semiconductor and wardrobe demos start as clearly labelled samples until
-you import a real run. The imports drop location coordinates, Notion ids and
-image links. Review the JSON before you commit it.
+you import a real run. The wardrobe import also copies each item's product
+cut-out for the 3D mannequin (needs `pip3 install pillow`). Review the JSON
+before you commit it.
 
-**Launch videos**: `node scripts/demos/make-videos.mjs` records a ~40 second
-video per demo from the dev-only page `/film/<slug>` and saves
-`public/media/videos/<slug>.mp4` plus a poster. The project page shows the video
-automatically when the file exists. Needs ffmpeg and Playwright
-(`npm i --no-save playwright && npx playwright install chromium`).
+Extra guided tours sit under some demos: `src/components/DashboardWalkthrough.astro`
+(text in `src/content/walkthroughs/networking-tracker.json`) and
+`src/components/SkillsSession.astro` for the always-on skills.
