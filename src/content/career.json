@@ -8,7 +8,7 @@
       "start": "2018",
       "end": "2022",
       "location": "St. Louis, MO",
-      "summary": "Studied environmental policy and economics, with a specialization in econometric data science modeling.",
+      "summary": "Specialization in econometric data science modeling.",
       "highlights": [
         "GPA 3.86 / 4.0; Dean’s List (4 semesters)",
         "Specialization in econometric data science modeling"
@@ -91,13 +91,13 @@
       "id": "kellogg",
       "kind": "education",
       "org": "Kellogg School of Management and McCormick School of Engineering, Northwestern",
-      "role": "MBA + MS in Artificial Intelligence (joint degree)",
+      "role": "MBA in Artificial Intelligence (joint degree)",
       "start": "2026",
       "end": "2028",
       "location": "Evanston, IL",
       "summary": "Joint MBA and AI degree candidate, graduating March 2028.",
       "highlights": [
-        "Director, AI Club: Special Projects and AI Conference Outreach",
+        "Director, AI Club: Special Projects, AI Conference Outreach",
         "Director, Asian Management Association: Careers",
         "Courses: Tech Product Management, Applied AI for Business, Modern Software Architecture"
       ],
@@ -114,8 +114,8 @@
       "location": "Evanston, IL",
       "summary": "Designing and shipping AI agents, solo and in teams.",
       "highlights": [
-        "2nd place in Kellogg’s inaugural program-wide hackathon (Mixr)",
-        "Finalist, inter-school Tepper Innovation Challenge",
+        "Top 2 in Kellogg’s inaugural program-wide hackathon (M:xr)",
+        "Finalist, national Tepper Innovation Challenge",
         "Built a recruiting prioritization dashboard, a semiconductor news tracker, and a personal wardrobe stylist with recommended deals"
       ],
       "region": "lakeshore",
@@ -124,7 +124,7 @@
   ],
   "groups": [
     {
-      "org": "Northwestern University: Kellogg and McCormick",
+      "org": "Northwestern University: Kellogg and McCormick Engineering",
       "ids": [
         "agents",
         "kellogg"
