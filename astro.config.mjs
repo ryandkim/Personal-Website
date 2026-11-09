@@ -19,6 +19,9 @@ export default defineConfig({
       OWNER_EMAIL: envField.string({ context: 'server', access: 'secret', optional: true }),
       SESSION_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
       // Read-only GitHub token, used at build time to read portfolio.json from private repos.
+      // Token that can write to this site's repo, so Save on the live site commits to GitHub.
+      SITE_EDIT_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
+      SITE_REPO: envField.string({ context: 'server', access: 'secret', default: 'ryandkim/Personal-Website' }),
       GITHUB_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
