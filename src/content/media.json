@@ -55,9 +55,9 @@
       "id": "music",
       "items": [
         {
-          "type": "image",
-          "src": "",
-          "caption": "Placeholder: a show I went to"
+          "type": "youtube",
+          "id": "Bgkn9slMgs4",
+          "caption": "The old college a capella days"
         },
         {
           "type": "video",
