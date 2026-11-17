@@ -2,7 +2,7 @@
 // Small cover card for a Beyond-work category. Clicking it opens a full-size,
 // swipeable gallery (with sound for videos) in a pop-up. If the item on the
 // card is a video, clicking plays it right in the card with sound instead,
-// with Full screen / Open gallery / Stop buttons underneath.
+// (the player has its own full-screen button). Flipping the card stops it.
 import Carousel from './Carousel.astro';
 import MediaSlide from './MediaSlide.astro';
 import type { MediaItem } from '../data/media';
@@ -49,11 +49,6 @@ const { id, index, title, blurb, items } = Astro.props;
       </>
     )}
   </div>
-  <div data-player-bar hidden class="mt-3 flex gap-2 text-xs">
-    <button type="button" data-player-full class="rounded-full border border-line px-3 py-1.5 text-muted transition hover:border-text hover:text-text">⛶ Full screen</button>
-    <button type="button" data-player-gallery class="rounded-full border border-line px-3 py-1.5 text-muted transition hover:border-text hover:text-text">Open gallery</button>
-    <button type="button" data-player-stop class="rounded-full border border-line px-3 py-1.5 text-muted transition hover:border-text hover:text-text">Stop</button>
-  </div>
   <h3 class="mt-4 font-serif text-2xl" data-edit={`beyond.${id}.title`}>{title}</h3>
   <p class="mt-1 text-sm text-muted" data-edit={`beyond.${id}.blurb`}>{blurb}</p>
 
@@ -94,7 +89,6 @@ const { id, index, title, blurb, items } = Astro.props;
     const count = card.querySelector<HTMLElement>('[data-deck-count]');
     const hint = card.querySelector<HTMLElement>('[data-deck-hint]');
     const player = card.querySelector<HTMLElement>('[data-player]')!;
-    const bar = card.querySelector<HTMLElement>('[data-player-bar]')!;
     const openBtn = card.querySelector<HTMLButtonElement>('[data-open-gallery]')!;
     let at = 0;
 
@@ -102,7 +96,7 @@ const { id, index, title, blurb, items } = Astro.props;
     const playable = (el?: HTMLElement) => !!el && ((el.dataset.kind === 'youtube' && !!el.dataset.yt) || (el.dataset.kind === 'video' && !!el.dataset.src));
     const updateHint = () => { if (hint) hint.textContent = playable(cards[at]) ? '▶ Play video' : 'Open gallery'; };
     // The hover hint is hidden while a video plays (it flickered over the player).
-    const stop = () => { player.replaceChildren(); player.hidden = true; bar.hidden = true; if (hint) hint.hidden = false; openBtn.style.transform = ''; };
+    const stop = () => { player.replaceChildren(); player.hidden = true; if (hint) hint.hidden = false; openBtn.style.transform = ''; };
     const play = (el: HTMLElement) => {
       let media: HTMLElement;
       if (el.dataset.kind === 'youtube') {
@@ -120,7 +114,6 @@ const { id, index, title, blurb, items } = Astro.props;
       media.className = 'h-full w-full bg-black object-contain';
       player.replaceChildren(media);
       player.hidden = false;
-      bar.hidden = false;
       if (hint) hint.hidden = true;
       openBtn.style.transform = 'none'; // no hover lift under the player, which made it jump
     };
@@ -131,14 +124,6 @@ const { id, index, title, blurb, items } = Astro.props;
       e.stopImmediatePropagation();
       play(cards[at]);
     }, true);
-    card.querySelector('[data-player-stop]')!.addEventListener('click', stop);
-    card.querySelector('[data-player-gallery]')!.addEventListener('click', () => { stop(); openBtn.dispatchEvent(new CustomEvent('open-gallery')); });
-    card.querySelector('[data-player-full]')!.addEventListener('click', () => {
-      const m = player.firstElementChild as (HTMLElement & { webkitEnterFullscreen?: () => void }) | null;
-      if (!m) return;
-      if (m.requestFullscreen) m.requestFullscreen().catch(() => m.webkitEnterFullscreen?.());
-      else m.webkitEnterFullscreen?.();
-    });
     updateHint();
     if (cards.length < 2) return;
 
@@ -177,7 +162,6 @@ const { id, index, title, blurb, items } = Astro.props;
       window.dispatchEvent(new Event('resize')); // let the carousel recompute its arrows
     };
     btn.addEventListener('click', open);
-    btn.addEventListener('open-gallery', open);
     dlg.querySelector('[data-close]')!.addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
     dlg.addEventListener('close', () => {
