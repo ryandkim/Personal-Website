@@ -38,6 +38,8 @@ const projects = await getProjects();
           <div class="w-[80%] shrink-0 snap-start sm:w-[46%] lg:w-[31%]"><MediaSlide item={item} editKey={`media:highlights.${i}`} /></div>
         ))}
       </Carousel>
+      <button type="button" data-media-pick data-media-list="highlights"
+          class="media-pick mt-3 items-center gap-1.5 rounded-full border border-accent/60 px-4 py-2 text-sm text-accent hover:bg-accent/10"><span aria-hidden="true">＋</span>Add more photos/videos</button>
     </div>
   </Section>
 
