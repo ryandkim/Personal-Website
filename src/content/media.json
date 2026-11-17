@@ -15,12 +15,14 @@
     {
       "type": "image",
       "src": "/media/uploads/20261117-555797-linkedin.jpg",
-      "caption": "Presented on Google Notebook and other AI tools for efficient learning and data analysis"
+      "caption": "Presented on Google Notebook and other AI tools for efficient learning and data analysis",
+      "date": "2026"
     },
     {
       "type": "youtube",
       "id": "",
-      "caption": "A YouTube video you want to feature"
+      "caption": "A YouTube video you want to feature",
+      "date": "2026"
     }
   ],
   "beyond": [

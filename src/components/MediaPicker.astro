@@ -135,7 +135,10 @@
   function render(slide: HTMLElement, item: Item, previewUrl?: string) {
     const fig = slide.querySelector<HTMLElement>('figure')!;
     for (const child of Array.from(fig.children)) if (!child.matches('[data-media-pick], [data-media-remove], figcaption')) child.remove();
-    fig.prepend(mediaEl(item, previewUrl));
+    const wrap = document.createElement('div');
+    wrap.className = fig.classList.contains('flex-col') ? 'relative min-h-0 flex-1' : 'h-full w-full';
+    wrap.append(mediaEl(item, previewUrl));
+    fig.prepend(wrap);
     const btn = fig.querySelector<HTMLElement>('[data-media-pick]');
     if (btn) {
       btn.classList.remove('top-1/2', 'left-1/2', '-translate-x-1/2', 'translate-y-6');
@@ -157,9 +160,9 @@
     const id = `media-new:${++newId}`;
     slide.querySelectorAll<HTMLElement>('[data-edit]').forEach((el) => {
       const field = el.dataset.edit!.slice(el.dataset.edit!.lastIndexOf('.') + 1);
-      if (field !== 'caption') return el.remove();
-      el.dataset.edit = `${id}.caption`;
-      el.dataset.placeholder = 'Add a caption';
+      if (field !== 'caption' && field !== 'date') return el.remove();
+      el.dataset.edit = `${id}.${field}`;
+      el.dataset.placeholder = field === 'date' ? 'Year' : 'Add a caption';
       el.textContent = '';
       el.setAttribute('contenteditable', 'true');
     });
