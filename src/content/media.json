@@ -43,11 +43,6 @@
           "type": "image",
           "src": "/media/uploads/20261117-cfba74-img-6551.jpg",
           "caption": ""
-        },
-        {
-          "type": "image",
-          "src": "",
-          "caption": "Placeholder: a game I am into right now"
         }
       ]
     },
@@ -58,11 +53,6 @@
           "type": "youtube",
           "id": "Bgkn9slMgs4",
           "caption": "The old college a capella days"
-        },
-        {
-          "type": "video",
-          "src": "",
-          "caption": "Placeholder: a short clip"
         }
       ]
     },

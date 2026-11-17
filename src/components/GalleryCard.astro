@@ -94,7 +94,8 @@ const { id, index, title, blurb, items } = Astro.props;
     // ---- Play a video in the card ----
     const playable = (el?: HTMLElement) => !!el && ((el.dataset.kind === 'youtube' && !!el.dataset.yt) || (el.dataset.kind === 'video' && !!el.dataset.src));
     const updateHint = () => { if (hint) hint.textContent = playable(cards[at]) ? '▶ Play video' : 'Open gallery'; };
-    const stop = () => { player.replaceChildren(); player.hidden = true; bar.hidden = true; };
+    // The hover hint is hidden while a video plays (it flickered over the player).
+    const stop = () => { player.replaceChildren(); player.hidden = true; bar.hidden = true; if (hint) hint.hidden = false; openBtn.style.transform = ''; };
     const play = (el: HTMLElement) => {
       let media: HTMLElement;
       if (el.dataset.kind === 'youtube') {
@@ -113,6 +114,8 @@ const { id, index, title, blurb, items } = Astro.props;
       player.replaceChildren(media);
       player.hidden = false;
       bar.hidden = false;
+      if (hint) hint.hidden = true;
+      openBtn.style.transform = 'none'; // no hover lift under the player, which made it jump
     };
     // Capture phase, so this runs before the gallery opens.
     openBtn.addEventListener('click', (e) => {

@@ -159,7 +159,10 @@ function change(data: any, body: any, uploaded: Set<string>): Result {
       next.push(base);
     }
     before.push(...list);
-    list.splice(0, list.length, ...next);
+    // In a gallery, empty placeholder boxes go away once it has real photos or videos.
+    const filled = (it: any) => Boolean(it.src || it.id || it.embed);
+    const kept = name.startsWith('beyond.') && next.some(filled) ? next.filter(filled) : next;
+    list.splice(0, list.length, ...kept);
     names.push(name);
   }
   if (!names.length) return { error: 'Nothing to save' };
