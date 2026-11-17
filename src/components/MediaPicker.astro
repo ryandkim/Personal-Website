@@ -1,0 +1,295 @@
+---
+// Owner edit mode: the pop-up behind every "Add photo/video" button.
+// Pick files from the computer or phone photo library, or paste a link
+// (YouTube plays in the box; direct photo/video links work too).
+// Changes save straight away through /api/media; captions are edited as text.
+// Nothing here works for visitors: the buttons only show in edit mode and
+// every request is checked for the owner session on the server.
+---
+<dialog id="media-picker" aria-labelledby="media-picker-title"
+  class="m-auto w-[min(92vw,460px)] overflow-visible bg-transparent p-0 text-text backdrop:bg-black/80 backdrop:backdrop-blur-sm">
+  <div class="rounded-3xl border border-line bg-ink p-5 sm:p-6">
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <h3 id="media-picker-title" class="font-serif text-2xl">Add photo or video</h3>
+      <button type="button" data-mp-close aria-label="Close"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line text-muted transition hover:border-text hover:text-text">✕</button>
+    </div>
+
+    <div data-mp-controls class="space-y-4">
+      <label class="flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-center font-medium text-accent-ink hover:brightness-110 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent">
+        <input type="file" data-mp-file accept="image/*,video/*" multiple class="sr-only" />
+        Choose from computer or photo library
+      </label>
+      <p class="-mt-2 text-center text-xs text-muted">You can pick several. The first fills this box; the rest are added right after it.</p>
+
+      <div class="flex items-center gap-3 text-xs text-muted uppercase tracking-widest"><span class="h-px flex-1 bg-line"></span>or paste a link<span class="h-px flex-1 bg-line"></span></div>
+
+      <form data-mp-link class="flex gap-2">
+        <input type="url" name="url" required placeholder="https://youtube.com/watch?v=…" inputmode="url" autocomplete="off"
+          class="min-w-0 flex-1 rounded-full border border-line bg-panel px-4 py-2 text-sm placeholder:text-muted focus:border-accent focus:outline-none" />
+        <button type="submit" class="shrink-0 rounded-full border border-line px-4 py-2 text-sm hover:border-text">Use link</button>
+      </form>
+      <p class="-mt-2 text-xs text-muted">YouTube links play right in the box. Links that end in .jpg, .png or .mp4 work too, and so do LinkedIn “Embed this post” links.</p>
+
+      <button type="button" data-mp-remove hidden class="w-full rounded-full px-4 py-2 text-sm text-muted hover:text-red-300">Remove this item</button>
+    </div>
+
+    <progress data-mp-progress hidden max="100" class="mt-4 h-1.5 w-full overflow-hidden rounded-full accent-[var(--color-accent)]"></progress>
+    <p data-mp-status role="status" aria-live="polite" class="mt-3 min-h-5 text-sm text-muted"></p>
+  </div>
+</dialog>
+
+<style is:global>
+  .media-pick { display: none; }
+  body.editing .media-pick { display: inline-flex; }
+</style>
+
+<script>
+  type Item = { type: 'image' | 'video'; src: string } | { type: 'youtube'; id: string } | { type: 'linkedin'; embed: string };
+  type Target = { list: string; index: number | null; empty: boolean };
+
+  const dlg = document.getElementById('media-picker') as HTMLDialogElement;
+  const q = <T extends Element>(s: string) => dlg.querySelector<T>(s)!;
+  const title = q<HTMLElement>('#media-picker-title');
+  const controls = q<HTMLElement>('[data-mp-controls]');
+  const fileInput = q<HTMLInputElement>('[data-mp-file]');
+  const linkForm = q<HTMLFormElement>('[data-mp-link]');
+  const removeBtn = q<HTMLButtonElement>('[data-mp-remove]');
+  const progress = q<HTMLProgressElement>('[data-mp-progress]');
+  const status = q<HTMLElement>('[data-mp-status]');
+
+  let target: Target | null = null;
+  let busy = false;
+  let config: { blob: boolean; maxBytes: number } | null = null;
+
+  const say = (msg: string, error = false) => {
+    status.textContent = msg;
+    status.classList.toggle('text-red-300', error);
+    status.classList.toggle('text-muted', !error);
+  };
+  const lock = (on: boolean) => {
+    controls.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input, button').forEach((el) => (el.disabled = on));
+    controls.classList.toggle('opacity-50', on);
+  };
+  const setBusy = (on: boolean) => {
+    busy = on;
+    lock(on || Boolean(document.body.dataset.mediaStale));
+    if (!on) progress.hidden = true;
+  };
+
+  // ---- Open ----
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest?.('[data-media-pick]') as HTMLElement | null;
+    if (!btn || !document.body.classList.contains('editing')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const index = btn.dataset.mediaIndex;
+    target = { list: btn.dataset.mediaList!, index: index === undefined ? null : Number(index), empty: btn.dataset.mediaEmpty === 'true' };
+    title.textContent = target.index === null ? 'Add photos or videos' : target.empty ? 'Add photo or video' : 'Change photo or video';
+    removeBtn.hidden = target.index === null;
+    fileInput.value = '';
+    linkForm.reset();
+    say('');
+    setBusy(false);
+    if (document.body.dataset.mediaStale) {
+      lock(true);
+      say('Photos were added or removed. Reload the page (after about a minute on the live site) before changing more.', true);
+    } else if (document.querySelector('[data-edit].changed')) {
+      lock(true);
+      say('You have unsaved text changes. Press Save first, then add photos or videos.', true);
+    }
+    dlg.showModal();
+  });
+  q('[data-mp-close]').addEventListener('click', () => !busy && dlg.close());
+  dlg.addEventListener('cancel', (e) => busy && e.preventDefault());
+  dlg.addEventListener('click', (e) => { if (e.target === dlg && !busy) dlg.close(); });
+
+  // ---- Save a change ----
+  async function apply(body: { items?: Item[]; files?: { path: string; sha?: string }[]; remove?: boolean }) {
+    const t = target!;
+    const res = await fetch('/api/media', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ list: t.list, index: t.index, ...body }),
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || 'Save failed');
+    return j.message as string;
+  }
+
+  function mediaEl(item: Item, previewUrl?: string): HTMLElement {
+    let el: HTMLElement;
+    if (item.type === 'image') {
+      el = Object.assign(document.createElement('img'), { src: previewUrl ?? item.src, alt: '' });
+      el.className = 'h-full w-full object-cover';
+    } else if (item.type === 'video') {
+      el = Object.assign(document.createElement('video'), { src: previewUrl ?? item.src, controls: true, playsInline: true });
+      el.className = 'h-full w-full bg-black object-contain';
+    } else {
+      el = Object.assign(document.createElement('iframe'), {
+        src: item.type === 'youtube' ? `https://www.youtube-nocookie.com/embed/${item.id}` : item.embed, allowFullscreen: true,
+      });
+      el.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+      el.className = item.type === 'youtube' ? 'h-full w-full' : 'h-full w-full bg-white';
+    }
+    return el;
+  }
+
+  // Show the new media in the box right away (the rebuilt page follows).
+  function showInBox(item: Item, previewUrl?: string) {
+    const t = target!;
+    const box = document.querySelector<HTMLElement>(`[data-media-box="${t.list}.${t.index}"]`);
+    if (!box) return;
+    for (const child of Array.from(box.children)) if (!child.matches('[data-media-pick], figcaption')) child.remove();
+    box.prepend(mediaEl(item, previewUrl));
+    const btn = box.querySelector<HTMLElement>('[data-media-pick]');
+    if (btn) {
+      btn.classList.remove('top-1/2', 'left-1/2', '-translate-x-1/2', 'translate-y-6');
+      btn.classList.add('top-3', 'right-3');
+      btn.lastChild!.textContent = 'Change photo/video';
+      delete btn.dataset.mediaEmpty;
+    }
+  }
+
+  async function finish(items: Item[], files: { path: string; sha?: string }[], previews: (string | undefined)[]) {
+    say('Saving…');
+    const message = await apply({ items, files });
+    const t = target!;
+    if (t.index !== null) showInBox(items[0], previews[0]);
+    const structural = t.index === null || items.length > 1;
+    if (structural) document.body.dataset.mediaStale = '1';
+    say(structural ? `${message} Reload the page to see the new items and add captions.` : message);
+  }
+
+  // ---- Files ----
+  const MB = 1024 * 1024;
+  const isVideo = (f: File) => f.type.startsWith('video/') || /\.(mp4|m4v|mov|webm)$/i.test(f.name);
+
+  // Resize big photos to at most 2400 px and re-save as JPEG, so they load fast and fit the 4 MB limit.
+  async function shrink(f: File): Promise<Blob> {
+    if (f.type === 'image/gif') return f; // keep animation
+    const bmp = await createImageBitmap(f);
+    const scale = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+    if (scale === 1 && f.size <= 1.5 * MB && /^image\/(jpeg|png|webp|avif)$/.test(f.type)) return f;
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * scale);
+    c.height = Math.round(bmp.height * scale);
+    const ctx = c.getContext('2d')!;
+    ctx.fillStyle = '#0b0c0e';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(bmp, 0, 0, c.width, c.height);
+    const out = await new Promise<Blob | null>((r) => c.toBlob(r, 'image/jpeg', 0.86));
+    return out && out.size < f.size ? out : f;
+  }
+
+  const BLOB_TYPES: Record<string, string> = { mp4: 'video/mp4', m4v: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif' };
+
+  async function toBlobStore(f: File, label: string): Promise<string> {
+    let ext = (f.name.match(/\.([a-z0-9]+)$/i)?.[1] ?? '').toLowerCase();
+    if (!BLOB_TYPES[ext]) ext = f.type === 'video/quicktime' ? 'mov' : f.type === 'video/webm' ? 'webm' : 'mp4';
+    const contentType = BLOB_TYPES[ext];
+    const out = { m4v: 'mp4', jpeg: 'jpg' }[ext] ?? ext;
+    const name = f.name.replace(/\.[^.]*$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'media';
+    const { upload } = await import('@vercel/blob/client');
+    progress.hidden = false;
+    progress.value = 0;
+    const res = await upload(`media/${name}.${out}`, f, {
+      access: 'public', contentType, handleUploadUrl: '/api/media-blob', multipart: f.size > 50 * MB,
+      onUploadProgress: ({ percentage }) => { progress.value = percentage; say(`${label} ${Math.round(percentage)}%`); },
+    });
+    progress.hidden = true;
+    return res.url;
+  }
+
+  fileInput.addEventListener('change', async () => {
+    const picked = Array.from(fileInput.files ?? []).slice(0, 20);
+    if (!picked.length || !target) return;
+    setBusy(true);
+    try {
+      config ??= await fetch('/api/media', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : Promise.reject(new Error('Sign in again to upload.'))));
+      const items: Item[] = [], files: { path: string; sha?: string }[] = [], previews: (string | undefined)[] = [];
+      for (const [i, f] of picked.entries()) {
+        const label = picked.length > 1 ? `Uploading ${i + 1} of ${picked.length}…` : 'Uploading…';
+        say(label);
+        const video = isVideo(f);
+        const body = video ? f : await shrink(f).catch(() => f);
+        if (body.size <= config!.maxBytes) {
+          const res = await fetch(`/api/media?step=upload&name=${encodeURIComponent(f.name)}`, {
+            method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body,
+          });
+          const j = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(`${f.name}: ${j.error || 'upload failed'}`);
+          files.push({ path: j.path, sha: j.sha });
+          items.push({ type: j.kind, src: j.src });
+        } else if (config!.blob) {
+          items.push({ type: video ? 'video' : 'image', src: await toBlobStore(f, label) });
+        } else {
+          throw new Error(`${f.name} is ${(f.size / MB).toFixed(0)} MB. Files stored with the site must be under 4 MB, and video storage isn’t set up yet. ` +
+            'For now, upload it to YouTube (Unlisted works) and paste the link here.');
+        }
+        previews.push(URL.createObjectURL(f));
+      }
+      await finish(items, files, previews);
+    } catch (e) {
+      say((e as Error).message, true);
+    } finally {
+      setBusy(false);
+      fileInput.value = '';
+    }
+  });
+
+  // ---- Links ----
+  function parseLink(raw: string): Item | string {
+    let u: URL;
+    try { u = new URL(raw.trim().replace(/^http:\/\//i, 'https://')); } catch { return 'That doesn’t look like a link.'; }
+    if (u.protocol !== 'https:') return 'Use an https:// link.';
+    const host = u.hostname.replace(/^(www|m|music)\./, '');
+    if (host === 'youtu.be' || host === 'youtube.com' || host === 'youtube-nocookie.com') {
+      const id = host === 'youtu.be' ? u.pathname.slice(1) : u.searchParams.get('v') ?? u.pathname.match(/^\/(?:shorts|embed|live|v)\/([^/?#]+)/)?.[1];
+      return id && /^[\w-]{11}$/.test(id) ? { type: 'youtube', id } : 'Couldn’t find the video in that YouTube link. Use the link from the Share button.';
+    }
+    if (host === 'linkedin.com') {
+      return u.pathname.startsWith('/embed/') ? { type: 'linkedin', embed: u.href }
+        : 'For LinkedIn, open the post, choose ⋯ > Embed this post, and copy the link inside src="…".';
+    }
+    if (/\.(jpe?g|png|gif|webp|avif)$/i.test(u.pathname)) return { type: 'image', src: u.href };
+    if (/\.(mp4|m4v|webm|mov)$/i.test(u.pathname)) return { type: 'video', src: u.href };
+    return 'That link isn’t a YouTube video or a direct photo/video file (ending in .jpg, .png, .mp4 …).';
+  }
+
+  linkForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!target) return;
+    const item = parseLink(new FormData(linkForm).get('url') as string);
+    if (typeof item === 'string') return say(item, true);
+    setBusy(true);
+    try { await finish([item], [], []); linkForm.reset(); }
+    catch (err) { say((err as Error).message, true); }
+    finally { setBusy(false); }
+  });
+
+  // ---- Remove ----
+  removeBtn.addEventListener('click', async () => {
+    if (!target || target.index === null) return;
+    if (removeBtn.dataset.confirm !== '1') {
+      removeBtn.dataset.confirm = '1';
+      removeBtn.textContent = 'Tap again to remove this item';
+      setTimeout(() => { delete removeBtn.dataset.confirm; removeBtn.textContent = 'Remove this item'; }, 4000);
+      return;
+    }
+    setBusy(true);
+    try {
+      say('Removing…');
+      const message = await apply({ remove: true });
+      const box = document.querySelector<HTMLElement>(`[data-media-box="${target.list}.${target.index}"]`);
+      box?.parentElement?.classList.add('opacity-30');
+      document.body.dataset.mediaStale = '1';
+      say(`${message} Reload the page to see the change.`);
+    } catch (err) {
+      say((err as Error).message, true);
+    } finally {
+      setBusy(false);
+      delete removeBtn.dataset.confirm;
+      removeBtn.textContent = 'Remove this item';
+    }
+  });
+</script>

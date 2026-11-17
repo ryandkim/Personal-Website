@@ -12,12 +12,21 @@ const empty =
   item.type === 'youtube' ? !item.id : !item.embed;
 const kindLabel = { image: 'Photo', video: 'Video', youtube: 'YouTube', linkedin: 'LinkedIn post' }[item.type];
 const interactive = !preview && !empty && (item.type === 'youtube' || item.type === 'linkedin');
+// Owner edit mode: "media:highlights.2" or "media:beyond.1.items.0" → list + index for the Add photo/video button.
+const slot = !preview && editKey?.match(/^media:(highlights|beyond\.\d+)(?:\.items)?\.(\d+)$/);
 ---
-<figure class:list={['relative overflow-hidden rounded-2xl border border-line bg-panel', aspect]}>
+<figure class:list={['relative overflow-hidden rounded-2xl border border-line bg-panel', aspect]} data-media-box={slot ? `${slot[1]}.${slot[2]}` : undefined}>
+  {slot && (
+    <button type="button" data-media-pick data-media-list={slot[1]} data-media-index={slot[2]} data-media-empty={empty ? 'true' : undefined}
+      class:list={['media-pick absolute z-20 items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-xs font-medium text-accent-ink shadow-lg hover:brightness-110',
+        empty ? 'top-1/2 left-1/2 -translate-x-1/2 translate-y-6' : 'top-3 right-3']}>
+      <span aria-hidden="true">＋</span>{empty ? 'Add photo/video' : 'Change photo/video'}
+    </button>
+  )}
   {empty || (preview && item.type === 'linkedin') ? (
     <div class="flex h-full w-full flex-col items-center justify-center gap-2 bg-[radial-gradient(circle_at_30%_20%,color-mix(in_oklab,var(--color-accent)_14%,transparent),transparent_60%)] p-6 text-center">
       <span class="text-xs tracking-widest text-accent/80 uppercase">{kindLabel}</span>
-      {!preview && <span class="text-sm text-muted">Add one in src/data/media.ts</span>}
+      {!preview && <span class="text-sm text-muted">Coming soon</span>}
     </div>
   ) : item.type === 'image' ? (
     <img src={item.src} alt={item.alt ?? item.caption} loading="lazy" class="h-full w-full object-cover" />
@@ -39,9 +48,9 @@ const interactive = !preview && !empty && (item.type === 'youtube' || item.type 
         item.type === 'video' && !empty && 'pb-14']}>
       {item.date && <span class="block text-[11px] tracking-widest text-accent uppercase" data-edit={ek('date')}>{item.date}</span>}
       {item.link
-        ? <a href={item.link} target="_blank" rel="noopener" class="pointer-events-auto text-sm leading-snug text-white hover:underline" data-edit={ek('caption')}>{item.caption}</a>
-        : <span class="text-sm leading-snug text-white" data-edit={ek('caption')}>{item.caption}</span>}
+        ? <a href={item.link} target="_blank" rel="noopener" class="pointer-events-auto text-sm leading-snug text-white hover:underline" data-edit={ek('caption')} data-placeholder="Add a caption">{item.caption}</a>
+        : <span class="text-sm leading-snug text-white" data-edit={ek('caption')} data-placeholder="Add a caption">{item.caption}</span>}
     </figcaption>
   )}
 </figure>
-{interactive && <p class="mt-2 px-1 text-sm text-muted" data-edit={ek('caption')}>{item.caption}</p>}
+{interactive && <p class="mt-2 px-1 text-sm text-muted" data-edit={ek('caption')} data-placeholder="Add a caption">{item.caption}</p>}

@@ -22,6 +22,9 @@ export default defineConfig({
       // Token that can write to this site's repo, so Save on the live site commits to GitHub.
       SITE_EDIT_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
       SITE_REPO: envField.string({ context: 'server', access: 'secret', default: 'ryandkim/Personal-Website' }),
+      // Optional. Set automatically when a Vercel Blob store is connected; lets the
+      // owner upload videos over 4 MB (they are stored in Blob, not in the repo).
+      BLOB_READ_WRITE_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
       GITHUB_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },

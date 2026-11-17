@@ -1,7 +1,9 @@
 ---
 // Owner-only toolbar at the bottom of the page. Hidden for everyone else:
 // it only appears after the server confirms a valid owner session.
+import MediaPicker from './MediaPicker.astro';
 ---
+<MediaPicker />
 <div id="owner-bar" hidden
   class="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-line bg-panel/95 p-1.5 text-sm shadow-2xl backdrop-blur">
   <span id="owner-status" class="px-3 text-muted">Owner</span>
@@ -81,6 +83,8 @@
     const changes: Record<string, string> = {};
     for (const el of fields()) if (text(el) !== original.get(el)) changes[el.dataset.edit!] = text(el);
     if (!Object.keys(changes).length) return setMode(false);
+    // Adding or removing photos shifts the caption fields, so the page must be reloaded first.
+    if (document.body.dataset.mediaStale) { status.textContent = 'Photos changed: reload the page, then edit text'; return; }
     save.disabled = true; status.textContent = 'Saving…';
     const res = await fetch('/api/content', {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ changes }),

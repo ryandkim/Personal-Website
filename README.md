@@ -71,6 +71,33 @@ The site deploys to [Vercel](https://vercel.com) (free Hobby plan). Every push t
 
 Sign-in works on the live site; saving edits there is not connected yet (edit locally and push for now).
 
+## Photos and videos from edit mode
+
+In **Edit page** mode, every photo/video box in Recent highlights and in the Games / Art / Music / Travel
+galleries (open a gallery first) shows an **Add photo/video** (or **Change photo/video**) button, and each strip has
+**Add more photos/videos** underneath. The button offers:
+
+- **Choose from computer or photo library**: on a phone this opens your photo library or camera. Pick several and
+  the first fills the box, the rest are added right after it.
+- **Paste a link**: a YouTube link (watch, youtu.be, Shorts or live) plays right in the box. Links that end in
+  `.jpg`, `.png` or `.mp4`, and LinkedIn "Embed this post" links, work too.
+- **Remove this item**.
+
+Changes save straight away (no need to press Save) and keep the box's caption. Click the caption to edit it as text.
+If you have unsaved text edits, press Save first.
+
+**Where files go.** Photos are resized to at most 2400 px in the browser and committed to the repo in
+`public/media/uploads/`, together with `src/content/media.json`, in one commit. Files must be under 4 MB to go
+through the site (Vercel caps uploads at 4.5 MB, and big videos don't belong in a git repo). Longer videos have
+two free options:
+
+1. **YouTube (simplest):** upload it as *Unlisted* and paste the link.
+2. **Vercel Blob (to upload video files directly):** in Vercel, open the project → **Storage** → **Create** →
+   **Blob**, choose **public** access, and connect it to this project. That adds `BLOB_READ_WRITE_TOKEN`
+   automatically; redeploy once. Videos over 4 MB then upload straight from your browser to Blob (up to 200 MB
+   each). The free Hobby plan includes 1 GB of storage and 10 GB of downloads a month; Vercel pauses Blob
+   rather than charging if you go over. To use it on your computer too, copy `BLOB_READ_WRITE_TOKEN` into `.env`.
+
 ## AI Ryan chat (back of the headshot)
 
 Click **Flip me around to chat** on the headshot: it turns over to a pixel-art you, and a retro chat box opens
