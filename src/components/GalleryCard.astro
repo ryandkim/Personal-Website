@@ -11,7 +11,8 @@ const { id, index, title, blurb, items } = Astro.props;
 ---
 <div id={id} data-gallery-card>
   <!-- With several items: arrows flip through them in place, and the next ones peek out on the right like a deck of cards. -->
-  <div class:list={['group relative', items.length > 1 && 'pr-5']}>
+  <!-- Every card keeps the same right margin (where the deck peeks out), so all boxes are the same size and the titles line up. -->
+  <div class="group relative pr-5">
     <button type="button" data-open-gallery={`gallery-${id}`} aria-haspopup="dialog"
       class="relative block w-full cursor-pointer text-left transition duration-300 hover:-translate-y-1 focus-visible:-translate-y-1">
       <div class="relative aspect-square">
@@ -32,7 +33,7 @@ const { id, index, title, blurb, items } = Astro.props;
       </span>
     </button>
     <!-- A video on the front card plays right here when the card is clicked (see the script below). -->
-    <div data-player hidden class:list={['absolute inset-y-0 left-0 z-[35] overflow-hidden rounded-2xl border border-line bg-black', items.length > 1 ? 'right-5' : 'right-0']}></div>
+    <div data-player hidden class:list={['absolute inset-y-0 left-0 z-[35] overflow-hidden rounded-2xl border border-line bg-black', 'right-5']}></div>
     {items.length > 1 && (
       <>
         <button type="button" data-deck-prev aria-label={`Previous ${title} item`}
