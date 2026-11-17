@@ -1,6 +1,6 @@
 import data from '../content/media.json';
 
-// Types for the "Recent highlights" strip and the Games / Art / Music / Travel galleries.
+// Types for the "Recent highlights" strip and the Games / Music / Travel galleries.
 //
 // The items themselves live in src/content/media.json. Item types:
 //   { type: 'image',    src: '/media/...jpg', caption }   put the file in public/media/...
@@ -21,4 +21,4 @@ export type MediaItem =
 export const highlights = data.highlights as MediaItem[];
 
 // Titles and blurbs for these four come from src/content/site.json (editable on the page).
-export const beyond = data.beyond as { id: 'games' | 'art' | 'music' | 'travel'; items: MediaItem[] }[];
+export const beyond = data.beyond as { id: 'games' | 'music' | 'travel'; items: MediaItem[] }[];

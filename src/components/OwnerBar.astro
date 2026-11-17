@@ -71,31 +71,52 @@ import MediaPicker from './MediaPicker.astro';
     if ((e.target as HTMLElement).closest?.('[data-edit]')) { e.preventDefault(); e.stopPropagation(); }
   }, true);
 
+  // Photos and videos (see MediaPicker.astro) are staged on the page and saved together with the text.
+  const media = () => (window as any).ownerMedia as undefined | { hasChanges(): boolean; isStale(): boolean; save(p: (m: string) => void): Promise<string[]> };
+
   edit.addEventListener('click', () => {
+    // After photos are saved, the boxes on this page no longer match the saved order until it reloads.
+    if (media()?.isStale()) { status.textContent = 'Reload the page to edit again (the live site takes about a minute)'; return; }
     document.querySelectorAll('details').forEach((d) => (d.open = true)); // show collapsed text too
     setMode(true);
   });
   cancel.addEventListener('click', () => {
+    if (media()?.hasChanges()) return location.reload(); // put the photos back as they were
     for (const [el, v] of original) el.innerText = v;
     setMode(false);
   });
   save.addEventListener('click', async () => {
     const changes: Record<string, string> = {};
     for (const el of fields()) if (text(el) !== original.get(el)) changes[el.dataset.edit!] = text(el);
-    if (!Object.keys(changes).length) return setMode(false);
-    // Adding or removing photos shifts the caption fields, so the page must be reloaded first.
-    if (document.body.dataset.mediaStale) { status.textContent = 'Photos changed: reload the page, then edit text'; return; }
-    save.disabled = true; status.textContent = 'Saving…';
+    const m = media();
+    const mediaChanged = Boolean(m?.hasChanges());
+    if (!Object.keys(changes).length && !mediaChanged) return setMode(false);
+    save.disabled = true; cancel.disabled = true; status.textContent = 'Saving…';
+    const done = (message: string) => {
+      save.disabled = false; cancel.disabled = false;
+      setMode(false); status.textContent = message;
+      setTimeout(() => (status.textContent = 'Owner'), 8000);
+    };
+    const fail = (message: string) => { save.disabled = false; cancel.disabled = false; status.textContent = message; };
+
+    if (mediaChanged) {
+      let lists: string[];
+      try { lists = await m!.save((msg) => (status.textContent = msg)); }
+      catch (e) { return fail((e as Error).message || 'Saving photos failed'); }
+      // Captions and dates in those galleries were saved with the photos.
+      for (const key of Object.keys(changes))
+        if (key.startsWith('media-new:') || lists.some((l) => key.startsWith(`media:${l}.`))) delete changes[key];
+      if (!Object.keys(changes).length) return done('Saved. The live site updates in about a minute.');
+      status.textContent = 'Saving text…';
+    }
     const res = await fetch('/api/content', {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ changes }),
     }).catch(() => null);
-    save.disabled = false;
     if (res?.ok) {
       const { message } = await res.json().catch(() => ({}));
-      setMode(false); status.textContent = message || 'Saved';
-      setTimeout(() => (status.textContent = 'Owner'), 5000);
+      done(message || 'Saved');
     }
-    else status.textContent = (res && (await res.json().catch(() => ({}))).error) || 'Save failed';
+    else fail((res && (await res.json().catch(() => ({}))).error) || 'Save failed');
   });
   logout.addEventListener('click', async () => {
     await fetch('/api/auth/logout', { method: 'POST' });

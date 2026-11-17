@@ -28,7 +28,7 @@ Then open http://localhost:4321. The page reloads as you save files. Press `Ctrl
 | Colors and fonts (design tokens) | `src/styles/global.css` |
 | Page sections and order | `src/pages/index.astro` |
 | Headshot | `public/images/headshot.jpg` (4:5 crop) |
-| Recent highlights strip, and Games / Art / Music / Travel galleries | `src/data/media.ts` (instructions at the top of the file) |
+| Recent highlights strip, and Games / Music / Travel galleries | `src/data/media.ts` (instructions at the top of the file) |
 | Photos and videos for those | `public/media/highlights/` and `public/media/beyond/<section>/` |
 
 Other commands: `npm run build` makes the static site in `dist/`, and `npm run preview` serves that build.
@@ -73,18 +73,21 @@ Sign-in works on the live site; saving edits there is not connected yet (edit lo
 
 ## Photos and videos from edit mode
 
-In **Edit page** mode, every photo/video box in Recent highlights and in the Games / Art / Music / Travel
-galleries (open a gallery first) shows an **Add photo/video** (or **Change photo/video**) button, and each strip has
-**Add more photos/videos** underneath. The button offers:
+In **Edit page** mode, every photo/video box in Recent highlights and in the Games / Music / Travel
+galleries (open a gallery first) gets two buttons, and each strip gets **Add more photos/videos** underneath:
 
-- **Choose from computer or photo library**: on a phone this opens your photo library or camera. Pick several and
-  the first fills the box, the rest are added right after it.
-- **Paste a link**: a YouTube link (watch, youtu.be, Shorts or live) plays right in the box. Links that end in
-  `.jpg`, `.png` or `.mp4`, and LinkedIn "Embed this post" links, work too.
-- **Remove this item**.
+- **Add photo/video** / **Change or crop** opens a pop-up where you can:
+  - **Choose from computer or photo library** (on a phone this opens your photo library or camera). Pick several
+    and the first fills the box, the rest are added right after it. Each photo opens in a crop frame shaped like
+    the box: drag to move, zoom to crop, or press *Don't crop*.
+  - **Crop this photo** to re-crop the photo already in the box.
+  - **Paste a link**: a YouTube link (watch, youtu.be, Shorts or live) plays right in the box. Links that end in
+    `.jpg`, `.png` or `.mp4`, and LinkedIn "Embed this post" links, work too.
+- **✕** (top right) removes the box.
 
-Changes save straight away (no need to press Save) and keep the box's caption. Click the caption to edit it as text.
-If you have unsaved text edits, press Save first.
+Nothing is saved until you press **Save**, so you can change photos in many boxes, edit captions, and save once.
+**Cancel** puts everything back. After saving, reload the page before editing again (the live site takes about a
+minute to rebuild).
 
 **Where files go.** Photos are resized to at most 2400 px in the browser and committed to the repo in
 `public/media/uploads/`, together with `src/content/media.json`, in one commit. Files must be under 4 MB to go
