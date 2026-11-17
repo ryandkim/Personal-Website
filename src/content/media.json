@@ -61,13 +61,73 @@
       "items": [
         {
           "type": "image",
-          "src": "",
-          "caption": "Placeholder: a favorite trip"
+          "src": "/media/uploads/20261117-68d832-bungee.jpg",
+          "caption": "Always open to new horizons"
         },
         {
           "type": "image",
-          "src": "",
-          "caption": "Placeholder: beach volleyball"
+          "src": "/media/uploads/20261117-7c30cd-img-0099.jpg",
+          "caption": "Learning to surf after a work trip to Peru"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-ffd20e-img-0593.jpg",
+          "caption": "Mt. Diablo, CA: living out the Windows desktop image"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-590c7f-img-1850.jpg",
+          "caption": "Solo backpacking through New Zealand"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-cedba5-img-3328.jpg",
+          "caption": "On the slopes of Mt. Ngauruhoe, New Zealand"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-09c736-img-3383.jpg",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-ec14c1-img-4716.jpg",
+          "caption": "Summited Seoraksan, South Korea"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-bfa6cc-img-8204.jpg",
+          "caption": "Snowshoeing in Mt. Rainier"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-46fb24-img-9086.jpg",
+          "caption": "Eye on the ball"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-20e534-img-9187.jpg",
+          "caption": "A brief rest in Kings Landing (Dubrovnik, Croatia)"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-7cad8d-img-9517.jpg",
+          "caption": "Exploring \"what if?\" at Mt. Cook"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-3f70a8-img-9536.jpg",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-608a45-travel-1.jpg",
+          "caption": ""
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261117-68a16d-travel-2.jpg",
+          "caption": "Jumping into tomorrow's adventures!"
         }
       ]
     }
