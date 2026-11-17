@@ -1,6 +1,7 @@
 # Ryan Kim: personal website
 
 Personal website with integrations and demos of custom agents and previous AI project experience.
+Live at https://ryan-tech-build.vercel.app/. Notes for Claude Code sessions are in `CLAUDE.md`.
 Built with [Astro](https://astro.build) and Tailwind CSS.
 
 ## Run it locally
@@ -38,7 +39,7 @@ Other commands: `npm run build` makes the static site in `dist/`, and `npm run p
 Sign in with Google at `/owner` (there's a small "Owner sign-in" link in the footer). Once signed in, an
 **Edit page** bar appears at the bottom of the page for you only. Click it, click any outlined text, type, and press **Save**.
 Saving writes to `src/content/site.json`; commit and push that file like any other change.
-(Saving from the live public site gets connected when the site is published.)
+On the live site, **Save** commits the change to `main` through the GitHub API (needs `SITE_EDIT_TOKEN`), and Vercel rebuilds in about a minute.
 
 **Privacy:** the site asks Google for your identity only (the `openid email` scopes). It never gets an access token,
 so it cannot read or change anything in your Google account. It checks Google's signature, a one-time nonce, and that
@@ -64,12 +65,12 @@ The site deploys to [Vercel](https://vercel.com) (free Hobby plan). Every push t
 2. **Add New → Project**, pick `Personal-Website`, and click **Import**. Vercel detects Astro; keep the defaults.
 3. Before clicking **Deploy**, open **Environment Variables** and add `GOOGLE_CLIENT_ID`, `OWNER_EMAIL`, and
    `SESSION_SECRET` (use a *new* random secret here, not the one in your local `.env`).
-4. Click **Deploy**. Your public URL looks like `https://personal-website-xxxx.vercel.app`
+4. Click **Deploy**. The live site is https://ryan-tech-build.vercel.app/
    (rename it under **Settings → Domains**, or add your own domain later).
 5. In Google Cloud **Credentials**, edit your OAuth client and add that `https://…vercel.app` URL to
    **Authorized JavaScript origins**, so owner sign-in works on the live site.
 
-Sign-in works on the live site; saving edits there is not connected yet (edit locally and push for now).
+Also add `GITHUB_TOKEN` and `SITE_EDIT_TOKEN` (see `.env.example`) so the build can read private agent repos and **Save** works on the live site.
 
 ## Photos and videos from edit mode
 
