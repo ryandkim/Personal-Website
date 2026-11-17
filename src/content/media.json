@@ -40,21 +40,6 @@
       ]
     },
     {
-      "id": "art",
-      "items": [
-        {
-          "type": "image",
-          "src": "",
-          "caption": "Placeholder: a piece I made"
-        },
-        {
-          "type": "image",
-          "src": "",
-          "caption": "Placeholder: a Cubism vs AI comparison"
-        }
-      ]
-    },
-    {
       "id": "music",
       "items": [
         {

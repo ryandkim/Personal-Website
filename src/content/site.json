@@ -20,7 +20,7 @@
     },
     "beyond": {
       "eyebrow": "Beyond work",
-      "title": "Games, art, music, travel"
+      "title": "Games, music, travel"
     },
     "contact": {
       "eyebrow": "Contact",
@@ -41,10 +41,6 @@
     "games": {
       "title": "Games",
       "blurb": "Crafting stories at the D&D table, and what I play."
-    },
-    "art": {
-      "title": "Art",
-      "blurb": "Cubism vs AI-generated art, and what I make."
     },
     "music": {
       "title": "Music",

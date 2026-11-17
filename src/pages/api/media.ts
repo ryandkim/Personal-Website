@@ -1,5 +1,5 @@
-// Adds, replaces and removes photos and videos in the "Recent highlights" strip
-// and the Games / Art / Music / Travel galleries (src/content/media.json).
+// Adds, replaces, crops and removes photos and videos in the "Recent highlights"
+// strip and the Games / Music / Travel galleries (src/content/media.json).
 // Owner only: every call checks the owner session cookie.
 //
 // Two steps, so each request stays small:
@@ -8,9 +8,10 @@
 //      browser), and the server picks the file name.
 //        On your computer: written to public/media/uploads/.
 //        On the live site: stored on GitHub as a git blob (not yet committed).
-//   2. POST /api/media               JSON { list, index, remove?, items, files }
-//      Updates media.json and commits it together with the uploaded files in
-//      one commit, so Vercel rebuilds once.
+//   2. POST /api/media               JSON { lists, files }
+//      Sent when the owner presses Save. Writes the new order of each changed
+//      gallery to media.json and commits it with the uploaded files in one
+//      commit, so Vercel rebuilds once.
 //
 // Videos over 4 MB go to Vercel Blob instead (see /api/media-blob), because
 // Vercel caps a request at 4.5 MB and GitHub is a poor home for big videos.
@@ -108,41 +109,61 @@ function listOf(data: any, list: string): any[] | null {
 function orphans(data: any, before: any[]): string[] {
   const used = new Set<string>();
   for (const it of [...(data.highlights ?? []), ...(data.beyond ?? []).flatMap((b: any) => b.items ?? [])]) if (typeof it?.src === 'string') used.add(it.src);
-  return before.map((it) => it?.src).filter((src): src is string => typeof src === 'string' && UPLOAD_SRC.test(src) && !used.has(src)).map((src) => `public${src}`);
+  return [...new Set(before.map((it) => it?.src))].filter((src): src is string => typeof src === 'string' && UPLOAD_SRC.test(src) && !used.has(src)).map((src) => `public${src}`);
 }
 
 type Result = { error: string } | { message: string; removed: string[] };
 
-/** Apply the change to media.json. Returns an error message, or a commit message and files to delete. */
-function change(data: any, body: any, uploaded: Set<string>): Result {
-  const list = typeof body.list === 'string' ? listOf(data, body.list) : null;
-  if (!list) return { error: 'Unknown gallery' };
-  const index = body.index === null || body.index === undefined ? null : Number(body.index);
-  if (index !== null && !(Number.isInteger(index) && index >= 0 && index < list.length)) return { error: 'That item moved. Reload the page and try again.' };
+const clean = (v: unknown) => String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').replace(/\r\n?/g, '\n').trim().slice(0, 2000);
 
-  if (body.remove) {
-    if (index === null) return { error: 'Bad request' };
-    const [old] = list.splice(index, 1);
-    return { message: `Remove media from ${body.list}`, removed: orphans(data, [old]) };
+/**
+ * Apply the owner's edits to media.json. The browser sends the new order of
+ * every gallery it changed:
+ *   { lists: { "highlights": [ { keep: 0, text: { caption, date } },          // existing item, maybe new caption
+ *                              { keep: 2, item: { type, src } },            // existing item with new photo
+ *                              { item: { type: "youtube", id }, text } ] } } // new item
+ * Items left out are removed. Returns an error, or a commit message and files to delete.
+ */
+function change(data: any, body: any, uploaded: Set<string>): Result {
+  const lists = body?.lists;
+  if (!lists || typeof lists !== 'object' || Array.isArray(lists)) return { error: 'Bad request' };
+  const before: any[] = [];
+  const names: string[] = [];
+  for (const [name, slots] of Object.entries(lists)) {
+    const list = listOf(data, name);
+    if (!list) return { error: `Unknown gallery: ${name}` };
+    if (!Array.isArray(slots) || slots.length > 60) return { error: 'Bad request' };
+    const seen = new Set<number>();
+    const next: any[] = [];
+    for (const slot of slots as any[]) {
+      if (!slot || typeof slot !== 'object') return { error: 'Bad request' };
+      let base: any = {};
+      if (slot.keep !== undefined) {
+        const k = Number(slot.keep);
+        if (!Number.isInteger(k) || k < 0 || k >= list.length || seen.has(k)) return { error: 'The page is out of date. Reload it and try again.' };
+        seen.add(k);
+        base = { ...list[k] };
+      }
+      if (slot.item !== undefined) {
+        const it = cleanItem(slot.item, uploaded);
+        if (typeof it === 'string') return { error: it };
+        // New media in an existing box: keep its caption, date and link.
+        const keep: Item = {};
+        for (const f of ['caption', 'date', 'link', 'alt']) if (typeof base[f] === 'string') keep[f] = base[f];
+        base = { ...it, ...keep };
+      } else if (slot.keep === undefined) return { error: 'Bad request' };
+      if (slot.text && typeof slot.text === 'object')
+        for (const f of ['caption', 'date']) if (typeof slot.text[f] === 'string') base[f] = clean(slot.text[f]);
+      if (typeof base.caption !== 'string') base.caption = '';
+      if (base.date === '') delete base.date;
+      next.push(base);
+    }
+    before.push(...list);
+    list.splice(0, list.length, ...next);
+    names.push(name);
   }
-  if (!Array.isArray(body.items) || body.items.length === 0 || body.items.length > 20) return { error: 'Bad request' };
-  const items: Item[] = [];
-  for (const raw of body.items) {
-    const it = cleanItem(raw, uploaded);
-    if (typeof it === 'string') return { error: it };
-    items.push(it);
-  }
-  let replaced: any[] = [];
-  if (index !== null) {
-    // Replace the box's media but keep its caption, date and link.
-    const old = list[index] ?? {};
-    replaced = [old];
-    const keep: Item = {};
-    for (const k of ['caption', 'date', 'link']) if (typeof old[k] === 'string') keep[k] = old[k];
-    list[index] = { ...items[0], caption: keep.caption ?? '', ...keep };
-    list.splice(index + 1, 0, ...items.slice(1).map((it) => ({ ...it, caption: '' })));
-  } else list.push(...items.map((it) => ({ ...it, caption: '' })));
-  return { message: `${index !== null ? 'Update' : 'Add'} media in ${body.list}`, removed: orphans(data, replaced) };
+  if (!names.length) return { error: 'Nothing to save' };
+  return { message: `Edit photos and videos: ${names.join(', ')}`, removed: orphans(data, before) };
 }
 
 const serialize = (data: unknown) => JSON.stringify(data, null, 2) + '\n';
@@ -191,7 +212,7 @@ async function apply(request: Request) {
   let body: any;
   try { body = await request.json(); } catch { return json({ error: 'Bad request' }, 400); }
   const files: { path: string; sha?: string }[] = Array.isArray(body?.files) ? body.files : [];
-  if (files.length > 20 || files.some((f) => !f || !FILE_PATH.test(String(f.path)) || (import.meta.env.PROD && !/^[0-9a-f]{40}$/.test(String(f.sha)))))
+  if (files.length > 60 || files.some((f) => !f || !FILE_PATH.test(String(f.path)) || (import.meta.env.PROD && !/^[0-9a-f]{40}$/.test(String(f.sha)))))
     return json({ error: 'Bad request' }, 400);
   const uploaded = new Set(files.map((f) => f.path));
 
