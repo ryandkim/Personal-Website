@@ -6,21 +6,37 @@ import MediaSlide from './MediaSlide.astro';
 import type { MediaItem } from '../data/media';
 interface Props { id: string; index: number; title: string; blurb: string; items: MediaItem[] }
 const { id, index, title, blurb, items } = Astro.props;
-const cover = items[0];
 ---
-<div id={id}>
-  <button type="button" data-open-gallery={`gallery-${id}`} aria-haspopup="dialog"
-    class="group block w-full cursor-pointer text-left">
-    <div class="relative transition duration-300 group-hover:-translate-y-1">
-      {cover && <MediaSlide item={cover} mode="preview" aspect="aspect-square" />}
-      <span class="absolute top-3 right-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-white backdrop-blur">
-        {items.length} {items.length === 1 ? 'item' : 'items'}
+<div id={id} data-gallery-card>
+  <!-- With several items: arrows flip through them in place, and the next ones peek out on the right like a deck of cards. -->
+  <div class:list={['group relative', items.length > 1 && 'pr-5']}>
+    <button type="button" data-open-gallery={`gallery-${id}`} aria-haspopup="dialog"
+      class="relative block w-full cursor-pointer text-left transition duration-300 hover:-translate-y-1 focus-visible:-translate-y-1">
+      <div class="relative aspect-square">
+        {items.map((item, i) => (
+          <div data-deck-card={i} aria-hidden={i === 0 ? undefined : 'true'}
+            class="absolute inset-0 origin-right transition-[transform,opacity,filter] duration-300 ease-out"
+            style={i === 0 ? 'z-index:30' : i === 1 ? 'z-index:20;transform:translateX(10px) scale(.94);filter:brightness(.5)' : i === 2 ? 'z-index:10;transform:translateX(20px) scale(.88);filter:brightness(.3)' : 'z-index:0;opacity:0'}>
+            <MediaSlide item={item} mode="preview" aspect="aspect-square" />
+          </div>
+        ))}
+      </div>
+      <span data-deck-count class="absolute top-3 right-3 z-40 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-white backdrop-blur">
+        {items.length > 1 ? `1 / ${items.length}` : `${items.length} ${items.length === 1 ? 'item' : 'items'}`}
       </span>
-      <span class="absolute inset-x-3 bottom-3 rounded-full bg-black/60 px-3 py-1.5 text-center text-xs text-white opacity-0 backdrop-blur transition group-hover:opacity-100 group-focus-visible:opacity-100">
+      <span class="absolute inset-x-12 bottom-3 z-40 rounded-full bg-black/60 px-3 py-1.5 text-center text-xs text-white opacity-0 backdrop-blur transition group-hover:opacity-100 group-focus-within:opacity-100">
         Open gallery
       </span>
-    </div>
-  </button>
+    </button>
+    {items.length > 1 && (
+      <>
+        <button type="button" data-deck-prev aria-label={`Previous ${title} item`}
+          class="absolute top-1/2 left-2 z-40 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-lg text-white/80 backdrop-blur-sm transition hover:bg-black/55 hover:text-white">‹</button>
+        <button type="button" data-deck-next aria-label={`Next ${title} item`}
+          class="absolute top-1/2 right-7 z-40 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-lg text-white/80 backdrop-blur-sm transition hover:bg-black/55 hover:text-white">›</button>
+      </>
+    )}
+  </div>
   <h3 class="mt-4 font-serif text-2xl" data-edit={`beyond.${id}.title`}>{title}</h3>
   <p class="mt-1 text-sm text-muted" data-edit={`beyond.${id}.blurb`}>{blurb}</p>
 
@@ -49,12 +65,48 @@ const cover = items[0];
 </div>
 
 <script>
+  // Flip through a card's items with its arrows, without opening the gallery.
+  // The current item sits on top; the next two peek out on the right, smaller and darker.
+  const LAYERS = [
+    { z: 30, t: 'none', f: 'none', o: '1' },
+    { z: 20, t: 'translateX(10px) scale(.94)', f: 'brightness(.5)', o: '1' },
+    { z: 10, t: 'translateX(20px) scale(.88)', f: 'brightness(.3)', o: '1' },
+  ];
+  document.querySelectorAll<HTMLElement>('[data-gallery-card]').forEach((card) => {
+    const cards = Array.from(card.querySelectorAll<HTMLElement>('[data-deck-card]'));
+    const count = card.querySelector<HTMLElement>('[data-deck-count]');
+    if (cards.length < 2) return;
+    let at = 0;
+    const show = (i: number) => {
+      at = (i + cards.length) % cards.length;
+      card.dataset.deckAt = String(at);
+      cards.forEach((el, j) => {
+        const d = (j - at + cards.length) % cards.length;
+        const l = LAYERS[d];
+        el.style.zIndex = String(l ? l.z : 0);
+        el.style.transform = l ? l.t : 'translateX(20px) scale(.88)';
+        el.style.filter = l ? l.f : 'brightness(.3)';
+        el.style.opacity = l ? l.o : '0';
+        el.toggleAttribute('aria-hidden', d !== 0);
+        if (d !== 0) el.querySelectorAll('video').forEach((v) => v.pause());
+      });
+      if (count) count.textContent = `${at + 1} / ${cards.length}`;
+    };
+    card.querySelector('[data-deck-prev]')?.addEventListener('click', () => show(at - 1));
+    card.querySelector('[data-deck-next]')?.addEventListener('click', () => show(at + 1));
+  });
+
   // Open on card click; close on ✕, Esc, or clicking outside. Stop any sound on close.
   document.querySelectorAll<HTMLButtonElement>('[data-open-gallery]').forEach((btn) => {
     const dlg = document.getElementById(btn.dataset.openGallery!) as HTMLDialogElement;
     btn.addEventListener('click', () => {
       dlg.showModal();
       document.documentElement.style.overflow = 'hidden';
+      // Open on the item showing on the card.
+      const at = Number(btn.closest<HTMLElement>('[data-gallery-card]')?.dataset.deckAt ?? 0);
+      const track = dlg.querySelector<HTMLElement>('[data-track]');
+      const slide = track?.children[at] as HTMLElement | undefined;
+      if (track && slide) { track.style.scrollBehavior = 'auto'; track.scrollLeft = slide.offsetLeft - track.offsetLeft; track.style.scrollBehavior = ''; }
       window.dispatchEvent(new Event('resize')); // let the carousel recompute its arrows
     });
     dlg.querySelector('[data-close]')!.addEventListener('click', () => dlg.close());
