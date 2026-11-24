@@ -33,5 +33,6 @@ The README has setup, the file map and env vars; this file is the short version 
 
 ## Media conventions
 - Photos and short videos are image/video files in `public/media/uploads/`; YouTube items are stored as links (`{ "type": "youtube", "id": … }`).
+- A box can hold several photos/videos: the first is the item itself, the rest are in its `more` array (box gets its own ‹ › arrows and a `1 / 3` badge). Edit mode's "Add/change photos" edits that list (order step, crop, drag to reorder).
 - Highlight boxes follow the Kellogg hackathon box: same height, caption, then a year line (`date`).
 - Gallery placeholders disappear once a box has media; Travel keeps two placeholders until filled.

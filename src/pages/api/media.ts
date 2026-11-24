@@ -78,13 +78,13 @@ function httpsUrl(v: unknown) {
   try { const u = new URL(v); return u.protocol === 'https:' ? u.href : null; } catch { return null; }
 }
 
-/** Check one new item from the browser and keep only known fields. */
-function cleanItem(raw: any, uploaded: Set<string>): Item | string {
+/** Check one photo/video/embed from the browser and keep only known fields. */
+function cleanItem(raw: any, uploaded: Set<string>, existing: Set<string>): Item | string {
   if (!raw || typeof raw !== 'object') return 'Bad item';
   if (raw.type === 'image' || raw.type === 'video') {
     const src = String(raw.src ?? '');
     if (UPLOAD_SRC.test(src)) {
-      if (!uploaded.has(`public${src}`)) return 'Unknown uploaded file';
+      if (!uploaded.has(`public${src}`) && !existing.has(src)) return 'Unknown uploaded file';
       return { type: raw.type, src };
     }
     const url = httpsUrl(src);
@@ -105,11 +105,15 @@ function listOf(data: any, list: string): any[] | null {
   return m && Array.isArray(data.beyond?.[+m[1]]?.items) ? data.beyond[+m[1]].items : null;
 }
 
+/** Every src in these items, including the extra photos in a box (item.more). */
+const srcsOf = (items: any[]): string[] =>
+  items.flatMap((it) => [it, ...(Array.isArray(it?.more) ? it.more : [])]).map((m) => m?.src).filter((s): s is string => typeof s === 'string');
+const allItems = (data: any): any[] => [...(data.highlights ?? []), ...(data.beyond ?? []).flatMap((b: any) => b.items ?? [])];
+
 /** Uploaded files no item uses any more (after a replace or remove), to delete in the same commit. */
 function orphans(data: any, before: any[]): string[] {
-  const used = new Set<string>();
-  for (const it of [...(data.highlights ?? []), ...(data.beyond ?? []).flatMap((b: any) => b.items ?? [])]) if (typeof it?.src === 'string') used.add(it.src);
-  return [...new Set(before.map((it) => it?.src))].filter((src): src is string => typeof src === 'string' && UPLOAD_SRC.test(src) && !used.has(src)).map((src) => `public${src}`);
+  const used = new Set(srcsOf(allItems(data)));
+  return [...new Set(srcsOf(before))].filter((src): src is string => typeof src === 'string' && UPLOAD_SRC.test(src) && !used.has(src)).map((src) => `public${src}`);
 }
 
 type Result = { error: string } | { message: string; removed: string[] };
@@ -119,16 +123,18 @@ const clean = (v: unknown) => String(v).replace(/[\u0000-\u0008\u000B\u000C\u000
 /**
  * Apply the owner's edits to media.json. The browser sends the new order of
  * every gallery it changed:
- *   { lists: { "highlights": [ { keep: 0, text: { caption, date } },          // existing item, maybe new caption
- *                              { keep: 2, item: { type, src } },            // existing item with new photo
- *                              { item: { type: "youtube", id }, text } ] } } // new item
- * Items left out are removed. Returns an error, or a commit message and files to delete.
+ *   { lists: { "highlights": [ { keep: 0, text: { caption, date } },                // existing box, maybe new caption
+ *                              { keep: 2, media: [ { type, src }, { type, src } ] }, // existing box with new photos, in order
+ *                              { media: [ { type: "youtube", id } ], text } ] } }  // new box
+ * The first of a box's media is stored on the item itself, the rest in item.more.
+ * (`item: {…}` is still accepted as one media.) Items left out are removed. Returns an error, or a commit message and files to delete.
  */
 function change(data: any, body: any, uploaded: Set<string>): Result {
   const lists = body?.lists;
   if (!lists || typeof lists !== 'object' || Array.isArray(lists)) return { error: 'Bad request' };
   const before: any[] = [];
   const names: string[] = [];
+  const existing = new Set(srcsOf(allItems(data))); // files already on the site can be reused, e.g. when reordering a box
   for (const [name, slots] of Object.entries(lists)) {
     const list = listOf(data, name);
     if (!list) return { error: `Unknown gallery: ${name}` };
@@ -144,13 +150,20 @@ function change(data: any, body: any, uploaded: Set<string>): Result {
         seen.add(k);
         base = { ...list[k] };
       }
-      if (slot.item !== undefined) {
-        const it = cleanItem(slot.item, uploaded);
-        if (typeof it === 'string') return { error: it };
+      const media = Array.isArray(slot.media) ? slot.media : slot.item !== undefined ? [slot.item] : undefined;
+      if (media !== undefined) {
+        if (!Array.isArray(media) || !media.length || media.length > 30) return { error: 'Bad request' };
+        const items: Item[] = [];
+        for (const m of media) {
+          const it = cleanItem(m, uploaded, existing);
+          if (typeof it === 'string') return { error: it };
+          items.push(it);
+        }
         // New media in an existing box: keep its caption, date and link.
         const keep: Item = {};
         for (const f of ['caption', 'date', 'link', 'alt']) if (typeof base[f] === 'string') keep[f] = base[f];
-        base = { ...it, ...keep };
+        base = { ...items[0], ...keep };
+        if (items.length > 1) base.more = items.slice(1);
       } else if (slot.keep === undefined) return { error: 'Bad request' };
       if (slot.text && typeof slot.text === 'object')
         for (const f of ['caption', 'date']) if (typeof slot.text[f] === 'string') base[f] = clean(slot.text[f]);
