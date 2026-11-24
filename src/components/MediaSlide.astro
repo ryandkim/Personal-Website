@@ -1,59 +1,79 @@
 ---
-// One photo / video / embed.
+// One box: a photo / video / embed, or several of them (item.more) that the
+// box's own ‹ › arrows flip through, with a "1 / 3" badge and one caption.
 //   mode="full"    (default) videos have controls and play with sound; embeds are live.
-//   mode="preview" a still cover for the small cards: no caption, no controls, no embeds loaded.
-import type { MediaItem } from '../data/media';
+//   mode="preview" a still cover (the first one) for the small cards: no caption, no controls, no embeds loaded.
+import { mediaOf, type MediaItem } from '../data/media';
 interface Props { item: MediaItem; aspect?: string; mode?: 'full' | 'preview'; editKey?: string }
 const { item, aspect = 'aspect-[4/5]', mode = 'full', editKey } = Astro.props;
 const ek = (f: string) => (editKey ? `${editKey}.${f}` : undefined);
 const preview = mode === 'preview';
+const all = preview ? [mediaOf(item)[0]] : mediaOf(item);
+const many = all.length > 1;
 const empty =
   (item.type === 'image' || item.type === 'video') ? !item.src :
   item.type === 'youtube' ? !item.id : !item.embed;
 const kindLabel = { image: 'Photo', video: 'Video', youtube: 'YouTube', linkedin: 'LinkedIn post' }[item.type];
-const interactive = !preview && !empty && (item.type === 'youtube' || item.type === 'linkedin');
+// A single YouTube/LinkedIn embed gets its caption below it (so its controls stay clickable).
+const interactive = !preview && !empty && !many && (item.type === 'youtube' || item.type === 'linkedin');
 // Owner edit mode: "media:highlights.2" or "media:beyond.1.items.0" → list + index for the Add photo/video button.
 const slot = !preview && editKey?.match(/^media:(highlights|beyond\.\d+)(?:\.items)?\.(\d+)$/);
+const alt = item.type === 'image' ? item.alt ?? item.caption : item.caption;
 ---
-<figure class:list={['relative overflow-hidden rounded-2xl border border-line bg-panel', interactive && 'flex flex-col', aspect]} data-media-list={slot ? slot[1] : undefined} data-media-index={slot ? slot[2] : undefined}>
+<figure class:list={['relative overflow-hidden rounded-2xl border border-line bg-panel', interactive && 'flex flex-col', aspect]}
+  data-media-list={slot ? slot[1] : undefined} data-media-index={slot ? slot[2] : undefined}
+  data-media-items={slot && !empty ? JSON.stringify(all.map(({ type, src, id, embed }: any) => ({ type, src, id, embed }))) : undefined}>
   {slot && (
     <>
       <button type="button" data-media-pick data-media-empty={empty ? 'true' : undefined}
         class:list={['media-pick absolute z-20 items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-xs font-medium text-accent-ink shadow-lg hover:brightness-110',
           empty ? 'top-1/2 left-1/2 -translate-x-1/2 translate-y-6' : 'top-3 left-3']}>
-        <span aria-hidden="true">＋</span><span data-media-pick-label>{empty ? 'Add photo/video' : item.type === 'image' ? 'Change or crop' : 'Change'}</span>
+        <span aria-hidden="true">＋</span><span data-media-pick-label>{empty ? 'Add photos/videos' : 'Add/change photos'}</span>
       </button>
-      <button type="button" data-media-remove aria-label="Remove this item" title="Remove"
+      <button type="button" data-media-remove aria-label="Remove this box" title="Remove"
         class="media-pick absolute top-2.5 right-2.5 z-20 h-8 w-8 items-center justify-center rounded-full bg-black/70 text-sm text-white shadow-lg backdrop-blur hover:bg-red-500">✕</button>
     </>
   )}
-  <div class:list={[interactive ? 'relative min-h-0 flex-1' : 'h-full w-full']}>
+  <div class:list={[interactive ? 'relative min-h-0 flex-1' : 'relative h-full w-full']} data-box-stack={many ? '' : undefined}>
   {empty || (preview && item.type === 'linkedin') ? (
     <div class="flex h-full w-full flex-col items-center justify-center gap-2 bg-[radial-gradient(circle_at_30%_20%,color-mix(in_oklab,var(--color-accent)_14%,transparent),transparent_60%)] p-6 text-center">
       <span class="text-xs tracking-widest text-accent/80 uppercase">{kindLabel}</span>
       {!preview && <span class="text-sm text-muted">Coming soon</span>}
     </div>
-  ) : item.type === 'image' ? (
-    <img src={item.src} alt={item.alt ?? item.caption} loading="lazy" class="h-full w-full object-cover" />
-  ) : item.type === 'video' ? (
-    preview
-      ? <video src={item.src} poster={item.poster} muted playsinline preload="metadata" class="h-full w-full object-cover"></video>
-      : <video src={item.src} poster={item.poster} controls playsinline preload="metadata" class="h-full w-full bg-black object-contain"></video>
-  ) : item.type === 'youtube' ? (
-    preview
-      ? <img src={`https://img.youtube.com/vi/${item.id}/hqdefault.jpg`} alt={item.caption} loading="lazy" class="h-full w-full object-cover" />
-      : <iframe src={`https://www.youtube-nocookie.com/embed/${item.id}`} title={item.caption} loading="lazy" allowfullscreen
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="h-full w-full"></iframe>
-  ) : (
-    <iframe src={item.embed} title={item.caption} loading="lazy" class="h-full w-full bg-white"></iframe>
-  )}
+  ) : all.map((m, i) => (
+    <div data-box-layer={many ? i : undefined} hidden={i > 0} class:list={[many ? 'absolute inset-0' : 'h-full w-full']}>
+      {m.type === 'image' ? (
+        <img src={m.src} alt={alt} loading="lazy" class="h-full w-full object-cover" />
+      ) : m.type === 'video' ? (
+        preview
+          ? <video src={m.src} poster={m.poster} muted playsinline preload="metadata" class="h-full w-full object-cover"></video>
+          : <video src={m.src} poster={m.poster} controls playsinline preload="metadata" class="h-full w-full bg-black object-contain"></video>
+      ) : m.type === 'youtube' ? (
+        preview
+          ? <img src={`https://img.youtube.com/vi/${m.id}/hqdefault.jpg`} alt={item.caption} loading="lazy" class="h-full w-full object-cover" />
+          : <iframe src={`https://www.youtube-nocookie.com/embed/${m.id}`} title={item.caption} loading="lazy" allowfullscreen
+              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="h-full w-full"></iframe>
+      ) : (
+        <iframe src={m.embed} title={item.caption} loading="lazy" class="h-full w-full bg-white"></iframe>
+      )}
+    </div>
+  ))}
   </div>
+  {many && (
+    <>
+      <button type="button" data-box-prev aria-label="Previous photo in this box"
+        class="absolute top-1/2 left-2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-lg text-white/80 backdrop-blur-sm transition hover:bg-black/55 hover:text-white">‹</button>
+      <button type="button" data-box-next aria-label="Next photo in this box"
+        class="absolute top-1/2 right-2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-lg text-white/80 backdrop-blur-sm transition hover:bg-black/55 hover:text-white">›</button>
+      <span data-box-count class="pointer-events-none absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-white backdrop-blur">1 / {all.length}</span>
+    </>
+  )}
   {!preview && (
     <figcaption data-caption
       class:list={[interactive
         ? 'relative bg-black px-4 pt-3 pb-4'
         : 'pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-4 pt-10 pb-4 transition-opacity duration-300',
-        item.type === 'video' && !empty && 'pb-14']}>
+        item.type === 'video' && !empty && !many && 'pb-14']}>
       {item.date !== undefined && <span class="block text-[11px] tracking-widest text-accent uppercase" data-edit={ek('date')} data-placeholder="Year">{item.date}</span>}
       {item.link
         ? <a href={item.link} target="_blank" rel="noopener" class="pointer-events-auto text-sm leading-snug text-white hover:underline" data-edit={ek('caption')} data-placeholder="Add a caption">{item.caption}</a>
@@ -61,3 +81,32 @@ const slot = !preview && editKey?.match(/^media:(highlights|beyond\.\d+)(?:\.ite
     </figcaption>
   )}
 </figure>
+
+<style is:global>
+  body.editing [data-box-count] { right: 3.25rem; }
+</style>
+
+<script>
+  // A box's own arrows flip through its photos (works for boxes added in edit mode too).
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest?.('[data-box-prev], [data-box-next]');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const fig = btn.closest('figure')!;
+    const layers = Array.from(fig.querySelectorAll<HTMLElement>('[data-box-layer]'));
+    if (layers.length < 2) return;
+    const at = layers.findIndex((l) => !l.hidden);
+    const next = (at + (btn.matches('[data-box-next]') ? 1 : -1) + layers.length) % layers.length;
+    layers.forEach((l, i) => {
+      if (i === next) return void (l.hidden = false);
+      if (!l.hidden) {
+        l.querySelectorAll('video').forEach((v) => v.pause());
+        l.querySelectorAll('iframe').forEach((f) => { const s = f.src; f.src = s; }); // stop sound
+      }
+      l.hidden = true;
+    });
+    const count = fig.querySelector('[data-box-count]');
+    if (count) count.textContent = `${next + 1} / ${layers.length}`;
+  }, true);
+</script>

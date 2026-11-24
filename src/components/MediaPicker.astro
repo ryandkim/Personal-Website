@@ -1,10 +1,12 @@
 ---
 // Owner edit mode: photos and videos.
-//   - "Add photo/video" / "Change or crop" on each box opens this pop-up:
-//     pick files from the computer or phone photo library (photos can be
-//     cropped to the box), paste a link (YouTube plays in the box), or crop
-//     the photo already there.
-//   - The small ✕ on a box removes it; "Add more" under a strip adds boxes.
+//   - "Add/change photos" on a box opens this pop-up with everything in that
+//     box. Choose several files (then tap them in the order they should go,
+//     and crop each photo), paste links, drag to reorder, ✕ to take one out,
+//     tap a photo to crop it. Save puts them all in that one box: the first is
+//     the cover and the box's own arrows flip through the rest.
+//   - The small ✕ on a box removes the box. "Add more" under the highlights
+//     makes one new box; under a gallery, each photo becomes its own slide.
 // Nothing is saved until the owner presses Save on the owner bar, which calls
 // window.ownerMedia.save(): it uploads the new files and sends the new order
 // of each changed gallery to /api/media in one go.
@@ -12,34 +14,51 @@
 // request is checked for the owner session on the server.
 ---
 <dialog id="media-picker" aria-labelledby="media-picker-title"
-  class="m-auto w-[min(92vw,460px)] overflow-visible bg-transparent p-0 text-text backdrop:bg-black/80 backdrop:backdrop-blur-sm">
-  <div class="rounded-3xl border border-line bg-ink p-5 sm:p-6">
+  class="m-auto w-[min(94vw,560px)] overflow-visible bg-transparent p-0 text-text backdrop:bg-black/80 backdrop:backdrop-blur-sm">
+  <div class="max-h-[90vh] overflow-y-auto rounded-3xl border border-line bg-ink p-5 sm:p-6">
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h3 id="media-picker-title" class="font-serif text-2xl">Add photo or video</h3>
+      <h3 id="media-picker-title" class="font-serif text-2xl">Photos in this box</h3>
       <button type="button" data-mp-close aria-label="Close"
         class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line text-muted transition hover:border-text hover:text-text">✕</button>
     </div>
 
-    <div data-mp-choose class="space-y-4">
-      <button type="button" data-mp-crop-current hidden
-        class="w-full rounded-2xl border border-accent/60 px-4 py-3 font-medium text-accent hover:bg-accent/10">Crop this photo</button>
+    <!-- 1. The box's photos and videos, in order: drag to reorder, ✕ to remove, Crop, add more. -->
+    <div data-mp-tray class="space-y-4">
+      <p data-tray-hint class="text-xs text-muted">Drag to reorder. The first one is the cover. Tap a photo to crop it, or ✕ to take it out.</p>
+      <div data-tray-grid class="grid grid-cols-3 gap-2 sm:grid-cols-4"></div>
+      <p data-tray-empty class="rounded-2xl border border-dashed border-line px-4 py-8 text-center text-sm text-muted">Nothing in this box yet.</p>
 
-      <label class="flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-center font-medium text-accent-ink hover:brightness-110 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent">
+      <label class="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-accent/60 px-4 py-3 text-center font-medium text-accent hover:bg-accent/10 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent">
         <input type="file" data-mp-file accept="image/*,video/*" multiple class="sr-only" />
-        Choose from computer or photo library
+        <span aria-hidden="true">＋</span><span data-mp-file-label>Choose photos or videos</span>
       </label>
-      <p data-mp-multi class="-mt-2 text-center text-xs text-muted">You can pick several. The first fills this box; the rest are added right after it.</p>
 
       <div class="flex items-center gap-3 text-xs tracking-widest text-muted uppercase"><span class="h-px flex-1 bg-line"></span>or paste a link<span class="h-px flex-1 bg-line"></span></div>
-
       <form data-mp-link class="flex gap-2">
         <input type="url" name="url" required placeholder="https://youtube.com/watch?v=…" inputmode="url" autocomplete="off"
           class="min-w-0 flex-1 rounded-full border border-line bg-panel px-4 py-2 text-sm placeholder:text-muted focus:border-accent focus:outline-none" />
-        <button type="submit" class="shrink-0 rounded-full border border-line px-4 py-2 text-sm hover:border-text">Use link</button>
+        <button type="submit" class="shrink-0 rounded-full border border-line px-4 py-2 text-sm hover:border-text">Add link</button>
       </form>
       <p class="-mt-2 text-xs text-muted">YouTube links play right in the box. Links that end in .jpg, .png or .mp4 work too, and so do LinkedIn “Embed this post” links.</p>
+
+      <div class="flex gap-2 border-t border-line pt-4">
+        <button type="button" data-mp-close class="flex-1 rounded-full border border-line px-4 py-2.5 text-sm hover:border-text">Cancel</button>
+        <button type="button" data-tray-save class="flex-1 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-accent-ink hover:brightness-110 disabled:opacity-40">Save</button>
+      </div>
     </div>
 
+    <!-- 2. After choosing several files: tap them in the order they should go in. -->
+    <div data-mp-order hidden class="space-y-4">
+      <p class="text-sm text-muted">Tap them in the order you want. The numbers show where each one goes; tap again to take it out.</p>
+      <div data-order-grid class="grid grid-cols-3 gap-2 sm:grid-cols-4"></div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" data-order-back class="rounded-full border border-line px-4 py-2 text-sm hover:border-text">Back</button>
+        <button type="button" data-order-all class="rounded-full border border-line px-4 py-2 text-sm hover:border-text">Select all</button>
+        <button type="button" data-order-next disabled class="min-w-32 flex-1 rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:brightness-110 disabled:opacity-40">Next: crop</button>
+      </div>
+    </div>
+
+    <!-- 3. Crop one photo to the box. -->
     <div data-mp-crop hidden class="space-y-4">
       <div data-crop-frame class="relative mx-auto aspect-[4/5] w-full max-w-[300px] cursor-grab touch-none overflow-hidden rounded-2xl bg-black select-none active:cursor-grabbing">
         <img data-crop-img alt="" draggable="false" class="absolute top-0 left-0 max-w-none origin-top-left" />
@@ -48,11 +67,12 @@
       <label class="flex items-center gap-3 text-sm text-muted">Zoom
         <input type="range" data-crop-zoom min="1" max="4" step="0.01" value="1" class="flex-1 accent-[var(--color-accent)]" />
       </label>
-      <p data-crop-hint class="text-center text-xs text-muted">Drag to move the photo, and zoom to crop. The frame is the box.</p>
+      <p class="text-center text-xs text-muted">Drag to move the photo, and zoom to crop. The frame is the box.</p>
       <div class="flex gap-2">
         <button type="button" data-crop-whole class="flex-1 rounded-full border border-line px-4 py-2 text-sm hover:border-text">Don’t crop</button>
         <button type="button" data-crop-apply class="flex-1 rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:brightness-110">Crop</button>
       </div>
+      <button type="button" data-crop-cancel class="block w-full text-center text-xs text-muted hover:text-text">Cancel</button>
     </div>
 
     <p data-mp-status role="status" aria-live="polite" class="mt-3 min-h-5 text-sm text-muted"></p>
@@ -65,31 +85,41 @@
 </style>
 
 <script>
-  type Item = { type: 'image' | 'video'; src: string } | { type: 'youtube'; id: string } | { type: 'linkedin'; embed: string };
-  type Pending = { item: Item; blob?: Blob; name?: string; file?: { path: string; sha?: string } };
+  type Media = { type: 'image' | 'video'; src: string } | { type: 'youtube'; id: string } | { type: 'linkedin'; embed: string };
+  /** One photo/video in a box. A new file keeps its bytes in `blob` until Save uploads it. */
+  type Entry = { key: number; media: Media; blob?: Blob; name?: string; preview?: string; file?: { path: string; sha?: string } };
   type Target = { list: string; track: HTMLElement; slide: HTMLElement | null };
 
   const MB = 1024 * 1024;
+  const MAX_PER_BOX = 20;
   const dlg = document.getElementById('media-picker') as HTMLDialogElement;
   const q = <T extends Element>(s: string) => dlg.querySelector<T>(s)!;
   const title = q<HTMLElement>('#media-picker-title');
-  const choose = q<HTMLElement>('[data-mp-choose]');
+  const trayView = q<HTMLElement>('[data-mp-tray]');
+  const orderView = q<HTMLElement>('[data-mp-order]');
   const cropView = q<HTMLElement>('[data-mp-crop]');
-  const cropCurrent = q<HTMLButtonElement>('[data-mp-crop-current]');
-  const multiHint = q<HTMLElement>('[data-mp-multi]');
+  const trayGrid = q<HTMLElement>('[data-tray-grid]');
+  const trayEmpty = q<HTMLElement>('[data-tray-empty]');
+  const trayHint = q<HTMLElement>('[data-tray-hint]');
+  const traySave = q<HTMLButtonElement>('[data-tray-save]');
+  const orderGrid = q<HTMLElement>('[data-order-grid]');
+  const orderNext = q<HTMLButtonElement>('[data-order-next]');
   const fileInput = q<HTMLInputElement>('[data-mp-file]');
+  const fileLabel = q<HTMLElement>('[data-mp-file-label]');
   const linkForm = q<HTMLFormElement>('[data-mp-link]');
   const status = q<HTMLElement>('[data-mp-status]');
   const ownerStatus = () => document.getElementById('owner-status');
   const editing = () => document.body.classList.contains('editing');
 
-  const pending = new Map<HTMLElement, Pending>(); // slide → its new media (not saved yet)
+  const pending = new Map<HTMLElement, Entry[]>(); // box → its new photos (not saved yet)
   const dirty = new Map<string, HTMLElement>();     // gallery → its strip, for every gallery changed
   const templates = new Map<string, HTMLElement>(); // gallery → a blank slide to copy for new items
   let target: Target | null = null;
+  let tray: Entry[] = [];
   let busy = false;
   let stale = false;
   let newId = 0;
+  let keys = 0;
   let config: { blob: boolean; maxBytes: number } | null = null;
 
   const say = (msg: string, error = false) => {
@@ -98,6 +128,7 @@
     status.classList.toggle('text-muted', !error);
   };
   const slideOf = (el: Element) => el.closest<HTMLElement>('[data-track] > *');
+  const entry = (media: Media, extra: Partial<Entry> = {}): Entry => ({ key: ++keys, media, ...extra });
 
   // Remember each slide's place in media.json, and a copy to build new slides from.
   document.querySelectorAll<HTMLElement>('figure[data-media-index]').forEach((fig) => {
@@ -114,36 +145,60 @@
   }
 
   // ---- Showing media in a box ----
-  function mediaEl(item: Item, previewUrl?: string): HTMLElement {
+  function mediaEl(m: Media, previewUrl?: string): HTMLElement {
     let el: HTMLElement;
-    if (item.type === 'image') {
-      el = Object.assign(document.createElement('img'), { src: previewUrl ?? item.src, alt: '' });
+    if (m.type === 'image') {
+      el = Object.assign(document.createElement('img'), { src: previewUrl ?? m.src, alt: '' });
       el.className = 'h-full w-full object-cover';
-    } else if (item.type === 'video') {
-      el = Object.assign(document.createElement('video'), { src: previewUrl ?? item.src, controls: true, playsInline: true });
+    } else if (m.type === 'video') {
+      el = Object.assign(document.createElement('video'), { src: previewUrl ?? m.src, controls: true, playsInline: true });
       el.className = 'h-full w-full bg-black object-contain';
     } else {
       el = Object.assign(document.createElement('iframe'), {
-        src: item.type === 'youtube' ? `https://www.youtube-nocookie.com/embed/${item.id}` : item.embed, allowFullscreen: true,
+        src: m.type === 'youtube' ? `https://www.youtube-nocookie.com/embed/${m.id}` : m.embed, allowFullscreen: true,
       });
       el.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
-      el.className = item.type === 'youtube' ? 'h-full w-full' : 'h-full w-full bg-white';
+      el.className = m.type === 'youtube' ? 'h-full w-full' : 'h-full w-full bg-white';
     }
     return el;
   }
 
-  function render(slide: HTMLElement, item: Item, previewUrl?: string) {
+  const ARROW = 'absolute top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-lg text-white/80 backdrop-blur-sm transition hover:bg-black/55 hover:text-white';
+
+  /** Show a box's photos on the page (the same layout MediaSlide.astro renders). */
+  function render(slide: HTMLElement, entries: Entry[]) {
     const fig = slide.querySelector<HTMLElement>('figure')!;
     for (const child of Array.from(fig.children)) if (!child.matches('[data-media-pick], [data-media-remove], figcaption')) child.remove();
+    const many = entries.length > 1;
     const wrap = document.createElement('div');
-    wrap.className = fig.classList.contains('flex-col') ? 'relative min-h-0 flex-1' : 'h-full w-full';
-    wrap.append(mediaEl(item, previewUrl));
+    wrap.className = fig.classList.contains('flex-col') ? 'relative min-h-0 flex-1' : 'relative h-full w-full';
+    entries.forEach((e, i) => {
+      const layer = document.createElement('div');
+      layer.className = many ? 'absolute inset-0' : 'h-full w-full';
+      if (many) { layer.dataset.boxLayer = String(i); layer.hidden = i > 0; }
+      layer.append(mediaEl(e.media, e.preview));
+      wrap.append(layer);
+    });
     fig.prepend(wrap);
+    if (many) {
+      const prev = Object.assign(document.createElement('button'), { type: 'button', textContent: '‹', className: `${ARROW} left-2` });
+      prev.dataset.boxPrev = '';
+      prev.setAttribute('aria-label', 'Previous photo in this box');
+      const next = Object.assign(document.createElement('button'), { type: 'button', textContent: '›', className: `${ARROW} right-2` });
+      next.dataset.boxNext = '';
+      next.setAttribute('aria-label', 'Next photo in this box');
+      const count = Object.assign(document.createElement('span'), {
+        textContent: `1 / ${entries.length}`,
+        className: 'pointer-events-none absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-white backdrop-blur',
+      });
+      count.dataset.boxCount = '';
+      wrap.after(prev, next, count);
+    }
     const btn = fig.querySelector<HTMLElement>('[data-media-pick]');
     if (btn) {
       btn.classList.remove('top-1/2', 'left-1/2', '-translate-x-1/2', 'translate-y-6');
       btn.classList.add('top-3', 'left-3');
-      btn.querySelector('[data-media-pick-label]')!.textContent = item.type === 'image' ? 'Change or crop' : 'Change';
+      btn.querySelector('[data-media-pick-label]')!.textContent = 'Add/change photos';
       delete btn.dataset.mediaEmpty;
     }
   }
@@ -169,25 +224,117 @@
     return slide;
   }
 
-  /** Put new media into the target box (first item) and new boxes after it. */
-  function stage(entries: Pending[], previews: (string | undefined)[]) {
-    const t = target!;
-    let after = t.slide;
-    entries.forEach((p, i) => {
-      let slide: HTMLElement;
-      if (i === 0 && t.slide) slide = t.slide;
-      else {
-        slide = newSlide(t.list);
-        if (after) after.after(slide); else t.track.append(slide);
-      }
-      render(slide, p.item, previews[i]);
-      pending.set(slide, p);
-      after = slide;
-    });
-    dirty.set(t.list, t.track);
-    noteChanges();
-    if (!t.slide) after?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  /** What's in a box now: its unsaved changes, or what the page was built with. */
+  function boxEntries(slide: HTMLElement): Entry[] {
+    const staged = pending.get(slide);
+    if (staged) return staged.map((e) => ({ ...e }));
+    try {
+      const items = JSON.parse(slide.querySelector<HTMLElement>('figure')?.dataset.mediaItems ?? '[]') as Media[];
+      return items.map((m) => entry(m));
+    } catch { return []; }
   }
+
+  // ---- Views inside the pop-up ----
+  function view(which: 'tray' | 'order' | 'crop') {
+    trayView.hidden = which !== 'tray';
+    orderView.hidden = which !== 'order';
+    cropView.hidden = which !== 'crop';
+  }
+
+  function thumbEl(m: Media, previewUrl?: string): HTMLElement {
+    let el: HTMLElement;
+    if (m.type === 'image' || (m.type === 'youtube')) {
+      el = Object.assign(document.createElement('img'), {
+        src: m.type === 'image' ? previewUrl ?? m.src : `https://img.youtube.com/vi/${m.id}/mqdefault.jpg`, alt: '', draggable: false,
+      });
+    } else if (m.type === 'video') {
+      el = Object.assign(document.createElement('video'), { src: previewUrl ?? m.src, muted: true, playsInline: true, preload: 'metadata' });
+    } else {
+      el = Object.assign(document.createElement('div'), { textContent: 'LinkedIn post' });
+      el.className = 'grid h-full w-full place-items-center bg-white text-xs text-black';
+      return el;
+    }
+    el.className = 'pointer-events-none h-full w-full object-cover select-none';
+    return el;
+  }
+
+  const BADGE = 'pointer-events-none absolute top-1.5 right-1.5 grid h-6 min-w-6 place-items-center rounded-full bg-accent px-1.5 text-xs font-semibold text-accent-ink shadow';
+  const TILE = 'relative aspect-[4/5] overflow-hidden rounded-xl border border-line bg-panel';
+
+  function drawTray() {
+    trayGrid.replaceChildren(...tray.map((e, i) => {
+      const tile = document.createElement('div');
+      tile.className = `${TILE} cursor-grab touch-none select-none`;
+      tile.dataset.key = String(e.key);
+      tile.append(thumbEl(e.media, e.preview));
+      const badge = Object.assign(document.createElement('span'), { className: BADGE, textContent: String(i + 1) });
+      badge.dataset.badge = '';
+      const rm = Object.assign(document.createElement('button'), {
+        type: 'button', textContent: '✕', title: 'Take out',
+        className: 'absolute top-1.5 left-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/70 text-[11px] text-white hover:bg-red-500',
+      });
+      rm.dataset.trayRemove = '';
+      rm.setAttribute('aria-label', `Take out item ${i + 1}`);
+      tile.append(badge, rm);
+      if (e.media.type === 'image' && !/\.gif($|\?)/i.test(e.name ?? e.media.src)) {
+        const crop = Object.assign(document.createElement('span'), {
+          textContent: 'Crop', className: 'pointer-events-none absolute bottom-1.5 left-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-white',
+        });
+        tile.append(crop);
+      }
+      if (i === 0 && tray.length > 1) tile.append(Object.assign(document.createElement('span'), {
+        textContent: 'Cover', className: 'pointer-events-none absolute right-1.5 bottom-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-accent',
+      }));
+      return tile;
+    }));
+    trayEmpty.hidden = tray.length > 0;
+    trayHint.hidden = tray.length === 0;
+    traySave.disabled = tray.length === 0;
+    fileLabel.textContent = tray.length ? 'Add more photos or videos' : 'Choose photos or videos';
+  }
+
+  // Drag a tile to reorder; tap it to crop; ✕ takes it out.
+  let drag: { tile: HTMLElement; id: number; x: number; y: number; moved: boolean } | null = null;
+  trayGrid.addEventListener('pointerdown', (e) => {
+    const el = e.target as HTMLElement;
+    if (busy || el.closest('[data-tray-remove]')) return;
+    const tile = el.closest<HTMLElement>('[data-key]');
+    if (!tile) return;
+    drag = { tile, id: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+    tile.setPointerCapture(e.pointerId);
+  });
+  trayGrid.addEventListener('pointermove', (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+    if (!drag.moved) { drag.moved = true; drag.tile.classList.add('opacity-60', 'ring-2', 'ring-accent', 'cursor-grabbing'); }
+    const over = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-key]');
+    if (!over || over === drag.tile || over.parentElement !== trayGrid) return;
+    const tiles = Array.from(trayGrid.children);
+    if (tiles.indexOf(over) > tiles.indexOf(drag.tile)) over.after(drag.tile); else over.before(drag.tile);
+    trayGrid.querySelectorAll('[data-badge]').forEach((b, i) => (b.textContent = String(i + 1)));
+  });
+  const endDrag = (e: PointerEvent) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const { tile, moved } = drag;
+    drag = null;
+    if (moved) {
+      const byKey = new Map(tray.map((t) => [String(t.key), t]));
+      tray = Array.from(trayGrid.children).map((t) => byKey.get((t as HTMLElement).dataset.key!)!);
+      drawTray();
+    } else if (e.type === 'pointerup') {
+      const it = tray.find((t) => String(t.key) === tile.dataset.key);
+      if (it) recrop(it);
+    }
+  };
+  trayGrid.addEventListener('pointerup', endDrag);
+  trayGrid.addEventListener('pointercancel', endDrag);
+  trayGrid.addEventListener('click', (e) => {
+    const rm = (e.target as HTMLElement).closest('[data-tray-remove]');
+    if (!rm || busy) return;
+    const key = rm.closest<HTMLElement>('[data-key]')!.dataset.key;
+    tray = tray.filter((t) => String(t.key) !== key);
+    drawTray();
+  });
 
   // ---- Buttons on the boxes ----
   document.addEventListener('click', (e) => {
@@ -212,27 +359,105 @@
     if (pick) {
       const slide = slideOf(pick)!;
       target = { list: slide.dataset.slotList!, track: slide.parentElement!, slide };
+      tray = boxEntries(slide);
+      title.textContent = 'Photos in this box';
     } else {
       const track = add!.previousElementSibling?.querySelector<HTMLElement>('[data-track]');
       if (!track) return;
       target = { list: add!.dataset.mediaList!, track, slide: null };
+      tray = [];
+      title.textContent = target.list === 'highlights' ? 'New box' : 'Add to this gallery';
     }
-    const img = target.slide?.querySelector<HTMLImageElement>('figure > img');
-    const empty = !target.slide || pick?.dataset.mediaEmpty === 'true';
-    title.textContent = !target.slide ? 'Add photos or videos' : empty ? 'Add photo or video' : 'Change photo or video';
-    cropCurrent.hidden = !img || /\.gif($|\?)/i.test(img.src);
-    multiHint.textContent = target.slide ? 'You can pick several. The first fills this box; the rest are added right after it.' : 'You can pick several.';
+    traySave.textContent = !target.slide && target.list !== 'highlights' ? 'Add to gallery' : 'Save to this box';
     fileInput.value = '';
     linkForm.reset();
-    showCrop(false);
-    say('');
+    drawTray();
+    view('tray');
+    say(!target.slide && target.list !== 'highlights' ? 'Each one becomes its own slide in the gallery.' : '');
     dlg.showModal();
   }, true);
 
-  q('[data-mp-close]').addEventListener('click', () => !busy && dlg.close());
-  dlg.addEventListener('cancel', (e) => { if (busy && !cropping) e.preventDefault(); });
+  dlg.querySelectorAll('[data-mp-close]').forEach((b) => b.addEventListener('click', () => !busy && dlg.close()));
+  dlg.addEventListener('cancel', (e) => {
+    // Esc steps back to the box's photos instead of closing while choosing or cropping.
+    if (cropping) { e.preventDefault(); cropping('cancel'); return; }
+    if (ordering) { e.preventDefault(); ordering(null); return; }
+    if (busy) e.preventDefault();
+  });
   dlg.addEventListener('click', (e) => { if (e.target === dlg && !busy) dlg.close(); });
-  dlg.addEventListener('close', () => cropping?.('cancel'));
+  dlg.addEventListener('close', () => { cropping?.('cancel'); ordering?.(null); });
+
+  // Save in the pop-up: put everything into the box. Save on the owner bar publishes it.
+  traySave.addEventListener('click', () => {
+    const t = target;
+    if (!t || busy || !tray.length) return;
+    if (t.slide) {
+      render(t.slide, tray);
+      pending.set(t.slide, tray);
+    } else {
+      // Highlights: one new box with all of them. Galleries: one slide each.
+      const groups = t.list === 'highlights' ? [tray] : tray.map((e) => [e]);
+      let last: HTMLElement | null = null;
+      for (const g of groups) {
+        const slide = newSlide(t.list);
+        t.track.append(slide);
+        render(slide, g);
+        pending.set(slide, g);
+        last = slide;
+      }
+      last?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    dirty.set(t.list, t.track);
+    noteChanges();
+    tray = [];
+    dlg.close();
+  });
+
+  // ---- Choosing the order of several files ----
+  let ordering: ((order: File[] | null) => void) | null = null;
+
+  /** Show the chosen files; the owner taps them in the order they should go. Resolves to that order, or null for Back. */
+  function chooseOrder(files: File[]): Promise<File[] | null> {
+    const urls = files.map((f) => URL.createObjectURL(f));
+    const order: number[] = [];
+    const draw = () => {
+      orderGrid.replaceChildren(...files.map((f, i) => {
+        const tile = Object.assign(document.createElement('button'), { type: 'button', className: `${TILE} block w-full transition` });
+        tile.dataset.i = String(i);
+        const n = order.indexOf(i);
+        tile.classList.toggle('ring-2', n >= 0);
+        tile.classList.toggle('ring-accent', n >= 0);
+        tile.setAttribute('aria-pressed', String(n >= 0));
+        tile.setAttribute('aria-label', `${f.name}${n >= 0 ? `, number ${n + 1}` : ''}`);
+        tile.append(isVideo(f) ? thumbEl({ type: 'video', src: '' }, urls[i]) : thumbEl({ type: 'image', src: '' }, urls[i]));
+        if (n < 0) tile.append(Object.assign(document.createElement('span'), { className: 'pointer-events-none absolute inset-0 bg-black/40' }));
+        if (n >= 0) tile.append(Object.assign(document.createElement('span'), { className: BADGE, textContent: String(n + 1) }));
+        else tile.append(Object.assign(document.createElement('span'), { className: 'pointer-events-none absolute top-1.5 right-1.5 h-6 w-6 rounded-full border-2 border-white/80 bg-black/30' }));
+        return tile;
+      }));
+      orderNext.disabled = order.length === 0;
+      orderNext.textContent = order.length ? `Next: add ${order.length}` : 'Next';
+    };
+    draw();
+    view('order');
+    say('');
+    return new Promise((resolve) => {
+      const ac = new AbortController();
+      const opt = { signal: ac.signal };
+      const finish = (out: File[] | null) => { ordering = null; ac.abort(); urls.forEach((u) => URL.revokeObjectURL(u)); view('tray'); resolve(out); };
+      ordering = finish;
+      orderGrid.addEventListener('click', (e) => {
+        const tile = (e.target as HTMLElement).closest<HTMLElement>('[data-i]');
+        if (!tile) return;
+        const i = Number(tile.dataset.i), n = order.indexOf(i);
+        if (n >= 0) order.splice(n, 1); else order.push(i);
+        draw();
+      }, opt);
+      q('[data-order-all]').addEventListener('click', () => { files.forEach((_, i) => !order.includes(i) && order.push(i)); draw(); }, opt);
+      q('[data-order-back]').addEventListener('click', () => finish(null), opt);
+      orderNext.addEventListener('click', () => order.length && finish(order.map((i) => files[i])), opt);
+    });
+  }
 
   // ---- Cropping ----
   const frame = q<HTMLElement>('[data-crop-frame]');
@@ -240,17 +465,12 @@
   const zoomEl = q<HTMLInputElement>('[data-crop-zoom]');
   let cropping: ((how: 'crop' | 'whole' | 'cancel') => void) | null = null;
 
-  function showCrop(on: boolean) {
-    cropView.hidden = !on;
-    choose.hidden = on;
-  }
-
-  /** Let the owner crop a photo to the box. Resolves to the cropped photo, null for "don't crop", or undefined if closed. */
+  /** Let the owner crop a photo to the box. Resolves to the cropped photo, null for "don't crop", or undefined for Cancel. */
   async function cropStep(src: Blob, label = ''): Promise<Blob | null | undefined> {
     const url = URL.createObjectURL(src);
     cimg.src = url;
     try { await cimg.decode(); } catch { URL.revokeObjectURL(url); return null; } // a format the browser can't draw: upload as is
-    showCrop(true);
+    view('crop');
     say(label);
     const nw = cimg.naturalWidth, nh = cimg.naturalHeight;
     const W = frame.clientWidth, H = frame.clientHeight;
@@ -279,16 +499,16 @@
 
     const ac = new AbortController();
     const opt = { signal: ac.signal };
-    let drag: { id: number; x: number; y: number } | null = null;
-    frame.addEventListener('pointerdown', (e) => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY }; frame.setPointerCapture(e.pointerId); }, opt);
+    let pan: { id: number; x: number; y: number } | null = null;
+    frame.addEventListener('pointerdown', (e) => { pan = { id: e.pointerId, x: e.clientX, y: e.clientY }; frame.setPointerCapture(e.pointerId); }, opt);
     frame.addEventListener('pointermove', (e) => {
-      if (!drag || drag.id !== e.pointerId) return;
-      x += e.clientX - drag.x; y += e.clientY - drag.y;
-      drag.x = e.clientX; drag.y = e.clientY;
+      if (!pan || pan.id !== e.pointerId) return;
+      x += e.clientX - pan.x; y += e.clientY - pan.y;
+      pan.x = e.clientX; pan.y = e.clientY;
       draw();
     }, opt);
-    frame.addEventListener('pointerup', () => (drag = null), opt);
-    frame.addEventListener('pointercancel', () => (drag = null), opt);
+    frame.addEventListener('pointerup', () => (pan = null), opt);
+    frame.addEventListener('pointercancel', () => (pan = null), opt);
     frame.addEventListener('wheel', (e) => { e.preventDefault(); zoomTo(zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08)); }, { ...opt, passive: false });
     zoomEl.addEventListener('input', () => zoomTo(Number(zoomEl.value)), opt);
 
@@ -296,10 +516,11 @@
       cropping = resolve;
       q('[data-crop-apply]').addEventListener('click', () => resolve('crop'), opt);
       q('[data-crop-whole]').addEventListener('click', () => resolve('whole'), opt);
+      q('[data-crop-cancel]').addEventListener('click', () => resolve('cancel'), opt);
     });
     cropping = null;
     ac.abort();
-    showCrop(false);
+    view('tray');
     let out: Blob | null | undefined = how === 'whole' ? null : undefined;
     if (how === 'crop') {
       const s = scale();
@@ -341,61 +562,66 @@
   const tooBig = (name: string, size: number) => new Error(`${name} is ${(size / MB).toFixed(0)} MB. Files stored with the site must be under 4 MB, and video storage isn’t set up yet. ` +
     'For now, upload it to YouTube (Unlisted works) and paste the link here.');
 
+  // Choose files → tap them in order → crop each photo → they join the box's photos.
   fileInput.addEventListener('change', async () => {
-    const picked = Array.from(fileInput.files ?? []).slice(0, 20);
-    if (!picked.length || !target) return;
+    const chosen = Array.from(fileInput.files ?? []);
+    fileInput.value = '';
+    if (!chosen.length || !target || busy) return;
+    const room = MAX_PER_BOX - tray.length;
+    if (room <= 0) return say(`A box holds up to ${MAX_PER_BOX}. Take some out first.`, true);
     busy = true;
     try {
       const cfg = await getConfig();
-      const entries: Pending[] = [], previews: string[] = [];
-      for (const [i, f] of picked.entries()) {
-        const label = picked.length > 1 ? `Photo ${i + 1} of ${picked.length}` : '';
+      const order = chosen.length > 1 ? await chooseOrder(chosen) : chosen;
+      if (!order) return;
+      const files = order.slice(0, room);
+      const added: Entry[] = [];
+      for (const [i, f] of files.entries()) {
         let blob: Blob = f;
         if (!isVideo(f) && f.type !== 'image/gif') {
-          const cropped = await cropStep(f, label);
-          if (cropped === undefined) return; // closed: add nothing
+          const cropped = await cropStep(f, files.length > 1 ? `Photo ${i + 1} of ${files.length}` : '');
+          if (cropped === undefined) { added.forEach((a) => a.preview && URL.revokeObjectURL(a.preview)); say(''); return; } // Cancel: add none of this batch
           blob = cropped ?? (await shrink(f).catch(() => f));
         }
         if (blob.size > cfg.maxBytes && !cfg.blob) throw tooBig(f.name, blob.size);
-        entries.push({ item: { type: isVideo(f) ? 'video' : 'image', src: '' }, blob, name: f.name });
-        previews.push(URL.createObjectURL(blob));
+        added.push(entry({ type: isVideo(f) ? 'video' : 'image', src: '' }, { blob, name: f.name, preview: URL.createObjectURL(blob) }));
       }
-      stage(entries, previews);
-      busy = false;
-      dlg.close();
+      tray.push(...added);
+      drawTray();
+      say(order.length > files.length ? `Added ${files.length}: a box holds up to ${MAX_PER_BOX}.` : '');
     } catch (e) {
       say((e as Error).message, true);
     } finally {
       busy = false;
-      fileInput.value = '';
-      showCrop(false);
+      view('tray');
     }
   });
 
-  // Crop the photo already in the box (or the one just picked for it).
-  cropCurrent.addEventListener('click', async () => {
-    const slide = target?.slide;
-    const img = slide?.querySelector<HTMLImageElement>('figure > img');
-    if (!slide || !img) return;
+  // Tap a photo in the box to crop it again.
+  async function recrop(it: Entry) {
+    if (it.media.type !== 'image' || /\.gif($|\?)/i.test(it.name ?? it.media.src) || busy) return;
     busy = true;
     try {
-      const src = pending.get(slide)?.blob ?? (await fetch(img.src).then((r) => (r.ok ? r.blob() : Promise.reject())).catch(() => {
+      const src = it.blob ?? (await fetch(it.media.src).then((r) => (r.ok ? r.blob() : Promise.reject())).catch(() => {
         throw new Error('This photo is on another website, so it can’t be cropped here. Download it and add it from your computer instead.');
       }));
       const cropped = await cropStep(src);
-      if (!cropped) { if (cropped === null) dlg.close(); return; }
-      stage([{ item: { type: 'image', src: '' }, blob: cropped, name: 'cropped.jpg' }], [URL.createObjectURL(cropped)]);
-      busy = false;
-      dlg.close();
+      if (!cropped) return say('');
+      if (it.preview) URL.revokeObjectURL(it.preview);
+      Object.assign(it, { media: { type: 'image', src: '' }, blob: cropped, name: 'cropped.jpg', preview: URL.createObjectURL(cropped) });
+      delete it.file;
+      drawTray();
+      say('');
     } catch (e) {
       say((e as Error).message, true);
     } finally {
       busy = false;
+      view('tray');
     }
-  });
+  }
 
   // ---- Links ----
-  function parseLink(raw: string): Item | string {
+  function parseLink(raw: string): Media | string {
     let u: URL;
     try { u = new URL(raw.trim().replace(/^http:\/\//i, 'https://')); } catch { return 'That doesn’t look like a link.'; }
     if (u.protocol !== 'https:') return 'Use an https:// link.';
@@ -415,15 +641,18 @@
 
   linkForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!target) return;
-    const item = parseLink(new FormData(linkForm).get('url') as string);
-    if (typeof item === 'string') return say(item, true);
-    stage([{ item }], []);
-    dlg.close();
+    if (!target || busy) return;
+    if (tray.length >= MAX_PER_BOX) return say(`A box holds up to ${MAX_PER_BOX}. Take some out first.`, true);
+    const m = parseLink(new FormData(linkForm).get('url') as string);
+    if (typeof m === 'string') return say(m, true);
+    tray.push(entry(m));
+    linkForm.reset();
+    drawTray();
+    say('');
   });
 
   // ---- Save (called by the owner bar's Save button) ----
-  async function uploadOne(p: Pending, cfg: { blob: boolean; maxBytes: number }, onProgress: (pct: number) => void) {
+  async function uploadOne(p: Entry, cfg: { blob: boolean; maxBytes: number }, onProgress: (pct: number) => void) {
     const blob = p.blob!;
     if (blob.size <= cfg.maxBytes) {
       const res = await fetch(`/api/media?step=upload&name=${encodeURIComponent(p.name ?? 'media')}`, {
@@ -432,7 +661,7 @@
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(`${p.name}: ${j.error || 'upload failed'}`);
       p.file = { path: j.path, sha: j.sha };
-      p.item = { type: j.kind, src: j.src };
+      p.media = { type: j.kind, src: j.src };
     } else {
       if (!cfg.blob) throw tooBig(p.name ?? 'File', blob.size);
       const ext = (p.name?.match(/\.([a-z0-9]+)$/i)?.[1] ?? 'mp4').toLowerCase().replace('jpeg', 'jpg').replace('m4v', 'mp4');
@@ -444,14 +673,15 @@
         access: 'public', contentType: types[safeExt], handleUploadUrl: '/api/media-blob', multipart: blob.size > 50 * MB,
         onUploadProgress: ({ percentage }) => onProgress(percentage),
       });
-      p.item = { type: p.item.type, src: res.url } as Item;
+      p.media = { type: p.media.type, src: res.url } as Media;
     }
     delete p.blob;
   }
 
   async function save(progress: (msg: string) => void): Promise<string[]> {
     const cfg = await getConfig();
-    const toUpload = [...dirty.values()].flatMap((track) => Array.from(track.children)).map((s) => pending.get(s as HTMLElement)).filter((p): p is Pending => !!p?.blob);
+    const toUpload = [...dirty.values()].flatMap((track) => Array.from(track.children))
+      .flatMap((s) => pending.get(s as HTMLElement) ?? []).filter((p) => !!p.blob);
     for (const [i, p] of toUpload.entries()) {
       const label = `Uploading ${i + 1} of ${toUpload.length}`;
       progress(`${label}…`);
@@ -465,12 +695,15 @@
         const slide = s as HTMLElement;
         const slot: Record<string, unknown> = {};
         if (slide.dataset.slotOrig !== undefined) slot.keep = Number(slide.dataset.slotOrig);
-        const p = pending.get(slide);
-        if (p) { slot.item = p.item; if (p.file) files.push(p.file); }
+        const entries = pending.get(slide);
+        if (entries) {
+          slot.media = entries.map((e) => e.media);
+          for (const e of entries) if (e.file) files.push(e.file);
+        }
         const text: Record<string, string> = {};
         slide.querySelectorAll<HTMLElement>('[data-edit]').forEach((el) => {
           const key = el.dataset.edit!;
-          text[key.slice(key.lastIndexOf('.') + 1)] = el.innerText.replace(/ /g, ' ').trim();
+          text[key.slice(key.lastIndexOf('.') + 1)] = el.innerText.replace(/\u00a0/g, ' ').trim();
         });
         slot.text = text;
         return slot;
