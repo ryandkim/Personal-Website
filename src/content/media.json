@@ -8,9 +8,27 @@
     },
     {
       "type": "image",
-      "src": "/media/uploads/20261124-0ceec4-8ef205b4-3221-4587-be83-2624452d3e37.jpg",
+      "src": "/media/uploads/20261125-f5cdd9-8ef205b4-3221-4587-be83-2624452d3e37.jpg",
       "caption": "Top 5, national Tepper Innovation Challenge",
-      "date": "2026"
+      "date": "2026",
+      "more": [
+        {
+          "type": "image",
+          "src": "/media/uploads/20261125-c49875-5d52a2ed-7db8-41d2-8a4b-562cf44a3359.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261125-e3d154-7cbdebe6-32f5-4002-b0ca-8b10719e36d1.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261125-8f1d35-69c4d62b-7faa-463c-b4e9-8449d085b54f.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/media/uploads/20261125-aa997f-141a91b7-eb84-4648-9994-804c8e877eab.jpg"
+        }
+      ]
     },
     {
       "type": "image",
